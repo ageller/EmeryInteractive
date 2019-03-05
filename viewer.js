@@ -18,6 +18,8 @@ function defineParams(){
 		this.canvasMinWidth = 380; //minimum width of canvas, in pixels
 		this.textMinWidth = 380; //minimum width of text, in pixels
 
+		this.lights = [];
+
 		//for sphere
 		this.sphere = null
 		this.radius = 5.;
@@ -73,8 +75,7 @@ function init(){
 
 	//controls
 	params.controls = new THREE.TrackballControls( params.camera, params.renderer.domElement );
-
-
+	params.controls.addEventListener( 'change', updateLights );
 }
 
 
@@ -86,22 +87,27 @@ function drawScene(){
 	params.drawSphere();
 
 	//lights
-	var lights = [];
-	lights[ 0 ] = new THREE.PointLight( 0xffffff, 1, 0 );
+	params.lights = [];
+	params.lights[0] = new THREE.PointLight( 0xffffff, 1, 0 );
 	// lights[ 1 ] = new THREE.PointLight( 0xffffff, 1, 0 );
 	// lights[ 2 ] = new THREE.PointLight( 0xffffff, 1, 0 );
 
-	lights[ 0 ].position.set( 0, 200, 0 );
+	//lights[0].position.set( 0, 200, 0 );
+	params.lights[0].position.copy(params.camera.position );
 	// lights[ 1 ].position.set( 100, 200, 100 );
 	// lights[ 2 ].position.set( - 100, - 200, - 100 );
 
-	lights.forEach(function(element){
+	params.lights.forEach(function(element){
 		params.scene.add(element);
 	})
 
 
 }
-
+function updateLights(){
+	params.lights.forEach(function(element){
+		element.position.copy(params.camera.position );
+	});
+}
 //this is the animation loop
 function animate(time) {
 	requestAnimationFrame( animate );
