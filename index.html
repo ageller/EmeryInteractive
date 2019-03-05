@@ -1,0 +1,36 @@
+<html>
+  
+<head>
+	<meta charset="UTF-8">
+	<title>Face Center Cubic</title>
+	<!-- my style sheet -->
+	<link rel="stylesheet" type="text/css" href="index.css" />
+
+	<!-- Libraries -->
+	<script src="lib/d3.v5.min.js"></script>
+	<script src="lib/three.min.js"></script>
+	<script src="lib/TrackballControls.js"></script>
+</head>
+
+<body>
+	<!-- This will contain the canvas -->
+	<div id="WebGLContainer" class="bordered"></div>
+
+	<!-- This will contain the text -->
+	<div id="textContainer" class="bordered"></div>
+
+	<!-- This will contain the buttons -->
+	<div id="buttonContainer">
+		<div id="resetButton" class="buttonDiv">Default View</div>
+		<div id="hardSphereButton" class="buttonDiv">Hard-Sphere Model</div>
+		<div id="sliceButton" class="buttonDiv">Slice</div>
+		<div id="sparseButton" class="buttonDiv">Sparse Model</div>
+		<div id="coordinationButton" class="buttonDiv">Coordination</div>
+		<div id="helpButton" class="buttonDiv">Help</div>
+	</div>
+
+	<!-- my script -->
+	<script src="viewer.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,38 @@
+:root {
+	--foreground-color: #000000;
+	--background-color: #FFFFFF;
+	--button-foreground-color: #000000;
+	--button-background-color: #FFFFFF;
+}
+
+body {
+	font: 10px sans-serif;
+	font-family: sans-serif;
+	padding:0;
+	margin:0;
+	background-color : var(--background-color);
+	overflow: auto;
+	color: var(--foreground-color);
+}
+
+.bordered{
+	border: 1px solid black;
+}
+
+.buttonDiv{
+	padding: 0px;
+	margin: 0px;
+	text-align: center;
+	border: 2px solid var(--button-foreground-color);
+	/*border-radius: 5px;*/
+	opacity: 1.0;
+	display:block;
+	font-size:20px;
+	color: var(--button-foreground-color);
+	background-color:var(--button-background-color);
+}
+.buttonDiv:hover {
+	background-color: var(--button-foreground-color);
+	color: var(--button-background-color);
+	cursor: pointer;
+}
