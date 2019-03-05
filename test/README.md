@@ -1,4 +1,4 @@
-# EmeryInteractive
+# Test 3Dmol and py3Dmol
 
 Testing an python interactive molecule viewer
 
