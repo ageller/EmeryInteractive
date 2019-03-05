@@ -118,26 +118,51 @@ function animate(time) {
 //functions attached to buttons
 function defaultView(){
 	console.log('default view')
+	d3.selectAll('.buttonDiv').classed('buttonClicked', false)
+	d3.selectAll('.buttonDiv').classed('buttonHover', true)
+	d3.selectAll('#resetButton').classed('buttonClicked', true)
+	d3.selectAll('#resetButton').classed('buttonHover', false)
+
 }
 
 function hardSphereView(){
 	console.log('hard-sphere model')
+	d3.selectAll('.buttonDiv').classed('buttonClicked', false)
+	d3.selectAll('.buttonDiv').classed('buttonHover', true)
+	d3.selectAll('#hardSphereButton').classed('buttonClicked', true)
+	d3.selectAll('#hardSphereButton').classed('buttonHover', false)
 }
 
 function sliceView(){
 	console.log('slice')
+	d3.selectAll('.buttonDiv').classed('buttonClicked', false)
+	d3.selectAll('.buttonDiv').classed('buttonHover', true)
+	d3.selectAll('#sliceButton').classed('buttonClicked', true)
+	d3.selectAll('#sliceButton').classed('buttonHover', false)
 }
 
 function sparseView(){
 	console.log('sparse model')
+	d3.selectAll('.buttonDiv').classed('buttonClicked', false)
+	d3.selectAll('.buttonDiv').classed('buttonHover', true)
+	d3.selectAll('#sparseButton').classed('buttonClicked', true)
+	d3.selectAll('#sparseButton').classed('buttonHover', false)
 }
 
 function coordinationView(){
 	console.log('coordination')
+	d3.selectAll('.buttonDiv').classed('buttonClicked', false)
+	d3.selectAll('.buttonDiv').classed('buttonHover', true)
+	d3.selectAll('#coordinationButton').classed('buttonClicked', true)
+	d3.selectAll('#coordinationButton').classed('buttonHover', false)
 }
 
 function showHelp(){
 	console.log('help')
+	d3.selectAll('.buttonDiv').classed('buttonClicked', false)
+	d3.selectAll('.buttonDiv').classed('buttonHover', true)
+	d3.selectAll('#helpButton').classed('buttonClicked', true)
+	d3.selectAll('#helpButton').classed('buttonHover', false)
 }
 //resize all the divs and buttons
 function resizeContainers(){
@@ -201,6 +226,8 @@ function resizeContainers(){
 		.style('left',0)
 		.style('width', bw + 'px')
 		.style('height',b-2 + 'px')
+		.classed('buttonClicked', true)
+		.classed('buttonHover', false)
 		.on('click', defaultView)
 
 	d3.select('#hardSphereButton')
@@ -209,6 +236,8 @@ function resizeContainers(){
 		.style('left',bw + m + 'px')
 		.style('width',bw + 'px')
 		.style('height',b-2 + 'px')
+		.classed('buttonClicked', false)
+		.classed('buttonHover', true)
 		.on('click', hardSphereView)
 
 	d3.select('#sliceButton')
@@ -217,6 +246,8 @@ function resizeContainers(){
 		.style('left',2.*bw + 2.*m + 'px')
 		.style('width',bw + 'px')
 		.style('height',b-2 + 'px')
+		.classed('buttonClicked', false)
+		.classed('buttonHover', true)
 		.on('click', sliceView)
 
 	d3.select('#sparseButton')
@@ -225,6 +256,8 @@ function resizeContainers(){
 		.style('left',0)
 		.style('width',bw + 'px')
 		.style('height',b-2 + 'px')
+		.classed('buttonHover', true)
+		.classed('buttonClicked', false)
 		.on('click', sparseView)
 
 	d3.select('#coordinationButton')
@@ -233,6 +266,8 @@ function resizeContainers(){
 		.style('left',bw + m + 'px')
 		.style('width',bw + 'px')
 		.style('height',b-2 + 'px')
+		.classed('buttonClicked', false)
+		.classed('buttonHover', true)
 		.on('click',coordinationView)
 
 	d3.select('#helpButton')
@@ -241,6 +276,8 @@ function resizeContainers(){
 		.style('left',2*bw + 2*m + 'px')
 		.style('width',bw + 'px')
 		.style('height',b-2 + 'px')
+		.classed('buttonClicked', false)
+		.classed('buttonHover', true)
 		.on('click',showHelp)
 }
 

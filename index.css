@@ -3,6 +3,7 @@
 	--background-color: #FFFFFF;
 	--button-foreground-color: #000000;
 	--button-background-color: #FFFFFF;
+	--button-clicked-color: #ffd700;
 }
 
 body {
@@ -30,9 +31,13 @@ body {
 	font-size:20px;
 	color: var(--button-foreground-color);
 	background-color:var(--button-background-color);
+	cursor: pointer;
 }
-.buttonDiv:hover {
+.buttonHover:hover {
 	background-color: var(--button-foreground-color);
 	color: var(--button-background-color);
-	cursor: pointer;
+}
+.buttonClicked {
+	background-color: var(--button-clicked-color);
+	/*color: var(--button-background-color);*/
 }
