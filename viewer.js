@@ -6,11 +6,16 @@ function defineParams(){
 		this.container = null;
 		this.renderer = null;
 		this.scene = null;
+		this.camera = null;
 
 		//for frustum      
 		this.zmax = 5.e10;
 		this.zmin = 1;
 		this.fov = 45.
+
+		//camera view (and tween)
+		this.defaultView = new THREE.Vector3(3.3,1.75,1.5);
+		this.defaultViewTween;
 
 		//canvas
 		this.aspect = 1; //desired aspect ratio of viewer
@@ -20,30 +25,15 @@ function defineParams(){
 
 		this.lights = [];
 
-		//for sphere
-		this.sphere = null
-		this.radius = 5.;
-		this.widthSegments = 32;
-		this.heightSegments = 32;
-		this.phiStart = 0;
-		this.phiLength = 2.*Math.PI;
-		this.thetaStart = 0;
-		this.thetaLength = Math.PI;
-		this.material = new THREE.MeshBasicMaterial( {color: 0xffff00} );
+		this.sphereSegments = 128;
+		this.size = 1;
 
-		this.drawSphere = function(){
-			//sphere geometry
-			if (params.sphere != null){
-				params.scene.remove(params.sphere);
-			}
-			var geometry = new THREE.SphereGeometry(params.radius, params.widthSegments, params.heightSegments, params.phiStart, params.phiLength, params.thetaStart, params.thetaLength)
-			params.sphere = new THREE.Mesh( geometry, params.material );
-			params.scene.add( params.sphere );
-		}
 	};
 
 
 }
+
+
 
 //this initializes everything needed for the scene
 function init(){
@@ -69,22 +59,86 @@ function init(){
 
 	// camera
 	params.camera = new THREE.PerspectiveCamera( params.fov, aspect, params.zmin, params.zmax);
-	params.camera.up.set(0, -1, 0);
-	params.camera.position.z = 30;
+	params.camera.up.set(0, 0, 1);
+	params.camera.position.set(params.defaultView.x, params.defaultView.y, params.defaultView.z);
 	params.scene.add(params.camera);  
 
 	//controls
-	params.controls = new THREE.TrackballControls( params.camera, params.renderer.domElement );
+	//params.controls = new THREE.TrackballControls( params.camera, params.renderer.domElement );
+	params.controls = new THREE.OrbitControls( params.camera);
+	params.controls.enablePan = false;
+	params.controls.rotateSpeed = 0.5;
+	params.domElement = params.renderer.domElement;
 	params.controls.addEventListener( 'change', updateLights );
+	//params.controls.addEventListener( 'change', function(){console.log(params.camera.position) });
 }
 
+function defineTweens(){
+	params.defaultViewTween = new TWEEN.Tween(params.camera.position).to(params.defaultView, 1000).easing(TWEEN.Easing.Linear.None);
+}
+//this draws the Sphere
+function drawSphere(radius, widthSegments, heightSegments, phiStart, phiLength, thetaStart, thetaLength, position){
+	var geometry = new THREE.SphereGeometry(radius, widthSegments, heightSegments, phiStart, phiLength, thetaStart, thetaLength)
+	var material = new THREE.MeshPhongMaterial( { 
+		color: 0x228B22, 
+		// emissive: 0x006400, 
+		flatShading: true, 
+		transparent:true,
+		opacity:0.3, 
+	});
+
+	sphere = new THREE.Mesh( geometry, material );
+	sphere.position.set(position.x, position.y, position.z)
+	params.scene.add( sphere );
+}
+
+//draw the outside box with axes
+function drawBox(){
+	var geometry = new THREE.BoxBufferGeometry( params.size, params.size, params.size);
+
+	var edges = new THREE.EdgesGeometry( geometry );
+	var material = new THREE.LineBasicMaterial( {color: 0x000000} )
+	var line = new THREE.LineSegments( edges,  material);
+	line.position.set(params.size/2, params.size/2., params.size/2.);
+	params.scene.add( line );
+
+	//The X axis is red. The Y axis is green. The Z axis is blue.
+	var cubeAxis = new THREE.AxesHelper(1.5*params.size);
+	cubeAxis.position.set(0,0,0)
+	params.scene.add( cubeAxis );
+}
 
 //this will draw the scene (with lighting)
 function drawScene(){
 
-	//draw the sphere
-	params.material = new THREE.MeshPhongMaterial( { color: 0x156289, emissive: 0x072534, side: THREE.DoubleSide, flatShading: true } );
-	params.drawSphere();
+	var r = params.size*Math.sqrt(2)/4.
+
+	//draw the spheres (this should be from an input file)
+	//corners
+	var p1  = new THREE.Vector3(0, 				0, 				0);
+	var p2  = new THREE.Vector3(params.size, 	0, 				0);
+	var p3  = new THREE.Vector3(0, 				params.size, 	0);
+	var p4  = new THREE.Vector3(params.size, 	params.size, 	0);
+	var p5  = new THREE.Vector3(0, 				0,				params.size);
+	var p6  = new THREE.Vector3(params.size, 	0, 				params.size);
+	var p7  = new THREE.Vector3(0, 				params.size, 	params.size);
+	var p8  = new THREE.Vector3(params.size,		params.size, 	params.size);
+	//centers on planes
+	var p9  = new THREE.Vector3(0,				params.size/2.,	params.size/2.)
+	var p10 = new THREE.Vector3(params.size/2.,	0,				params.size/2.)
+	var p11 = new THREE.Vector3(params.size/2.,	params.size/2.,	0)
+	var p12 = new THREE.Vector3(params.size,	params.size/2.,	params.size/2.)
+	var p13 = new THREE.Vector3(params.size/2.,	params.size,	params.size/2.)
+	var p14 = new THREE.Vector3(params.size/2.,	params.size/2.,	params.size)
+
+	allP = [p1,p2,p3,p4,p5,p6,p7,p8, p9,p10,p11,p12,p13,p14]
+	allP.forEach(function(p){
+		drawSphere(r, params.sphereSegments, params.sphereSegments, 0, 2.*Math.PI, 0, 2.*Math.PI, p);
+	})
+	
+
+	//draw the box
+	drawBox();
 
 	//lights
 	params.lights = [];
@@ -113,56 +167,59 @@ function animate(time) {
 	requestAnimationFrame( animate );
 	params.controls.update();
 	params.renderer.render( params.scene, params.camera );
+	TWEEN.update(time);
 }
 
 //functions attached to buttons
 function defaultView(){
-	console.log('default view')
-	d3.selectAll('.buttonDiv').classed('buttonClicked', false)
-	d3.selectAll('.buttonDiv').classed('buttonHover', true)
-	d3.selectAll('#resetButton').classed('buttonClicked', true)
-	d3.selectAll('#resetButton').classed('buttonHover', false)
+	console.log('default view');
+	d3.selectAll('.buttonDiv').classed('buttonClicked', false);
+	d3.selectAll('.buttonDiv').classed('buttonHover', true);
+	d3.selectAll('#resetButton').classed('buttonClicked', true);
+	d3.selectAll('#resetButton').classed('buttonHover', false);
+
+	params.defaultViewTween.start();
 
 }
 
 function hardSphereView(){
-	console.log('hard-sphere model')
-	d3.selectAll('.buttonDiv').classed('buttonClicked', false)
-	d3.selectAll('.buttonDiv').classed('buttonHover', true)
-	d3.selectAll('#hardSphereButton').classed('buttonClicked', true)
-	d3.selectAll('#hardSphereButton').classed('buttonHover', false)
+	console.log('hard-sphere model');
+	d3.selectAll('.buttonDiv').classed('buttonClicked', false);
+	d3.selectAll('.buttonDiv').classed('buttonHover', true);
+	d3.selectAll('#hardSphereButton').classed('buttonClicked', true);
+	d3.selectAll('#hardSphereButton').classed('buttonHover', false);
 }
 
 function sliceView(){
-	console.log('slice')
-	d3.selectAll('.buttonDiv').classed('buttonClicked', false)
-	d3.selectAll('.buttonDiv').classed('buttonHover', true)
-	d3.selectAll('#sliceButton').classed('buttonClicked', true)
-	d3.selectAll('#sliceButton').classed('buttonHover', false)
+	console.log('slice');
+	d3.selectAll('.buttonDiv').classed('buttonClicked', false);
+	d3.selectAll('.buttonDiv').classed('buttonHover', true);;
+	d3.selectAll('#sliceButton').classed('buttonClicked', true);
+	d3.selectAll('#sliceButton').classed('buttonHover', false);
 }
 
 function sparseView(){
-	console.log('sparse model')
-	d3.selectAll('.buttonDiv').classed('buttonClicked', false)
-	d3.selectAll('.buttonDiv').classed('buttonHover', true)
-	d3.selectAll('#sparseButton').classed('buttonClicked', true)
-	d3.selectAll('#sparseButton').classed('buttonHover', false)
+	console.log('sparse model');
+	d3.selectAll('.buttonDiv').classed('buttonClicked', false);
+	d3.selectAll('.buttonDiv').classed('buttonHover', true);
+	d3.selectAll('#sparseButton').classed('buttonClicked', true);
+	d3.selectAll('#sparseButton').classed('buttonHover', false);
 }
 
 function coordinationView(){
-	console.log('coordination')
-	d3.selectAll('.buttonDiv').classed('buttonClicked', false)
-	d3.selectAll('.buttonDiv').classed('buttonHover', true)
-	d3.selectAll('#coordinationButton').classed('buttonClicked', true)
-	d3.selectAll('#coordinationButton').classed('buttonHover', false)
+	console.log('coordination');
+	d3.selectAll('.buttonDiv').classed('buttonClicked', false);
+	d3.selectAll('.buttonDiv').classed('buttonHover', true);
+	d3.selectAll('#coordinationButton').classed('buttonClicked', true);
+	d3.selectAll('#coordinationButton').classed('buttonHover', false);
 }
 
 function showHelp(){
-	console.log('help')
-	d3.selectAll('.buttonDiv').classed('buttonClicked', false)
-	d3.selectAll('.buttonDiv').classed('buttonHover', true)
-	d3.selectAll('#helpButton').classed('buttonClicked', true)
-	d3.selectAll('#helpButton').classed('buttonHover', false)
+	console.log('help');
+	d3.selectAll('.buttonDiv').classed('buttonClicked', false);
+	d3.selectAll('.buttonDiv').classed('buttonHover', true);
+	d3.selectAll('#helpButton').classed('buttonClicked', true);
+	d3.selectAll('#helpButton').classed('buttonHover', false);
 }
 //resize all the divs and buttons
 function resizeContainers(){
@@ -287,6 +344,9 @@ function WebGLStart(){
 
 //initialize everything
 	init();
+
+//define the tweens
+	defineTweens();
 
 //draw everything
 	drawScene();
