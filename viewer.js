@@ -22,7 +22,8 @@ function defineParams(){
 		this.hemiSpheres = [];
 
 		//the default opacity of the full spheres
-		this.defaultOpacity = 0.3;
+		this.defaultOuterOpacity = 0.12;
+		this.defaultInnerOpacity = 0.7;
 		this.hardOpacity = 0.95;
 		this.sphereColor = 0x228B22;
 
@@ -85,7 +86,6 @@ function init(){
 	params.controls.enablePan = false;
 	params.controls.rotateSpeed = 0.5;
 	params.domElement = params.renderer.domElement;
-	params.controls.addEventListener( 'change', updateLights );
 	//params.controls.addEventListener( 'change', function(){console.log(params.camera.position) });
 }
 
@@ -93,7 +93,13 @@ function defineTweens(){
 	params.defaultViewTween = new TWEEN.Tween(params.camera.position).to(params.defaultView, params.tweenDuration).easing(TWEEN.Easing.Linear.None);
 }
 
-//from https://stackoverflow.com/questions/30245990/how-to-merge-two-geometries-or-meshes-using-three-js-r71
+//draw a quarter sphere
+function drawQuarterSphere(radius, widthSegments, heightSegments, opacity, color, position, rotation){
+
+
+}
+
+//draw a half sphere
 function drawHalfSphere(radius, widthSegments, heightSegments, opacity, color, position, rotation){
 	var sphere = new THREE.SphereGeometry(radius, widthSegments, heightSegments, 0, Math.PI, 0, Math.PI)
 	var circle = new THREE.CircleGeometry(radius, widthSegments, 0., 2.*Math.PI)
@@ -113,6 +119,7 @@ function drawHalfSphere(radius, widthSegments, heightSegments, opacity, color, p
 		color: color, 
 		flatShading: false, 
 		transparent:true,
+		//shininess:50,
 		opacity:opacity, 
 		side:THREE.DoubleSide,
 	});
@@ -126,7 +133,8 @@ function drawHalfSphere(radius, widthSegments, heightSegments, opacity, color, p
 	return mesh;
 
 }
-//this draws the Sphere
+
+//draw a full sphere
 function drawSphere(radius, widthSegments, heightSegments, opacity, color, position){
 	var geometry = new THREE.SphereGeometry(radius, widthSegments, heightSegments, 0, 2.*Math.PI, 0, Math.PI)
 	var material = new THREE.MeshPhongMaterial( { 
@@ -134,6 +142,7 @@ function drawSphere(radius, widthSegments, heightSegments, opacity, color, posit
 		flatShading: false, 
 		transparent:true,
 		opacity:opacity, 
+		//shininess:50,
 	});
 
 	sphere = new THREE.Mesh( geometry, material );
@@ -160,7 +169,34 @@ function drawBox(){
 	params.scene.add( cubeAxis );
 }
 
-//this will draw the scene (with lighting)
+//define lights
+function addLights(){
+	params.lights = [];
+	//params.lights[0] = new THREE.DirectionalLight(0xffffff, 1.2)
+	params.lights[0] = new THREE.PointLight( 0xffffff, 1.2, 0 );
+	// lights[ 1 ] = new THREE.PointLight( 0xffffff, 1, 0 );
+	// lights[ 2 ] = new THREE.PointLight( 0xffffff, 1, 0 );
+
+	//lights[0].position.set( 0, 200, 0 );
+	params.lights[0].position.copy(params.camera.position );
+	// lights[ 1 ].position.set( 100, 200, 100 );
+	// lights[ 2 ].position.set( - 100, - 200, - 100 );
+
+	params.lights.forEach(function(element){
+		params.scene.add(element);
+	})
+
+	params.controls.addEventListener( 'change', updateLights );
+}
+
+//keep the light coming from the camera location
+function updateLights(){
+	params.lights.forEach(function(l){
+		l.position.copy(params.camera.position );
+	});
+}
+
+//draw the scene (with lighting)
 function drawScene(){
 
 	var r = params.size*Math.sqrt(2)/4.
@@ -185,7 +221,7 @@ function drawScene(){
 
 	var allP = [p1,p2,p3,p4,p5,p6,p7,p8, p9,p10,p11,p12,p13,p14]
 	allP.forEach(function(p){
-		var mesh = drawSphere(r, params.sphereSegments, params.sphereSegments, params.defaultOpacity, params.sphereColor, p);
+		var mesh = drawSphere(r, params.sphereSegments, params.sphereSegments, params.defaultOuterOpacity, params.sphereColor, p);
 		params.spheres.push(mesh);
 	})
 	
@@ -199,7 +235,7 @@ function drawScene(){
 	allP = [p9,p10,p11,p12,p13,p14]
 	var allR = [r9,r10,r11,r12,r13,r14]
 	allP.forEach(function(p, i){
-		var mesh = drawHalfSphere(r, params.sphereSegments, params.sphereSegments, params.hardOpacity, params.sphereColor, p, allR[i]);
+		var mesh = drawHalfSphere(r, params.sphereSegments, params.sphereSegments, params.defaultInnerOpacity, params.sphereColor, p, allR[i]);
 		params.hemiSpheres.push(mesh);
 	})
 
@@ -208,27 +244,12 @@ function drawScene(){
 	drawBox();
 
 	//lights
-	params.lights = [];
-	params.lights[0] = new THREE.PointLight( 0xffffff, 1, 0 );
-	// lights[ 1 ] = new THREE.PointLight( 0xffffff, 1, 0 );
-	// lights[ 2 ] = new THREE.PointLight( 0xffffff, 1, 0 );
-
-	//lights[0].position.set( 0, 200, 0 );
-	params.lights[0].position.copy(params.camera.position );
-	// lights[ 1 ].position.set( 100, 200, 100 );
-	// lights[ 2 ].position.set( - 100, - 200, - 100 );
-
-	params.lights.forEach(function(element){
-		params.scene.add(element);
-	})
+	addLights()
 
 
 }
-function updateLights(){
-	params.lights.forEach(function(element){
-		element.position.copy(params.camera.position );
-	});
-}
+
+
 //this is the animation loop
 function animate(time) {
 	requestAnimationFrame( animate );
@@ -248,7 +269,7 @@ function defaultView(){
 		m.material.visible = true;
 	})
 	params.spheres.forEach(function(m){
-		m.material.opacity = params.defaultOpacity;
+		m.material.opacity = params.defaultOuterOpacity;
 	})
 	if (params.isSparse){
 		params.spheres.forEach(function(m){
@@ -446,6 +467,16 @@ function resizeContainers(){
 		.classed('buttonClicked', false)
 		.classed('buttonHover', true)
 		.on('click',showHelp)
+
+	if (params.renderer != null){
+		var width = parseFloat(params.container.style('width'));
+		var height = parseFloat(params.container.style('width'));
+		var aspect = width / height;
+		params.camera.aspect = aspect;
+		params.camera.updateProjectionMatrix();
+
+		params.renderer.setSize( width, height);
+	}
 }
 
 
