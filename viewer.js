@@ -19,10 +19,12 @@ function defineParams(){
 
 		//will hold all the outer spheres
 		this.spheres = [];
+		this.hemiSpheres = [];
 
 		//the default opacity of the full spheres
 		this.defaultOpacity = 0.3;
 		this.hardOpacity = 0.95;
+		this.sphereColor = 0x228B22;
 
 		//this size of the sparse model
 		this.sparseScale = 0.2;
@@ -90,12 +92,45 @@ function init(){
 function defineTweens(){
 	params.defaultViewTween = new TWEEN.Tween(params.camera.position).to(params.defaultView, params.tweenDuration).easing(TWEEN.Easing.Linear.None);
 }
-//this draws the Sphere
-function drawSphere(radius, widthSegments, heightSegments, phiStart, phiLength, thetaStart, thetaLength, opacity, position){
-	var geometry = new THREE.SphereGeometry(radius, widthSegments, heightSegments, phiStart, phiLength, thetaStart, thetaLength)
+
+//from https://stackoverflow.com/questions/30245990/how-to-merge-two-geometries-or-meshes-using-three-js-r71
+function drawHalfSphere(radius, widthSegments, heightSegments, opacity, color, position, rotation){
+	var sphere = new THREE.SphereGeometry(radius, widthSegments, heightSegments, 0, Math.PI, 0, Math.PI)
+	var circle = new THREE.CircleGeometry(radius, widthSegments, 0., 2.*Math.PI)
+
+	var sphereMesh = new THREE.Mesh(sphere);
+	var circleMesh = new THREE.Mesh(circle);
+
+	var singleGeometry = new THREE.Geometry();
+
+	sphereMesh.updateMatrix(); // as needed
+	singleGeometry.merge(sphereMesh.geometry, sphereMesh.matrix);
+
+	circleMesh.updateMatrix(); // as needed
+	singleGeometry.merge(circleMesh.geometry, circleMesh.matrix);
+
 	var material = new THREE.MeshPhongMaterial( { 
-		color: 0x228B22, 
-		// emissive: 0x006400, 
+		color: color, 
+		flatShading: false, 
+		transparent:true,
+		opacity:opacity, 
+		side:THREE.DoubleSide,
+	});
+
+	var mesh = new THREE.Mesh(singleGeometry, material);
+	mesh.position.set(position.x, position.y, position.z);
+	mesh.rotation.set(rotation.x, rotation.y, rotation.z);
+	mesh.renderOrder = -1;
+	params.scene.add(mesh);
+
+	return mesh;
+
+}
+//this draws the Sphere
+function drawSphere(radius, widthSegments, heightSegments, opacity, color, position){
+	var geometry = new THREE.SphereGeometry(radius, widthSegments, heightSegments, 0, 2.*Math.PI, 0, Math.PI)
+	var material = new THREE.MeshPhongMaterial( { 
+		color: color, 
 		flatShading: false, 
 		transparent:true,
 		opacity:opacity, 
@@ -121,7 +156,7 @@ function drawBox(){
 
 	//The X axis is red. The Y axis is green. The Z axis is blue.
 	var cubeAxis = new THREE.AxesHelper(1.5*params.size);
-	cubeAxis.position.set(0,0,0)
+	cubeAxis.position.set(0,0,0);
 	params.scene.add( cubeAxis );
 }
 
@@ -141,19 +176,32 @@ function drawScene(){
 	var p7  = new THREE.Vector3(0, 				params.size, 	params.size);
 	var p8  = new THREE.Vector3(params.size,		params.size, 	params.size);
 	//centers on planes
-	var p9  = new THREE.Vector3(0,				params.size/2.,	params.size/2.)
-	var p10 = new THREE.Vector3(params.size/2.,	0,				params.size/2.)
-	var p11 = new THREE.Vector3(params.size/2.,	params.size/2.,	0)
-	var p12 = new THREE.Vector3(params.size,	params.size/2.,	params.size/2.)
-	var p13 = new THREE.Vector3(params.size/2.,	params.size,	params.size/2.)
-	var p14 = new THREE.Vector3(params.size/2.,	params.size/2.,	params.size)
+	var p9  = new THREE.Vector3(0,				params.size/2.,	params.size/2.);
+	var p10 = new THREE.Vector3(params.size/2.,	0,				params.size/2.);
+	var p11 = new THREE.Vector3(params.size/2.,	params.size/2.,	0);
+	var p12 = new THREE.Vector3(params.size,	params.size/2.,	params.size/2.);
+	var p13 = new THREE.Vector3(params.size/2.,	params.size,	params.size/2.);
+	var p14 = new THREE.Vector3(params.size/2.,	params.size/2.,	params.size);
 
-	allP = [p1,p2,p3,p4,p5,p6,p7,p8, p9,p10,p11,p12,p13,p14]
+	var allP = [p1,p2,p3,p4,p5,p6,p7,p8, p9,p10,p11,p12,p13,p14]
 	allP.forEach(function(p){
-		var mesh = drawSphere(r, params.sphereSegments, params.sphereSegments, 0, 2.*Math.PI, 0, 2.*Math.PI, params.defaultOpacity, p);
-		params.spheres.push(mesh)
+		var mesh = drawSphere(r, params.sphereSegments, params.sphereSegments, params.defaultOpacity, params.sphereColor, p);
+		params.spheres.push(mesh);
 	})
 	
+	var r9 = new THREE.Vector3(0,				Math.PI/2.,		0);
+	var r10 = new THREE.Vector3(-Math.PI/2.,	0,				0);
+	var r11 = new THREE.Vector3(0, 				0,				0);
+	var r12 = new THREE.Vector3(0, 				-Math.PI/2.,	0);
+	var r13 = new THREE.Vector3(Math.PI/2., 	0, 				0);
+	var r14 = new THREE.Vector3(Math.PI,		0,			0);
+
+	allP = [p9,p10,p11,p12,p13,p14]
+	var allR = [r9,r10,r11,r12,r13,r14]
+	allP.forEach(function(p, i){
+		var mesh = drawHalfSphere(r, params.sphereSegments, params.sphereSegments, params.hardOpacity, params.sphereColor, p, allR[i]);
+		params.hemiSpheres.push(mesh);
+	})
 
 
 	//draw the box
@@ -196,12 +244,15 @@ function defaultView(){
 	d3.selectAll('.buttonDiv').classed('buttonHover', true);
 	d3.selectAll('#resetButton').classed('buttonClicked', true);
 	d3.selectAll('#resetButton').classed('buttonHover', false);
-	params.spheres.forEach(function(sphere){
-		sphere.material.opacity = params.defaultOpacity;
+	params.hemiSpheres.forEach(function(m){
+		m.material.visible = true;
+	})
+	params.spheres.forEach(function(m){
+		m.material.opacity = params.defaultOpacity;
 	})
 	if (params.isSparse){
-		params.spheres.forEach(function(sphere){
-			sphere.geometry.scale(1./params.sparseScale, 1./params.sparseScale, 1./params.sparseScale);
+		params.spheres.forEach(function(m){
+			m.geometry.scale(1./params.sparseScale, 1./params.sparseScale, 1./params.sparseScale);
 		})	
 	}
 	params.isSparse = false;
@@ -215,12 +266,15 @@ function hardSphereView(){
 	d3.selectAll('.buttonDiv').classed('buttonHover', true);
 	d3.selectAll('#hardSphereButton').classed('buttonClicked', true);
 	d3.selectAll('#hardSphereButton').classed('buttonHover', false);
-	params.spheres.forEach(function(sphere){
-		sphere.material.opacity = params.hardOpacity;
+	params.hemiSpheres.forEach(function(m){
+		m.material.visible = false;
+	})
+	params.spheres.forEach(function(m){
+		m.material.opacity = params.hardOpacity;
 	})
 	if (params.isSparse){
-		params.spheres.forEach(function(sphere){
-			sphere.geometry.scale(1./params.sparseScale, 1./params.sparseScale, 1./params.sparseScale);
+		params.spheres.forEach(function(m){
+			m.geometry.scale(1./params.sparseScale, 1./params.sparseScale, 1./params.sparseScale);
 		})	
 	}
 	params.isSparse = false;
@@ -244,12 +298,15 @@ function sparseView(){
 	d3.selectAll('.buttonDiv').classed('buttonHover', true);
 	d3.selectAll('#sparseButton').classed('buttonClicked', true);
 	d3.selectAll('#sparseButton').classed('buttonHover', false);
-	params.spheres.forEach(function(sphere){
-		sphere.material.opacity = params.hardOpacity;
+	params.hemiSpheres.forEach(function(m){
+		m.material.visible = false;
+	})
+	params.spheres.forEach(function(m){
+		m.material.opacity = params.hardOpacity;
 	})
 	if (!params.isSparse){
-		params.spheres.forEach(function(sphere){
-			sphere.geometry.scale(params.sparseScale, params.sparseScale, params.sparseScale);
+		params.spheres.forEach(function(m){
+			m.geometry.scale(params.sparseScale, params.sparseScale, params.sparseScale);
 		})
 	}
 	params.isSparse = true;
