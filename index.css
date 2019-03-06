@@ -7,7 +7,7 @@
 }
 
 body {
-	font: 10px sans-serif;
+	font: 12px sans-serif;
 	font-family: sans-serif;
 	padding:0;
 	margin:0;
@@ -16,10 +16,27 @@ body {
 	color: var(--foreground-color);
 }
 
+.title{
+	font-size:48px;
+	padding:2px;
+}
+.subTitle{
+	font-size:24px;
+	padding:2px;
+	padding-left:8px;
+	padding-top:12px;
+}
+.para{
+	font-size:18px;
+	padding:2px;
+	padding-left:60px;
+}
 .bordered{
 	border: 1px solid black;
 }
-
+.scrollable{
+	overflow:auto;
+}
 .buttonDiv{
 	padding: 0px;
 	margin: 0px;
