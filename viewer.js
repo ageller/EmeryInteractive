@@ -21,11 +21,17 @@ function defineParams(){
 		this.spheres = [];
 		this.hemiSpheres = [];
 
+		//will hold items for slice view
+		this.sliceMesh = [];
+
 		//the default opacity of the full spheres
 		this.defaultOuterOpacity = 0.12;
 		this.defaultInnerOpacity = 0.7;
 		this.hardOpacity = 0.95;
 		this.sphereColor = 0x228B22;
+
+		this.sliceColor = 0xE0FFFF;
+		this.sliceOpacity = 0.7;
 
 		//this size of the sparse model
 		this.sparseScale = 0.2;
@@ -197,6 +203,26 @@ function drawSphere(radius, widthSegments, heightSegments, opacity, color, posit
 
 }
 
+//draw the slice view
+function drawSlice(size, position, rotation, opacity, color){
+	var geometry = new THREE.PlaneGeometry( size, size, 32 );
+	var material = new THREE.MeshBasicMaterial( {
+		color: color, 
+		side: THREE.DoubleSide,
+		transparent:true,
+		opacity:opacity, 
+		visible:false,
+	});
+	var plane = new THREE.Mesh( geometry, material );
+	plane.position.set(position.x, position.y, position.z);
+	plane.rotation.set(rotation.x, rotation.y, rotation.z);
+
+	params.scene.add( plane );
+
+	return plane;
+
+}
+
 //draw the outside box with axes
 function drawBox(){
 	var geometry = new THREE.BoxBufferGeometry( params.size, params.size, params.size);
@@ -243,7 +269,7 @@ function updateLights(){
 //draw the scene (with lighting)
 function drawScene(){
 
-	var r = params.size*Math.sqrt(2)/4.
+	var radius = params.size*Math.sqrt(2)/4.
 
 	//draw the full spheres (this should be from an input file)
 	//corners
@@ -265,7 +291,7 @@ function drawScene(){
 
 	var allP = [p1,p2,p3,p4,p5,p6,p7,p8, p9,p10,p11,p12,p13,p14]
 	allP.forEach(function(p){
-		var mesh = drawSphere(r, params.sphereSegments, params.sphereSegments, params.defaultOuterOpacity, params.sphereColor, p);
+		var mesh = drawSphere(radius, params.sphereSegments, params.sphereSegments, params.defaultOuterOpacity, params.sphereColor, p);
 		params.spheres.push(mesh);
 	})
 	
@@ -280,7 +306,7 @@ function drawScene(){
 	allP = [p9,p10,p11,p12,p13,p14]
 	var allR = [r9,r10,r11,r12,r13,r14]
 	allP.forEach(function(p, i){
-		var mesh = drawHalfSphere(r, params.sphereSegments, params.sphereSegments, params.defaultInnerOpacity, params.sphereColor, p, allR[i]);
+		var mesh = drawHalfSphere(radius, params.sphereSegments, params.sphereSegments, params.defaultInnerOpacity, params.sphereColor, p, allR[i]);
 		params.hemiSpheres.push(mesh);
 	})
 
@@ -296,11 +322,22 @@ function drawScene(){
 	allP = [p1,p2,p3,p4,p5,p6,p7,p8]
 	allR = [r1,r2,r3,r4,r5,r6,r7,r8]
 	allP.forEach(function(p, i){
-		var mesh = drawQuarterSphere(r, params.sphereSegments, params.sphereSegments, params.defaultInnerOpacity, params.sphereColor, p, allR[i]);
+		var mesh = drawQuarterSphere(radius, params.sphereSegments, params.sphereSegments, params.defaultInnerOpacity, params.sphereColor, p, allR[i]);
 		params.hemiSpheres.push(mesh);
 	})
+
+
+	//draw slice
+	var p = new THREE.Vector3(params.size,	params.size/2.,	params.size/2.); 
+	var r = new THREE.Vector3(0,			Math.PI/2.,		0); 
+
+	mesh = drawSlice(2.*params.size, p, r, params.sliceOpacity, params.sliceColor);
+	params.sliceMesh.push(mesh)
+
 	//draw the box
 	drawBox();
+
+
 
 	//lights
 	addLights()
@@ -317,6 +354,29 @@ function animate(time) {
 	TWEEN.update(time);
 }
 
+//helpers for buttons
+function showHemiSpheres(bool){
+	params.hemiSpheres.forEach(function(m){
+		m.material.visible = bool;
+	})
+}
+
+function showSliceMesh(bool){
+	params.sliceMesh.forEach(function(m){
+		m.material.visible = bool;
+	})
+}
+function changeSphereOpacity(opacity){
+	params.spheres.forEach(function(m){
+		m.material.opacity = opacity;
+	})
+}
+
+function changeSphereScale(scale){
+	params.spheres.forEach(function(m){
+		m.geometry.scale(scale, scale, scale);
+	})	
+}
 //functions attached to buttons
 function defaultView(){
 	console.log('default view');
@@ -324,17 +384,14 @@ function defaultView(){
 	d3.selectAll('.buttonDiv').classed('buttonHover', true);
 	d3.selectAll('#resetButton').classed('buttonClicked', true);
 	d3.selectAll('#resetButton').classed('buttonHover', false);
-	params.hemiSpheres.forEach(function(m){
-		m.material.visible = true;
-	})
-	params.spheres.forEach(function(m){
-		m.material.opacity = params.defaultOuterOpacity;
-	})
+
+	showHemiSpheres(true);
+	changeSphereOpacity(params.defaultOuterOpacity);
+	showSliceMesh(false);
 	if (params.isSparse){
-		params.spheres.forEach(function(m){
-			m.geometry.scale(1./params.sparseScale, 1./params.sparseScale, 1./params.sparseScale);
-		})	
+		changeSphereScale(1./params.sparseScale);
 	}
+
 	params.isSparse = false;
 	params.defaultViewTween.start();
 
@@ -346,17 +403,14 @@ function hardSphereView(){
 	d3.selectAll('.buttonDiv').classed('buttonHover', true);
 	d3.selectAll('#hardSphereButton').classed('buttonClicked', true);
 	d3.selectAll('#hardSphereButton').classed('buttonHover', false);
-	params.hemiSpheres.forEach(function(m){
-		m.material.visible = false;
-	})
-	params.spheres.forEach(function(m){
-		m.material.opacity = params.hardOpacity;
-	})
+
+	showHemiSpheres(false);
+	changeSphereOpacity(params.hardOpacity);
+	showSliceMesh(false);
 	if (params.isSparse){
-		params.spheres.forEach(function(m){
-			m.geometry.scale(1./params.sparseScale, 1./params.sparseScale, 1./params.sparseScale);
-		})	
+		changeSphereScale(1./params.sparseScale);
 	}
+
 	params.isSparse = false;
 
 	params.defaultViewTween.start();
@@ -369,6 +423,15 @@ function sliceView(){
 	d3.selectAll('#sliceButton').classed('buttonClicked', true);
 	d3.selectAll('#sliceButton').classed('buttonHover', false);
 
+	showHemiSpheres(false);
+	changeSphereOpacity(params.hardOpacity);
+	showSliceMesh(true);
+	if (params.isSparse){
+		changeSphereScale(1./params.sparseScale);
+	}
+
+	params.isSparse = false;
+
 	params.defaultViewTween.start();
 }
 
@@ -378,17 +441,14 @@ function sparseView(){
 	d3.selectAll('.buttonDiv').classed('buttonHover', true);
 	d3.selectAll('#sparseButton').classed('buttonClicked', true);
 	d3.selectAll('#sparseButton').classed('buttonHover', false);
-	params.hemiSpheres.forEach(function(m){
-		m.material.visible = false;
-	})
-	params.spheres.forEach(function(m){
-		m.material.opacity = params.hardOpacity;
-	})
+
+	showHemiSpheres(false);
+	changeSphereOpacity(params.hardOpacity);
 	if (!params.isSparse){
-		params.spheres.forEach(function(m){
-			m.geometry.scale(params.sparseScale, params.sparseScale, params.sparseScale);
-		})
+		changeSphereScale(params.sparseScale);
 	}
+	showSliceMesh(false);
+
 	params.isSparse = true;
 
 	params.defaultViewTween.start();
@@ -400,6 +460,15 @@ function coordinationView(){
 	d3.selectAll('.buttonDiv').classed('buttonHover', true);
 	d3.selectAll('#coordinationButton').classed('buttonClicked', true);
 	d3.selectAll('#coordinationButton').classed('buttonHover', false);
+
+	showHemiSpheres(false);
+	changeSphereOpacity(params.hardOpacity);
+	if (!params.isSparse){
+		changeSphereScale(params.sparseScale);
+	}
+	showSliceMesh(false);
+
+	params.isSparse = true;
 
 	params.defaultViewTween.start();
 }
