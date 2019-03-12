@@ -30,7 +30,7 @@ function defineParams(){
 		this.hardOpacity = 0.95;
 		this.sphereColor = 0x228B22;
 
-		this.sliceColor = 0xE0FFFF;
+		this.sliceColor = 0xAFEEEE;
 		this.sliceOpacity = 0.7;
 
 		//this size of the sparse model
@@ -48,7 +48,7 @@ function defineParams(){
 
 		this.lights = [];
 
-		this.sphereSegments = 32;
+		this.sphereSegments = 16;
 		this.size = 1;
 
 	};
@@ -197,6 +197,15 @@ function drawSphere(radius, widthSegments, heightSegments, opacity, color, posit
 
 	sphere = new THREE.Mesh( geometry, material );
 	sphere.position.set(position.x, position.y, position.z)
+	//update the vertices of the plane geometry so that I can check for the intersection
+	//https://stackoverflow.com/questions/23990354/how-to-update-vertices-geometry-after-rotate-or-move-object
+	sphere.updateMatrix();
+	sphere.geometry.applyMatrix( sphere.matrix );
+	sphere.matrix.identity();
+	sphere.position.set( 0, 0, 0 );
+	sphere.rotation.set( 0, 0, 0 );
+	sphere.scale.set( 1, 1, 1 );
+
 	params.scene.add( sphere );
 	
 	return sphere;
@@ -204,8 +213,101 @@ function drawSphere(radius, widthSegments, heightSegments, opacity, color, posit
 }
 
 //draw the slice view
+//https://jsfiddle.net/8uxw667m/4/
+//https://stackoverflow.com/questions/42348495/three-js-find-all-points-where-a-mesh-intersects-a-plane/42353447
 function drawSlice(size, position, rotation, opacity, color){
-	var geometry = new THREE.PlaneGeometry( size, size, 32 );
+
+	var pointsOfIntersection = new THREE.Geometry();
+
+
+	function setPointOfIntersection(line, plane) {
+		var pointOfIntersection = new THREE.Vector3();
+		plane.intersectLine(line, pointOfIntersection);
+		if (pointOfIntersection) {
+			if (pointOfIntersection.distanceTo(new THREE.Vector3(0,0,0)) != 0 ){//some failure mode for this
+				//console.log("intersection", pointOfIntersection)
+				pointsOfIntersection.vertices.push(pointOfIntersection.clone());
+			}
+		};
+	}
+
+	function sortPoints(){
+		var center = new THREE.Vector3();
+		var angles = [];
+		var N = 0.;
+		pointsOfIntersection.vertices.forEach(function(p){
+			center.add(p);
+			N+=1;
+		})
+		center.divide(new THREE.Vector3(N,N,N))
+		//console.log("center", center, N)
+		var i = 0;
+		pointsOfIntersection.vertices.forEach(function(p){
+			var x = p.x - center.x;
+			var y = p.y - center.y;
+			var z = p.z - center.z;
+			r = Math.sqrt(x*x + y*y + z*z);
+			angles.push(Math.acos(z/r));
+		})
+		//https://stackoverflow.com/questions/3730510/javascript-sort-array-and-return-an-array-of-indicies-that-indicates-the-positi
+		console.log(pointsOfIntersection.vertices[0], angles)
+		pointsOfIntersection.vertices.sort(function (a, b) { return angles[a] < angles[b] ? -1 : angles[a] > angles[b] ? 1 : 0; });
+		pointsOfIntersection.vertices.needsUpdate = true;
+		console.log(pointsOfIntersection.vertices[0])
+			//console.log("angles", angles)
+	}
+
+	function drawIntersectionPoints(plane, obj) {
+		var a = new THREE.Vector3(),
+			b = new THREE.Vector3(),
+			c = new THREE.Vector3();
+		var planePointA = new THREE.Vector3(),
+			planePointB = new THREE.Vector3(),
+			planePointC = new THREE.Vector3();
+		var lineAB = new THREE.Line3(),
+			lineBC = new THREE.Line3(),
+			lineCA = new THREE.Line3();
+
+
+		var mathPlane = new THREE.Plane();
+		plane.localToWorld(planePointA.copy(plane.geometry.vertices[plane.geometry.faces[0].a]));
+		plane.localToWorld(planePointB.copy(plane.geometry.vertices[plane.geometry.faces[0].b]));
+		plane.localToWorld(planePointC.copy(plane.geometry.vertices[plane.geometry.faces[0].c]));
+		mathPlane.setFromCoplanarPoints(planePointA, planePointB, planePointC);
+
+		obj.geometry.faces.forEach(function(face) {
+			obj.localToWorld(a.copy(obj.geometry.vertices[face.a]));
+			obj.localToWorld(b.copy(obj.geometry.vertices[face.b]));
+			obj.localToWorld(c.copy(obj.geometry.vertices[face.c]));
+			lineAB = new THREE.Line3(a, b);
+			lineBC = new THREE.Line3(b, c);
+			lineCA = new THREE.Line3(c, a);
+			setPointOfIntersection(lineAB, mathPlane);
+			setPointOfIntersection(lineBC, mathPlane);
+			setPointOfIntersection(lineCA, mathPlane);
+		});
+
+		// var pointsMaterial = new THREE.PointsMaterial({
+		// 	size: .5,
+		// 	color: "red"
+		// });
+		// var points = new THREE.Points(pointsOfIntersection, pointsMaterial);
+		// params.scene.add(points);
+
+		//do something to sort the points around a circle.
+		sortPoints();
+
+		var lineMaterial = new THREE.LineBasicMaterial( { 
+			color: "red" 
+		}) ;
+		var line = new THREE.LineSegments( pointsOfIntersection, lineMaterial );
+		params.scene.add( line );
+  
+	}
+
+	////////////////////
+
+	var geometry = new THREE.PlaneGeometry( size, size, 1 );
 	var material = new THREE.MeshBasicMaterial( {
 		color: color, 
 		side: THREE.DoubleSide,
@@ -213,11 +315,27 @@ function drawSlice(size, position, rotation, opacity, color){
 		opacity:opacity, 
 		visible:false,
 	});
+
+
 	var plane = new THREE.Mesh( geometry, material );
 	plane.position.set(position.x, position.y, position.z);
 	plane.rotation.set(rotation.x, rotation.y, rotation.z);
+	//update the vertices of the plane geometry so that I can check for the intersection
+	//https://stackoverflow.com/questions/23990354/how-to-update-vertices-geometry-after-rotate-or-move-object
+	plane.updateMatrix();
+	plane.geometry.applyMatrix( plane.matrix );
+	plane.matrix.identity();
+	plane.position.set( 0, 0, 0 );
+	plane.rotation.set( 0, 0, 0 );
+	plane.scale.set( 1, 1, 1 );
 
 	params.scene.add( plane );
+
+	// var m = params.spheres[0];
+	// drawIntersectionPoints(plane, m)
+	params.spheres.forEach(function(m){ 
+		drawIntersectionPoints(plane, m)
+	});
 
 	return plane;
 
