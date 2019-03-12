@@ -95,7 +95,51 @@ function defineTweens(){
 
 //draw a quarter sphere
 function drawQuarterSphere(radius, widthSegments, heightSegments, opacity, color, position, rotation){
+	var sphere = new THREE.SphereGeometry(radius, widthSegments, heightSegments, 0, Math.PI/2., 0, Math.PI/2.)
+	var circle1 = new THREE.CircleGeometry(radius, widthSegments, 0., Math.PI/2.)
+	var circle2 = new THREE.CircleGeometry(radius, widthSegments, 0., Math.PI/2.)
+	var circle3 = new THREE.CircleGeometry(radius, widthSegments, 0., Math.PI/2.)
 
+	var sphereMesh = new THREE.Mesh(sphere);
+
+	var circle1Mesh = new THREE.Mesh(circle1);
+	circle1Mesh.rotation.set(0, 0, Math.PI/2.);
+
+	var circle2Mesh = new THREE.Mesh(circle2);
+	circle2Mesh.rotation.set(Math.PI/2., 0, Math.PI/2.);
+
+	var circle3Mesh = new THREE.Mesh(circle3);
+	circle3Mesh.rotation.set(Math.PI/2., Math.PI/2., 0);
+
+	var singleGeometry = new THREE.Geometry();
+
+	sphereMesh.updateMatrix(); // as needed
+	singleGeometry.merge(sphereMesh.geometry, sphereMesh.matrix);
+
+	circle1Mesh.updateMatrix(); // as needed
+	singleGeometry.merge(circle1Mesh.geometry, circle1Mesh.matrix);
+
+	circle2Mesh.updateMatrix(); // as needed
+	singleGeometry.merge(circle2Mesh.geometry, circle2Mesh.matrix);
+
+	circle3Mesh.updateMatrix(); // as needed
+	singleGeometry.merge(circle3Mesh.geometry, circle3Mesh.matrix);
+
+	var material = new THREE.MeshPhongMaterial( { 
+		color: color, 
+		flatShading: false, 
+		transparent:true,
+		//shininess:50,
+		opacity:opacity, 
+		side:THREE.DoubleSide,
+	});
+
+	var mesh = new THREE.Mesh(singleGeometry, material);
+	mesh.position.set(position.x, position.y, position.z);
+	mesh.rotation.set(rotation.x, rotation.y, rotation.z);
+	mesh.renderOrder = -1;
+	params.scene.add(mesh);
+	return mesh;
 
 }
 
@@ -225,6 +269,7 @@ function drawScene(){
 		params.spheres.push(mesh);
 	})
 	
+	//half spheres
 	var r9 = new THREE.Vector3(0,				Math.PI/2.,		0);
 	var r10 = new THREE.Vector3(-Math.PI/2.,	0,				0);
 	var r11 = new THREE.Vector3(0, 				0,				0);
@@ -240,6 +285,20 @@ function drawScene(){
 	})
 
 
+	var r1 = new THREE.Vector3(0,				Math.PI/2.,		0); 
+	var r2 = new THREE.Vector3(0,				0,				0); 
+	var r3 = new THREE.Vector3(Math.PI/2.,		Math.PI/2.,		0);  
+	var r4 = new THREE.Vector3(Math.PI/2.,		0,				0);
+	var r5 = new THREE.Vector3(0,				Math.PI/2.,		-Math.PI/2.); 
+	var r6 = new THREE.Vector3(0,				-Math.PI/2.,	0);
+	var r7 = new THREE.Vector3(Math.PI/2.,		0,				Math.PI);  
+	var r8 = new THREE.Vector3(Math.PI,		0,				0);    
+	allP = [p1,p2,p3,p4,p5,p6,p7,p8]
+	allR = [r1,r2,r3,r4,r5,r6,r7,r8]
+	allP.forEach(function(p, i){
+		var mesh = drawQuarterSphere(r, params.sphereSegments, params.sphereSegments, params.defaultInnerOpacity, params.sphereColor, p, allR[i]);
+		params.hemiSpheres.push(mesh);
+	})
 	//draw the box
 	drawBox();
 
