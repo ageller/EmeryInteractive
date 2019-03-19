@@ -197,14 +197,14 @@ function drawSphere(radius, widthSegments, heightSegments, opacity, color, posit
 
 	sphere = new THREE.Mesh( geometry, material );
 	sphere.position.set(position.x, position.y, position.z)
-	//update the vertices of the plane geometry so that I can check for the intersection
+	//update the vertices of the plane geometry so that I can check for the intersection -- not needed (and also breaks the sparse view)
 	//https://stackoverflow.com/questions/23990354/how-to-update-vertices-geometry-after-rotate-or-move-object
-	sphere.updateMatrix();
-	sphere.geometry.applyMatrix( sphere.matrix );
-	sphere.matrix.identity();
-	sphere.position.set( 0, 0, 0 );
-	sphere.rotation.set( 0, 0, 0 );
-	sphere.scale.set( 1, 1, 1 );
+	// sphere.updateMatrix();
+	// sphere.geometry.applyMatrix( sphere.matrix );
+	// sphere.matrix.identity();
+	// sphere.position.set( 0, 0, 0 );
+	// sphere.rotation.set( 0, 0, 0 );
+	// sphere.scale.set( 1, 1, 1 );
 
 	params.scene.add( sphere );
 	
@@ -368,7 +368,13 @@ function drawSlice(size, position, rotation, opacity, color){
 	// drawIntersectionPoints(plane, m)
 	params.spheres.forEach(function(m){ 
 		pointsOfIntersection = new THREE.Geometry();
-		drawIntersectionPoints(plane, m)
+		drawIntersectionPoints(plane, m);
+		//add the objects that don't have any intersection
+		if (pointsOfIntersection.vertices.length <= 1){
+			// var mClone = m.clone();
+			// params.scene.add( mClone );
+			// objs.push(mClone)
+		}
 	});
 
 	return {
@@ -489,6 +495,7 @@ function drawScene(){
 	var slice = drawSlice(2.*params.size, p, r, params.sliceOpacity, params.sliceColor);
 	params.sliceMesh.push(slice.plane);
 	slice.objs.forEach(function(m){
+		console.log(m)
 		params.sliceMesh.push(m);
 	});
 
@@ -522,6 +529,9 @@ function showHemiSpheres(bool){
 function showSliceMesh(bool){
 	params.sliceMesh.forEach(function(m){
 		m.material.visible = bool;
+		if (bool && m.type == "Mesh"){
+			//m.material.opacity = params.hardOpacity;
+		}
 	})
 }
 function changeSphereOpacity(opacity){
