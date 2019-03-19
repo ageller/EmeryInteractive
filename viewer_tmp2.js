@@ -250,6 +250,7 @@ function drawSlice(size, position, rotation, opacity, color){
 		obj.localToWorld( center );
 
 		//get the normal of the plane
+		plane.geometry.computeFaceNormals()
 		var normal = plane.geometry.faces[0].normal;
 
 		//populate the indices and also copy over the vertices so that I can resort them later
@@ -326,20 +327,11 @@ function drawSlice(size, position, rotation, opacity, color){
 				color: "red",
 				visible:false
 			}) ;
-			var line = new THREE.Line( pointsOfIntersection, lineMaterial );
-			params.scene.add( line );
-			objs.push(line);
+			var mesh = new THREE.Line( pointsOfIntersection, lineMaterial );
+			params.scene.add( mesh );
+			objs.push(mesh);
 
 			// //filled
-			// var material = new THREE.MeshPhongMaterial( { 
-			// 	color: params.sphereColor, 
-			// 	flatShading: false, 
-			// 	transparent:true,
-			// 	opacity:params.hardOpacity, 
-			// 	side:THREE.DoubleSide,
-			// 	visible:false
-			// });
-
 			// var geometry = new THREE.Geometry();
 			// var vertices = [];
 			// //get the center of the sphere
@@ -359,10 +351,22 @@ function drawSlice(size, position, rotation, opacity, color){
 			// 		geometry.faces.push(new THREE.Face3(0 + offset, 1 + offset, 2 + offset));
 			// 	}
 			// })
+
 			// geometry.computeVertexNormals();
+
+			//testing intersection
+			// var material = new THREE.MeshPhongMaterial( { 
+			// 	color: params.sphereColor, 
+			// 	flatShading: false, 
+			// 	transparent:true,
+			// 	opacity:params.hardOpacity, 
+			// 	side:THREE.DoubleSide,
+			// 	//visible:false
+
+			// });
 			// var mesh = new THREE.Mesh(geometry, material);
 			// params.scene.add( mesh );
-			// objs.push(mesh);
+			// //objs.push(mesh);
 
 			// var planeBSP = new ThreeBSP(plane);
 			// var sphereBSP = new ThreeBSP(obj);
@@ -406,64 +410,73 @@ function drawSlice(size, position, rotation, opacity, color){
 	plane.position.set( 0, 0, 0 );
 	plane.rotation.set( 0, 0, 0 );
 	plane.scale.set( 1, 1, 1 );
-	plane.geometry.computeFaceNormals()
-	var normal = plane.geometry.faces[0].normal;
 
 	params.scene.add( plane );
 
 
-	params.spheres.forEach(function(m,i){ 
-
-		pointsOfIntersection = new THREE.Geometry();
-		drawIntersectionPoints(plane, m);
-
-		if (pointsOfIntersection.vertices.length > 0){
-			//add the objects that have any intersection
-			var singleGeometry = new THREE.Geometry();
-
-			m.intersected = true;
-			vertices = [];
-			m.geometry.vertices.forEach(function(v){
-				if (v.dot(normal) < 0){
-					vertices.push(v)
-				}
-			})
-			pointsOfIntersection.vertices.forEach(function(v){
-				vertices.push(new THREE.Vector3(v.x - m.position.x, v.y - m.position.y, v.z - m.position.z))
-			})
-			var g = new THREE.ConvexGeometry( vertices );
-			g.computeVertexNormals();
-			g.computeFaceNormals();
+	//testing intersection in csg
+	//https://github.com/chandlerprall/ThreeCSG/blob/master/examples.html
+	var material = new THREE.MeshPhongMaterial( { 
+		color: params.sphereColor, 
+		flatShading: false, 
+		transparent:true,
+		opacity:params.hardOpacity, 
+		side:THREE.DoubleSide,
+		visible:false,
+		wireframe:true,
 
 
-			var mesh = new THREE.Mesh(g, m.material.clone());
-			mesh.position.set(m.position.x, m.position.y, m.position.z)
-			mesh.rotation.set(m.rotation.x, m.rotation.y, m.rotation.z)
-			mesh.material.opacity = params.hardOpacity;
-			mesh.material.visible = false;
-			mesh.side = THREE.DoubleSide;
-			params.scene.add(mesh)
-			objs.push(mesh)
-
-			//singleGeometry.merge(sphereMesh.geometry, sphereMesh.matrix);
-
-		} else {
-			//those that don't
-			m.intersected = false;
-			var mesh = new THREE.Mesh(m.geometry.clone(), m.material.clone());
-			mesh.material.opacity = params.hardOpacity;
-			mesh.material.visible = false;
-			mesh.position.set(m.position.x, m.position.y, m.position.z)
-			mesh.rotation.set(m.rotation.x, m.rotation.y, m.rotation.z)
-			params.scene.add(mesh)
-			objs.push(mesh)
-		}
 	});
 
+	var singleGeometry = new THREE.Geometry();
+	var cubeGeometry = new THREE.CubeGeometry( size, size, size);
+
+	var cube = new THREE.Mesh(cubeGeometry, material)
+	cube.position.set(size/2. - position.x, size/2. - position.y, size/2. - position.z); //this positioning doesn't seem general
+	cube.rotation.set(rotation.x, rotation.y, rotation.z);
+	cube.updateMatrix();
+	cube.geometry.applyMatrix( cube.matrix );
+	cube.matrix.identity();
+	cube.position.set( 0, 0, 0 );
+	cube.rotation.set( 0, 0, 0 );
+	cube.scale.set( 1, 1, 1 );
+
+	var mesh;
+	var planeBSP = new ThreeBSP(plane);
+	//var planeBSP = new ThreeBSP(cube);
+	params.spheres.forEach(function(m,i){ 
+		var sphereBSP = new ThreeBSP(m);
+		var intersectBSP = planeBSP.intersect(sphereBSP);
+		mesh = intersectBSP.toMesh(material);
+		mesh.geometry.computeVertexNormals(); //so that flatShading works correctly
+
+		//singleGeometry.mergeMesh(m)
+		if (i == 5){
+			singleGeometry.mergeMesh(mesh)
+		}
+
+		// pointsOfIntersection = new THREE.Geometry();
+		// drawIntersectionPoints(plane, m);
+		// //add the objects that don't have any intersection
+		// if (pointsOfIntersection.vertices.length > 0){
+		// 	m.intersected = true;
+		// } else {
+		// 	m.intersected = false;
+		// }
+	});
+	singleGeometry.mergeVertices();
+	// var sphereBSP = new ThreeBSP(singleGeometry);
+	// var intersectBSP = planeBSP.intersect(sphereBSP);
+	// mesh = intersectBSP.toMesh(material);
+	// mesh.geometry.computeVertexNormals(); //so that flatShading works correctly
+
+	var mesh = new THREE.Mesh(singleGeometry, material)
+	params.scene.add( mesh );
+	//params.scene.add( cube );
 
 	return {
 		"plane":plane,
-		"mesh":objs,
+		"mesh":mesh,
 	}
 
 }
@@ -578,9 +591,7 @@ function drawScene(){
 
 	var slice = drawSlice(2.*params.size, p, r, params.sliceOpacity, params.sliceColor);
 	params.sliceMesh.push(slice.plane);
-	slice.mesh.forEach(function(m){
-		params.sliceMesh.push(m);
-	})
+	params.sliceMesh.push(slice.mesh);
 
 
 	//draw the box
