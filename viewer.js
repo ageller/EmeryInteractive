@@ -217,47 +217,74 @@ function drawSphere(radius, widthSegments, heightSegments, opacity, color, posit
 //https://stackoverflow.com/questions/42348495/three-js-find-all-points-where-a-mesh-intersects-a-plane/42353447
 function drawSlice(size, position, rotation, opacity, color){
 
-	var pointsOfIntersection = new THREE.Geometry();
+	var pointsOfIntersection;
+	var objs = [];
+	var check = 0;
 
-
-	function setPointOfIntersection(line, plane) {
+	function setPointOfIntersection(line, plane, minDistance) {
 		var pointOfIntersection = new THREE.Vector3();
 		plane.intersectLine(line, pointOfIntersection);
+		//find the minimum distance so that I don't add so many points! (slows things down a bit here, but I think this is needed)
+		var minD = minDistance*1000.;
+		pointsOfIntersection.vertices.forEach(function(p,i){
+			var d = pointOfIntersection.distanceTo(p)
+			if (d < minD){
+				minD = d;
+			}
+		})
 		if (pointOfIntersection) {
-			if (pointOfIntersection.distanceTo(new THREE.Vector3(0,0,0)) != 0 ){//some failure mode for this
+			if (pointOfIntersection.distanceTo(new THREE.Vector3(0,0,0)) != 0  && minD > minDistance){//some failure mode for this at 0,0,0
 				//console.log("intersection", pointOfIntersection)
 				pointsOfIntersection.vertices.push(pointOfIntersection.clone());
 			}
 		};
 	}
 
-	function sortPoints(){
+
+	function sortPoints(plane, obj){
 		var center = new THREE.Vector3();
-		var angles = [];
-		var N = 0.;
-		pointsOfIntersection.vertices.forEach(function(p){
-			center.add(p);
-			N+=1;
+
+		//get the center of the sphere
+		obj.geometry.computeBoundingBox();   
+		obj.geometry.boundingBox.getCenter(center);
+		obj.localToWorld( center );
+
+		//get the normal of the plane
+		plane.geometry.computeFaceNormals()
+		var normal = plane.geometry.faces[0].normal;
+
+		//populate the indices and also copy over the vertices so that I can resort them later
+		var indices = [];
+		var vertices = [];
+		pointsOfIntersection.vertices.forEach(function(p,i){
+			indices.push(i);
+			vertices.push(p.clone());
 		})
-		center.divide(new THREE.Vector3(N,N,N))
-		//console.log("center", center, N)
-		var i = 0;
-		pointsOfIntersection.vertices.forEach(function(p){
-			var x = p.x - center.x;
-			var y = p.y - center.y;
-			var z = p.z - center.z;
-			r = Math.sqrt(x*x + y*y + z*z);
-			angles.push(Math.acos(z/r));
+
+		//sort the indices
+		indices.sort(function (i, j) { 
+			//https://stackoverflow.com/questions/14370636/sorting-a-list-of-3d-coplanar-points-to-be-clockwise-or-counterclockwise
+			var A = vertices[i].clone().sub(center);
+			var B = vertices[j].clone().sub(center);
+			var C = A.cross(B);
+			return normal.dot(C)});
+
+		//update the vertices
+		var j = 0;
+		indices.forEach(function(i,j){
+			pointsOfIntersection.vertices[j].copy(vertices[i]);
 		})
-		//https://stackoverflow.com/questions/3730510/javascript-sort-array-and-return-an-array-of-indicies-that-indicates-the-positi
-		console.log(pointsOfIntersection.vertices[0], angles)
-		pointsOfIntersection.vertices.sort(function (a, b) { return angles[a] < angles[b] ? -1 : angles[a] > angles[b] ? 1 : 0; });
+		//add the first point on to close the loop
+		pointsOfIntersection.vertices.push(vertices[indices[0]]);
 		pointsOfIntersection.vertices.needsUpdate = true;
-		console.log(pointsOfIntersection.vertices[0])
-			//console.log("angles", angles)
 	}
 
 	function drawIntersectionPoints(plane, obj) {
+		var box = new THREE.Box3().setFromObject( obj );
+		var size = new THREE.Vector3();
+		box.getSize(size);
+		var minDistance = (size.x + size.y + size.z)/3. * 0.001;
+
 		var a = new THREE.Vector3(),
 			b = new THREE.Vector3(),
 			c = new THREE.Vector3();
@@ -282,26 +309,32 @@ function drawSlice(size, position, rotation, opacity, color){
 			lineAB = new THREE.Line3(a, b);
 			lineBC = new THREE.Line3(b, c);
 			lineCA = new THREE.Line3(c, a);
-			setPointOfIntersection(lineAB, mathPlane);
-			setPointOfIntersection(lineBC, mathPlane);
-			setPointOfIntersection(lineCA, mathPlane);
+			setPointOfIntersection(lineAB, mathPlane, minDistance);
+			setPointOfIntersection(lineBC, mathPlane, minDistance);
+			setPointOfIntersection(lineCA, mathPlane, minDistance);
 		});
 
+		//in case we want to see the points
 		// var pointsMaterial = new THREE.PointsMaterial({
-		// 	size: .5,
+		// 	size: 0.1,
 		// 	color: "red"
 		// });
 		// var points = new THREE.Points(pointsOfIntersection, pointsMaterial);
 		// params.scene.add(points);
 
-		//do something to sort the points around a circle.
-		sortPoints();
+		//sort the points around a object .
+		sortPoints(plane, obj);
+		
+		if (pointsOfIntersection.vertices.length > 2){
+			var lineMaterial = new THREE.LineBasicMaterial( { 
+				color: "red",
+				visible:false
+			}) ;
+			var mesh = new THREE.Line( pointsOfIntersection, lineMaterial );
 
-		var lineMaterial = new THREE.LineBasicMaterial( { 
-			color: "red" 
-		}) ;
-		var line = new THREE.LineSegments( pointsOfIntersection, lineMaterial );
-		params.scene.add( line );
+			objs.push(mesh);
+			params.scene.add( mesh );
+		}
   
 	}
 
@@ -334,10 +367,14 @@ function drawSlice(size, position, rotation, opacity, color){
 	// var m = params.spheres[0];
 	// drawIntersectionPoints(plane, m)
 	params.spheres.forEach(function(m){ 
+		pointsOfIntersection = new THREE.Geometry();
 		drawIntersectionPoints(plane, m)
 	});
 
-	return plane;
+	return {
+		"plane":plane,
+		"objs":objs,
+	}
 
 }
 
@@ -449,8 +486,11 @@ function drawScene(){
 	var p = new THREE.Vector3(params.size,	params.size/2.,	params.size/2.); 
 	var r = new THREE.Vector3(0,			Math.PI/2.,		0); 
 
-	mesh = drawSlice(2.*params.size, p, r, params.sliceOpacity, params.sliceColor);
-	params.sliceMesh.push(mesh)
+	var slice = drawSlice(2.*params.size, p, r, params.sliceOpacity, params.sliceColor);
+	params.sliceMesh.push(slice.plane);
+	slice.objs.forEach(function(m){
+		params.sliceMesh.push(m);
+	});
 
 	//draw the box
 	drawBox();
@@ -542,7 +582,7 @@ function sliceView(){
 	d3.selectAll('#sliceButton').classed('buttonHover', false);
 
 	showHemiSpheres(false);
-	changeSphereOpacity(params.hardOpacity);
+	//changeSphereOpacity(params.hardOpacity);
 	showSliceMesh(true);
 	if (params.isSparse){
 		changeSphereScale(1./params.sparseScale);
