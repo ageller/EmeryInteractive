@@ -115,7 +115,7 @@ function init(){
 	//controls
 	//params.controls = new THREE.TrackballControls( params.camera, params.renderer.domElement );
 	params.controls = new THREE.OrbitControls( params.camera);
-	params.controls.enablePan = false;
+	//params.controls.enablePan = false;
 	params.controls.rotateSpeed = 0.5;
 	params.domElement = params.renderer.domElement;
 	//params.controls.addEventListener( 'change', function(){console.log(params.camera.position) });
