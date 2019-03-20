@@ -593,10 +593,32 @@ function drawBox(){
 	line.position.set(params.size/2, params.size/2., params.size/2.);
 	params.scene.add( line );
 
-	//The X axis is red. The Y axis is green. The Z axis is blue.
+	//The X axis is orange. The Y axis is green. The Z axis is blue.
 	var cubeAxis = new THREE.AxesHelper(1.5*params.size);
 	cubeAxis.position.set(0,0,0);
 	params.scene.add( cubeAxis );
+
+	//add cones to the tops of the axes (for emphasis) -- matching the colors for the axes
+	var gX = new THREE.ConeGeometry( params.size/30., params.size/10., 16, 1 );
+	var mX = new THREE.MeshBasicMaterial( {color: new THREE.Color(1, 0.6, 0)} );
+	var cX = new THREE.Mesh( gX, mX );
+	cX.position.set(1.5*params.size, 0, 0);
+	cX.rotation.set(0, 0, -Math.PI/2);
+	params.scene.add( cX );
+
+	var gY = new THREE.ConeGeometry( params.size/30., params.size/10., 16, 1 );
+	var mY = new THREE.MeshBasicMaterial( {color: new THREE.Color(0.6, 1, 0)} );
+	var cY = new THREE.Mesh( gY, mY );
+	cY.position.set(0, 1.5*params.size, 0);
+	cY.rotation.set(0, 0, 0);
+	params.scene.add( cY );
+
+	var gZ = new THREE.ConeGeometry( params.size/30., params.size/10., 16, 1 );
+	var mZ = new THREE.MeshBasicMaterial( {color: new THREE.Color(0, 0.6, 1)} );
+	var cZ = new THREE.Mesh( gZ, mZ );
+	cZ.position.set(0, 0, 1.5*params.size);
+	cZ.rotation.set(Math.PI/2, 0, 0);
+	params.scene.add( cZ );
 }
 
 //define lights
