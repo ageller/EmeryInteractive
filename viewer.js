@@ -26,15 +26,24 @@ function defineParams(){
 		this.sliceMesh = [];
 		this.slicePlane;
 
-		//the default opacity of the full spheres
+		//size of objects in viewer
+		this.size = 1;
+
+		//sphere settings
+		this.sphereSegments = 32;
 		this.defaultOuterOpacity = 0.12;
 		this.defaultInnerOpacity = 0.7;
 		this.hardOpacity = 0.95;
 		this.sphereColor = 0x228B22;
 
+		//for slice
 		this.sliceColor = 0xAFEEEE;
 		this.sliceOpacity = 0.7;
 		this.isSlice = false;
+		this.xPfac = this.size;//testing dynamic slicing
+		this.yRfac = Math.PI/2.;//testing dynamic slicing
+		this.slicePlanePosition = new THREE.Vector3(this.xPfac, this.size/2., this.size/2.); 
+		this.slicePlaneRotation = new THREE.Vector3(0, this.yRfac, 0); 
 
 		//this size of the sparse model
 		this.sparseScale = 0.2;
@@ -51,12 +60,9 @@ function defineParams(){
 
 		this.lights = [];
 
-		this.sphereSegments = 32;
-		this.size = 1;
+
 
 		this.offsetPosition = new THREE.Vector3(this.size, this.size, this.size);
-
-		this.xfac = 1.;//testing dynamic slicing
 
 
 	};
@@ -384,9 +390,11 @@ function drawSlice(size, position, rotation, opacity, color){
 	plane.geometry.computeFaceNormals()
 	var normal = plane.geometry.faces[0].normal;
 
-	params.scene.add( plane );
 	params.slicePlane = plane;
 	params.slicePlanePosition = position;
+	updateSlicePlaneDepth();
+	
+	params.scene.add( plane );
 
 	params.spheres.forEach(function(m,i){ 
 
@@ -589,7 +597,7 @@ function updateLights(){
 }
 
 //for the slice, in case we want to change it dynamically
-function updateSlice(p, r){
+function updateSlice(p,r){
 
 	params.sliceMesh.forEach(function(m){
 		params.scene.remove(m);
@@ -602,7 +610,17 @@ function updateSlice(p, r){
 		params.sliceMesh.push(m);
 	})
 }
+function updateSlicePlaneDepth(){
+	var normal = params.slicePlane.geometry.faces[0].normal;
+	var pos = params.camera.position.clone().sub(params.slicePlanePosition.clone().sub(params.offsetPosition));
+	var pCheck = normal.dot(pos)*Math.cos(params.yRfac);
+	if (pCheck < 1){
+		params.slicePlane.material.depthTest = true;
+	} else {
+		params.slicePlane.material.depthTest = false;
+	}
 
+}
 
 //draw the scene (with lighting)
 function drawScene(){
@@ -666,9 +684,7 @@ function drawScene(){
 
 
 	//draw slice
-	var p = new THREE.Vector3(params.size,	params.size/2.,	params.size/2.); 
-	var r = new THREE.Vector3(0,			Math.PI/2.,		0); 
-	updateSlice(p, r)
+	updateSlice(params.slicePlanePosition, params.slicePlaneRotation);
 
 
 
@@ -690,35 +706,41 @@ function animate(time) {
     params.keyboard.update();
 	TWEEN.update(time);
 
-	//check location of plane for blending
-	var normal = params.slicePlane.geometry.faces[0].normal;
-	var pos = params.camera.position.clone().sub(params.slicePlanePosition.clone().sub(params.offsetPosition));
-	var pCheck = normal.dot(pos);
-	if (pCheck < 1){
-		params.slicePlane.material.depthTest = true;
-	} else {
-		params.slicePlane.material.depthTest = false;
-	}
+	//check location of slice plane for blending
+	updateSlicePlaneDepth();
 
-
+	//testing dynamically updating the slice location
+	var doSliceUpdate = false;
 	if (params.keyboard.pressed("up")){
-		params.xfac += 0.01;
-		var p = new THREE.Vector3(params.size*params.xfac,	params.size/2.,	params.size/2.); 
-		var r = new THREE.Vector3(0,			Math.PI/2.,		0); 
-		updateSlice(p,r);
-		if (params.isSlice){
-			showSliceMesh(true);
-		}
+		params.xPfac += params.size*0.02;
+		doSliceUpdate = true;
 	}
 	if (params.keyboard.pressed("down")){
-		params.xfac -= 0.01;
-		var p = new THREE.Vector3(params.size*params.xfac,	params.size/2.,	params.size/2.); 
-		var r = new THREE.Vector3(0,			Math.PI/2.,		0); 
-		updateSlice(p,r);
+		params.xPfac -= params.size*0.02;
+		doSliceUpdate = true;
+	}
+	if (params.keyboard.pressed("left")){
+		params.yRfac += Math.PI*0.02;
+		doSliceUpdate = true;
+	}
+	if (params.keyboard.pressed("right")){
+		params.yRfac -= Math.PI*0.02;
+		doSliceUpdate = true;
+	}
+
+	if (doSliceUpdate){
+		params.xPfac = THREE.Math.clamp(params.xPfac, -0.5*params.size, 1.5*params.size);
+		params.yRfac = THREE.Math.clamp(params.yRfac, -Math.PI/2., Math.PI/2.);
+		var p = params.slicePlanePosition.clone();
+		p.x = params.xPfac;
+		var r = params.slicePlaneRotation.clone();
+		r.y = params.yRfac; 
+		updateSlice(p, r);
 		if (params.isSlice){
 			showSliceMesh(true);
 		}
 	}
+
 	params.renderer.render( params.scene, params.camera );
 
 }
