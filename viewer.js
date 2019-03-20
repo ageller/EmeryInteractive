@@ -23,6 +23,7 @@ function defineParams(){
 
 		//will hold items for slice view
 		this.sliceMesh = [];
+		this.slicePlane;
 
 		//the default opacity of the full spheres
 		this.defaultOuterOpacity = 0.12;
@@ -234,7 +235,6 @@ function drawSlice(size, position, rotation, opacity, color){
 		})
 		if (pointOfIntersection) {
 			if (pointOfIntersection.distanceTo(new THREE.Vector3(0,0,0)) != 0  && minD > minDistance){//some failure mode for this at 0,0,0
-				//console.log("intersection", pointOfIntersection)
 				pointsOfIntersection.vertices.push(pointOfIntersection.clone());
 			}
 		};
@@ -391,6 +391,8 @@ function drawSlice(size, position, rotation, opacity, color){
 		transparent:true,
 		opacity:opacity, 
 		visible:false,
+		depthTest:false,
+		depthWrite:true,
 	});
 
 
@@ -410,7 +412,7 @@ function drawSlice(size, position, rotation, opacity, color){
 	var normal = plane.geometry.faces[0].normal;
 
 	params.scene.add( plane );
-
+	params.slicePlane = plane;
 
 	params.spheres.forEach(function(m,i){ 
 
@@ -419,7 +421,6 @@ function drawSlice(size, position, rotation, opacity, color){
 
 		if (pointsOfIntersection.vertices.length > 0){
 			//add the objects that have any intersection
-			var singleGeometry = new THREE.Geometry();
 
 			m.intersected = true;
 			vertices = [];
@@ -445,7 +446,6 @@ function drawSlice(size, position, rotation, opacity, color){
 			params.scene.add(mesh)
 			objs.push(mesh)
 
-			//singleGeometry.merge(sphereMesh.geometry, sphereMesh.matrix);
 
 		} else {
 			//those that don't
@@ -601,6 +601,15 @@ function animate(time) {
 	params.controls.update();
 	params.renderer.render( params.scene, params.camera );
 	TWEEN.update(time);
+
+	//check location of plane for blending
+	var normal = params.slicePlane.geometry.faces[0].normal;
+	var pCheck = normal.dot(params.camera.position);
+	if (pCheck < 1){
+		params.slicePlane.material.depthTest = true;
+	} else {
+		params.slicePlane.material.depthTest = false;
+	}
 }
 
 //helpers for buttons
