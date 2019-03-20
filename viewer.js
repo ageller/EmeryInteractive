@@ -68,7 +68,10 @@ function defineParams(){
 
 		this.lights = [];
 
-
+		//for text
+		this.fontFile = 'lib/helvetiker_regular.typeface.json';
+		//this.fontFile = 'lib/gentilis_regular.typeface.json';
+		this.text = [];
 
 		this.offsetPosition = new THREE.Vector3(this.size, this.size, this.size);
 
@@ -627,6 +630,54 @@ function drawBox(){
 	cZ.position.set(0, 0, 1.5*params.size);
 	cZ.rotation.set(Math.PI/2, 0, 0);
 	params.scene.add( cZ );
+
+	//add font to the axes
+	var loader = new THREE.FontLoader();
+
+	loader.load( params.fontFile, function ( font ) {
+
+		var gX = new THREE.TextGeometry( 'x', {
+			font: font,
+			size: params.size/10.,
+			height: params.size/100.,
+			curveSegments: 12,
+			bevelEnabled: false,
+		} );
+		var mX = new THREE.MeshBasicMaterial( {color: "black"} );
+		var tX = new THREE.Mesh( gX, mX );
+		tX.position.set(1.6*params.size, -params.size/30., -params.size/30.);
+		params.scene.add(tX);
+		params.text.push(tX);
+
+		var gY = new THREE.TextGeometry( 'y', {
+			font: font,
+			size: params.size/10.,
+			height: params.size/100.,
+			curveSegments: 12,
+			bevelEnabled: false,
+		} );
+		var mY = new THREE.MeshBasicMaterial( {color: "black"} );
+		var tY = new THREE.Mesh( gY, mY );
+		tY.position.set(params.size/30., 1.6*params.size, -params.size/30.);
+		params.scene.add(tY);
+		params.text.push(tY);
+
+		var gZ = new THREE.TextGeometry( 'z', {
+			font: font,
+			size: params.size/10.,
+			height: params.size/100.,
+			curveSegments: 12,
+			bevelEnabled: false,
+		} );
+		var mZ = new THREE.MeshBasicMaterial( {color: "black"} );
+		var tZ = new THREE.Mesh( gZ, mZ );
+		tZ.position.set(params.size/30, -params.size/30, 1.6*params.size, );
+		params.scene.add(tZ);
+		params.text.push(tZ);
+
+
+	} );
+
 }
 
 //define lights
@@ -864,6 +915,10 @@ function animate(time) {
     params.keyboard.update();
 	TWEEN.update(time);
 
+	//keep text always facing the viewer
+	params.text.forEach(function(m){
+		m.quaternion.copy(params.camera.quaternion);
+	});
 
 	if (params.keyboard.down("C")){
 		console.log(params.camera.position)
