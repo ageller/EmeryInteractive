@@ -15,8 +15,8 @@ function defineParams(){
 		this.fov = 45.
 
 		//camera view (and tween)
-		this.defaultView = new THREE.Vector3(3.3,1.75,1.5);
-		this.coordinationView = new THREE.Vector3(1.75,-3.3,1.5);
+		this.defaultView = new THREE.Vector3(3.65,1.95,1.66);
+		this.coordinationView = new THREE.Vector3(1.95,-3.65,1.66);
 		this.defaultViewTween;
 		this.coordinationViewTween;
 
@@ -72,6 +72,7 @@ function defineParams(){
 		this.fontFile = 'lib/helvetiker_regular.typeface.json';
 		//this.fontFile = 'lib/gentilis_regular.typeface.json';
 		this.text = [];
+		this.labels = [];
 
 		this.offsetPosition = new THREE.Vector3(this.size, this.size, this.size);
 
@@ -594,7 +595,7 @@ function drawSlice(size, position, rotation, opacity, color){
 
 }
 
-//draw the outside box with axes
+//draw the outside box
 function drawBox(){
 	var geometry = new THREE.BoxBufferGeometry( params.size, params.size, params.size);
 
@@ -604,6 +605,10 @@ function drawBox(){
 	line.position.set(params.size/2, params.size/2., params.size/2.);
 	params.scene.add( line );
 
+}
+
+//draw the outside axes
+function drawAxes(){
 	//The X axis is orange. The Y axis is green. The Z axis is blue.
 	var cubeAxis = new THREE.AxesHelper(1.5*params.size);
 	cubeAxis.position.set(0,0,0);
@@ -675,9 +680,81 @@ function drawBox(){
 		params.scene.add(tZ);
 		params.text.push(tZ);
 
+		updateTextRotation();
 
 	} );
 
+
+}
+
+// the two labels 
+function drawLabels(){
+	var loader = new THREE.FontLoader();
+
+	loader.load( params.fontFile, function ( font ) {
+
+		var g = new THREE.TextGeometry( 'a', {
+			font: font,
+			size: params.size/10.,
+			height: params.size/100.,
+			curveSegments: 12,
+			bevelEnabled: false,
+		} );
+		var m = new THREE.MeshBasicMaterial( {color: "red"} );
+		var a = new THREE.Mesh( g, m );
+		a.position.set(1.04*params.size + params.size/20, 1.04*params.size, params.size/2.);
+		params.scene.add(a);
+		params.labels.push(a);
+		params.text.push(a);
+
+		var g = new THREE.TextGeometry( 'r', {
+			font: font,
+			size: params.size/10.,
+			height: params.size/100.,
+			curveSegments: 12,
+			bevelEnabled: false,
+		} );
+		var m = new THREE.MeshBasicMaterial( {color: "black"} );
+		var r = new THREE.Mesh( g, m );
+		r.position.set(1.04*params.size, params.size/8., -params.size/10.);
+		params.scene.add(r);
+		params.labels.push(r);
+		params.text.push(r);
+
+		// var g = new THREE.TextGeometry( '0', {
+		// 	font: font,
+		// 	size: params.size/15.,
+		// 	height: params.size/100.,
+		// 	curveSegments: 12,
+		// 	bevelEnabled: false,
+		// } );
+		// var m = new THREE.MeshBasicMaterial( {color: "black"} );
+		// var r0 = new THREE.Mesh( g, m );
+		// r0.position.set(1.04*params.size, params.size/8. + params.size/30., -params.size/10. - params.size/30.);
+		// params.scene.add(r0);
+		// params.labels.push(r0);
+		// params.text.push(r0);
+
+		updateTextRotation();
+	});
+
+	var g = new THREE.Geometry();
+	g.vertices.push(
+		new THREE.Vector3(params.size, params.size, 0 ),
+		new THREE.Vector3(params.size, params.size, params.size ),
+	);
+	var m = new THREE.MeshBasicMaterial( {color: "red"} );
+	var line = new THREE.Line( g, m );
+	params.scene.add( line );
+	params.labels.push(line);
+
+}
+
+//keep text always facing the screen
+function updateTextRotation(){
+	params.text.forEach(function(m){
+		m.quaternion.copy(params.camera.quaternion);
+	});
 }
 
 //define lights
@@ -697,7 +774,6 @@ function addLights(){
 		params.scene.add(element);
 	})
 
-	params.controls.addEventListener( 'change', updateLights );
 }
 
 //keep the light coming from the camera location
@@ -899,12 +975,22 @@ function drawScene(){
 	//draw the coordinate view
 	drawCoordination();
 
-	//draw the box with axes
+	//draw the box 
 	drawBox();
 
-	//lights
-	addLights()
+	//draw the axes (with labels)
+	drawAxes();
 
+	//draw the labels
+	drawLabels();
+
+	//lights
+	addLights();
+
+	//some things that we only need to do when the camera moves
+	params.controls.addEventListener( 'change', updateLights );
+	params.controls.addEventListener( 'change', updateSlicePlaneDepth );
+	params.controls.addEventListener( 'change', updateTextRotation );
 
 }
 
@@ -915,11 +1001,6 @@ function animate(time) {
     params.keyboard.update();
 	TWEEN.update(time);
 
-	//keep text always facing the viewer
-	params.text.forEach(function(m){
-		m.quaternion.copy(params.camera.quaternion);
-	});
-
 	if (params.keyboard.down("C")){
 		console.log(params.camera.position)
 	}
@@ -927,8 +1008,7 @@ function animate(time) {
 	//testing dynamically updating the slice location
 	if (params.isSlice){
 
-		//check location of slice plane for blending
-		updateSlicePlaneDepth();
+
 
 		var doSliceUpdate = false;
 		if (params.keyboard.pressed("up")){
@@ -985,6 +1065,11 @@ function showCoordination(bool){
 		m.material.visible = bool;
 	})
 }
+function showLabels(bool){
+	params.labels.forEach(function(m){
+		m.material.visible = bool;
+	})
+}
 function changeSphereOpacity(opacity){
 	params.spheres.forEach(function(m){
 		m.material.opacity = opacity;
@@ -1012,6 +1097,7 @@ function defaultView(){
 	}
 	params.isSlice = false;
 
+	showLabels(true);
 	showHemiSpheres(true);
 	showSpheres(true);
 	changeSphereOpacity(params.defaultOuterOpacity);
@@ -1028,6 +1114,7 @@ function hardSphereView(){
 	d3.selectAll('#hardSphereButton').classed('buttonClicked', true);
 	d3.selectAll('#hardSphereButton').classed('buttonHover', false);
 
+	showLabels(false);
 	showHemiSpheres(false);
 	showCoordination(false);
 	showSliceMesh(false);
@@ -1050,6 +1137,7 @@ function sliceView(){
 	d3.selectAll('#sliceButton').classed('buttonClicked', true);
 	d3.selectAll('#sliceButton').classed('buttonHover', false);
 
+	showLabels(false);
 	showHemiSpheres(false);
 	showSpheres(false);
 	showCoordination(false);
@@ -1067,6 +1155,7 @@ function sparseView(){
 	d3.selectAll('#sparseButton').classed('buttonClicked', true);
 	d3.selectAll('#sparseButton').classed('buttonHover', false);
 
+	showLabels(false);
 	showHemiSpheres(false);
 	showSliceMesh(false);
 	showCoordination(false);
@@ -1090,6 +1179,7 @@ function coordinationView(){
 	d3.selectAll('#coordinationButton').classed('buttonClicked', true);
 	d3.selectAll('#coordinationButton').classed('buttonHover', false);
 
+	showLabels(false);
 	showHemiSpheres(false);
 	showSpheres(false);
 	showSliceMesh(false);
