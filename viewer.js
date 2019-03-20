@@ -52,6 +52,9 @@ function defineParams(){
 		this.sphereSegments = 64;
 		this.size = 1;
 
+		this.offsetPosition = new THREE.Vector3(this.size, this.size, this.size);
+
+
 	};
 
 
@@ -369,6 +372,7 @@ function drawSlice(size, position, rotation, opacity, color){
 
 	params.scene.add( plane );
 	params.slicePlane = plane;
+	params.slicePlanePosition = position;
 
 	params.spheres.forEach(function(m,i){ 
 
@@ -485,15 +489,18 @@ function drawSlice(size, position, rotation, opacity, color){
 
 
 		} else {
-			//those that don't
-			m.intersected = false;
-			var mesh = new THREE.Mesh(m.geometry.clone(), m.material.clone());
-			mesh.material.opacity = params.hardOpacity;
-			mesh.material.visible = false;
-			mesh.position.set(m.position.x, m.position.y, m.position.z)
-			mesh.rotation.set(m.rotation.x, m.rotation.y, m.rotation.z)
-			params.scene.add(mesh)
-			objs.push(mesh)
+			//those that don't (and only take those behind plane)
+			var p = m.position.clone().sub(position)
+			if (p.dot(normal) < 0){
+				m.intersected = false;
+				var mesh = new THREE.Mesh(m.geometry.clone(), m.material.clone());
+				mesh.material.opacity = params.hardOpacity;
+				mesh.material.visible = false;
+				mesh.position.set(m.position.x, m.position.y, m.position.z)
+				mesh.rotation.set(m.rotation.x, m.rotation.y, m.rotation.z)
+				params.scene.add(mesh)
+				objs.push(mesh)
+			}
 		}
 	});
 
@@ -636,17 +643,21 @@ function drawScene(){
 function animate(time) {
 	requestAnimationFrame( animate );
 	params.controls.update();
-	params.renderer.render( params.scene, params.camera );
+    //params.keyboard.update();
 	TWEEN.update(time);
 
 	//check location of plane for blending
 	var normal = params.slicePlane.geometry.faces[0].normal;
-	var pCheck = normal.dot(params.camera.position);
+	var pos = params.camera.position.clone().sub(params.slicePlanePosition.clone().sub(params.offsetPosition));
+	var pCheck = normal.dot(pos);
 	if (pCheck < 1){
 		params.slicePlane.material.depthTest = true;
 	} else {
 		params.slicePlane.material.depthTest = false;
 	}
+
+	params.renderer.render( params.scene, params.camera );
+
 }
 
 //helpers for buttons
