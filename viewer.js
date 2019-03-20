@@ -7,6 +7,7 @@ function defineParams(){
 		this.renderer = null;
 		this.scene = null;
 		this.camera = null;
+		this.keyboard = null;
 
 		//for frustum      
 		this.zmax = 5.e10;
@@ -33,6 +34,7 @@ function defineParams(){
 
 		this.sliceColor = 0xAFEEEE;
 		this.sliceOpacity = 0.7;
+		this.isSlice = false;
 
 		//this size of the sparse model
 		this.sparseScale = 0.2;
@@ -49,10 +51,12 @@ function defineParams(){
 
 		this.lights = [];
 
-		this.sphereSegments = 64;
+		this.sphereSegments = 32;
 		this.size = 1;
 
 		this.offsetPosition = new THREE.Vector3(this.size, this.size, this.size);
+
+		this.xfac = 1.;//testing dynamic slicing
 
 
 	};
@@ -97,6 +101,10 @@ function init(){
 	params.controls.rotateSpeed = 0.5;
 	params.domElement = params.renderer.domElement;
 	//params.controls.addEventListener( 'change', function(){console.log(params.camera.position) });
+
+	//keyboard
+    params.keyboard = new KeyboardState();
+
 }
 
 function defineTweens(){
@@ -239,6 +247,7 @@ function drawSlice(size, position, rotation, opacity, color){
 		if (pointOfIntersection) {
 			if (pointOfIntersection.distanceTo(new THREE.Vector3(0,0,0)) != 0  && minD > minDistance){//some failure mode for this at 0,0,0
 				pointsOfIntersection.vertices.push(pointOfIntersection.clone());
+				pointsOfIntersection.center.add(pointOfIntersection.clone());
 			}
 		};
 	}
@@ -258,6 +267,7 @@ function drawSlice(size, position, rotation, opacity, color){
 		//populate the indices and also copy over the vertices so that I can resort them later
 		var indices = [];
 		var vertices = [];
+		//also calculate the center for later (probably not the best way to do this)
 		pointsOfIntersection.vertices.forEach(function(p,i){
 			indices.push(i);
 			vertices.push(p.clone());
@@ -282,6 +292,8 @@ function drawSlice(size, position, rotation, opacity, color){
 			pointsOfIntersection.vertices.push(vertices[indices[0]]);
 			pointsOfIntersection.vertices.needsUpdate = true;
 		}
+
+		return center
 	}
 
 	function drawIntersectionPoints(plane, obj, minDistance) {
@@ -328,6 +340,8 @@ function drawSlice(size, position, rotation, opacity, color){
 			params.scene.add( line );
 			objs.push(line);
 
+			var N = pointsOfIntersection.vertices.length;
+			pointsOfIntersection.center.divide(new THREE.Vector3(N,N,N));
 
 			//in case we want to see the points
 			// var pointsMaterial = new THREE.PointsMaterial({
@@ -390,6 +404,7 @@ function drawSlice(size, position, rotation, opacity, color){
 		var minDistance = (size.x + size.y + size.z)/3.* 0.001;
 
 		pointsOfIntersection = new THREE.Geometry();
+		pointsOfIntersection.center = new THREE.Vector3(0,0,0);
 		drawIntersectionPoints(plane, m, minDistance);
 
 		if (pointsOfIntersection.vertices.length > 0){
@@ -406,15 +421,15 @@ function drawSlice(size, position, rotation, opacity, color){
 			m.intersected = true;
 			vertices = [];
 			m.geometry.vertices.forEach(function(v){
-				if (v.dot(normal) <= 0){
+				p = v.clone().add(m.position).sub(position)
+				if (p.dot(normal) <= 0){
 					vertices.push(v)
 				}
 			})
 
 			pointsOfIntersection.vertices.forEach(function(v){
-				vertices.push(new THREE.Vector3(v.x - m.position.x, v.y - m.position.y, v.z - m.position.z));
+				vertices.push(v.clone().sub(m.position));
 			})
-			vertices.push(new THREE.Vector3(0,0,0));
 			var gC = new THREE.ConvexGeometry( vertices );
 			gC.computeVertexNormals();
 			gC.computeFaceNormals();
@@ -422,17 +437,33 @@ function drawSlice(size, position, rotation, opacity, color){
 			//some of these normals are not coming our correctly... I will try to fix that here
 			//I will also delete the front face here
 			toDelete = [];
+			var n0 = new THREE.Vector3(0,0,0);
 			gC.faces.forEach(function(f,i){
 				//console.log(f.normal)
 				var d = f.normal.dot(normal);
 				if (d > (1 - 1e-4)){ //delete the front face
 					toDelete.push(i);
 				}
+				var vA = gC.vertices[f.a].clone();
+				var vB = gC.vertices[f.b].clone();
+				var vC = gC.vertices[f.c].clone();
+
 				f.vertexNormals.forEach(function(n,j){
+					//find the minimum distance to the intersection surface (slows things down a bit here, but I think this is needed)
+					var minD = minDistance*1000.;
+					pointsOfIntersection.vertices.forEach(function(p,k){
+						p0 = p.clone().sub(m.position);
+						var dA = vA.distanceTo(p0);
+						var dB = vB.distanceTo(p0);
+						var dC = vC.distanceTo(p0);
+						var d = Math.min(dC, Math.min(dA,dB));
+						if (d < minD){
+							minD = d;
+						}
+					})
 					var d = n.dot(normal);
-					if (d > 0){
-						n = new THREE.Vector3(0,0,0);
-						gC.faces[i].vertexNormals[j] = n;
+					if (d > 0. && minD < minDistance*1e-4){
+						gC.faces[i].vertexNormals[j].copy(n0);
 					}
 				})
 
@@ -444,13 +475,14 @@ function drawSlice(size, position, rotation, opacity, color){
 			gC.elementsNeedUpdate = true; // update faces
 			gC.normalsNeedUpdate = true;
 
-
 			//create a surface using the pointsOfIntersection and drawing triangles
+			//get the center
+
 			var gF = new THREE.Geometry();
 			gF.vertices.push(pointsOfIntersection.vertices[0].clone().sub(m.position));
 			pointsOfIntersection.vertices.forEach(function(v,i){
 				if (i > 0){
-					gF.vertices.push(new THREE.Vector3(0,0,0));
+					gF.vertices.push(pointsOfIntersection.center.clone().sub(m.position));
 					gF.vertices.push(pointsOfIntersection.vertices[i].clone().sub(m.position));
 				}
 				offset = i * 2;
@@ -477,6 +509,7 @@ function drawSlice(size, position, rotation, opacity, color){
 			mesh.position.set(m.position.x, m.position.y, m.position.z)
 			mesh.rotation.set(m.rotation.x, m.rotation.y, m.rotation.z)
 			mesh.material.opacity = params.hardOpacity;
+			//mesh.material.wireframe = true;
 			mesh.material.visible = false;
 			mesh.side = THREE.DoubleSide;
 			params.scene.add(mesh)
@@ -555,6 +588,22 @@ function updateLights(){
 	});
 }
 
+//for the slice, in case we want to change it dynamically
+function updateSlice(p, r){
+
+	params.sliceMesh.forEach(function(m){
+		params.scene.remove(m);
+	})
+	params.sliceMesh = [];
+
+	var slice = drawSlice(2.*params.size, p, r, params.sliceOpacity, params.sliceColor);
+	params.sliceMesh.push(slice.plane);
+	slice.mesh.forEach(function(m){
+		params.sliceMesh.push(m);
+	})
+}
+
+
 //draw the scene (with lighting)
 function drawScene(){
 
@@ -619,12 +668,8 @@ function drawScene(){
 	//draw slice
 	var p = new THREE.Vector3(params.size,	params.size/2.,	params.size/2.); 
 	var r = new THREE.Vector3(0,			Math.PI/2.,		0); 
+	updateSlice(p, r)
 
-	var slice = drawSlice(2.*params.size, p, r, params.sliceOpacity, params.sliceColor);
-	params.sliceMesh.push(slice.plane);
-	slice.mesh.forEach(function(m){
-		params.sliceMesh.push(m);
-	})
 
 
 	//draw the box
@@ -638,12 +683,11 @@ function drawScene(){
 
 }
 
-
 //this is the animation loop
 function animate(time) {
 	requestAnimationFrame( animate );
 	params.controls.update();
-    //params.keyboard.update();
+    params.keyboard.update();
 	TWEEN.update(time);
 
 	//check location of plane for blending
@@ -656,6 +700,25 @@ function animate(time) {
 		params.slicePlane.material.depthTest = false;
 	}
 
+
+	if (params.keyboard.pressed("up")){
+		params.xfac += 0.01;
+		var p = new THREE.Vector3(params.size*params.xfac,	params.size/2.,	params.size/2.); 
+		var r = new THREE.Vector3(0,			Math.PI/2.,		0); 
+		updateSlice(p,r);
+		if (params.isSlice){
+			showSliceMesh(true);
+		}
+	}
+	if (params.keyboard.pressed("down")){
+		params.xfac -= 0.01;
+		var p = new THREE.Vector3(params.size*params.xfac,	params.size/2.,	params.size/2.); 
+		var r = new THREE.Vector3(0,			Math.PI/2.,		0); 
+		updateSlice(p,r);
+		if (params.isSlice){
+			showSliceMesh(true);
+		}
+	}
 	params.renderer.render( params.scene, params.camera );
 
 }
@@ -703,6 +766,7 @@ function defaultView(){
 	}
 
 	params.isSparse = false;
+	params.isSlice = false;
 	params.defaultViewTween.start();
 
 }
@@ -723,6 +787,7 @@ function hardSphereView(){
 	changeSphereOpacity(params.hardOpacity);
 
 	params.isSparse = false;
+	params.isSlice = false;
 
 	params.defaultViewTween.start();
 }
@@ -741,6 +806,7 @@ function sliceView(){
 	}
 
 	params.isSparse = false;
+	params.isSlice = true;
 
 	params.defaultViewTween.start();
 }
@@ -761,6 +827,7 @@ function sparseView(){
 	changeSphereOpacity(params.hardOpacity);
 
 	params.isSparse = true;
+	params.isSlice = false;
 
 	params.defaultViewTween.start();
 }
@@ -780,6 +847,7 @@ function coordinationView(){
 	changeSphereOpacity(params.hardOpacity);
 
 	params.isSparse = true;
+	params.isSlice = false;
 
 	params.defaultViewTween.start();
 }
