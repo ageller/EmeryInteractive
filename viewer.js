@@ -49,7 +49,7 @@ function defineParams(){
 
 		this.lights = [];
 
-		this.sphereSegments = 32;
+		this.sphereSegments = 64;
 		this.size = 1;
 
 	};
@@ -281,12 +281,7 @@ function drawSlice(size, position, rotation, opacity, color){
 		}
 	}
 
-	function drawIntersectionPoints(plane, obj) {
-		var box = new THREE.Box3().setFromObject( obj );
-		var size = new THREE.Vector3();
-		box.getSize(size);
-		var minDistance = (size.x + size.y + size.z)/3. * 0.001;
-
+	function drawIntersectionPoints(plane, obj, minDistance) {
 		var a = new THREE.Vector3(),
 			b = new THREE.Vector3(),
 			c = new THREE.Vector3();
@@ -330,45 +325,6 @@ function drawSlice(size, position, rotation, opacity, color){
 			params.scene.add( line );
 			objs.push(line);
 
-			// //filled
-			// var material = new THREE.MeshPhongMaterial( { 
-			// 	color: params.sphereColor, 
-			// 	flatShading: false, 
-			// 	transparent:true,
-			// 	opacity:params.hardOpacity, 
-			// 	side:THREE.DoubleSide,
-			// 	visible:false
-			// });
-
-			// var geometry = new THREE.Geometry();
-			// var vertices = [];
-			// //get the center of the sphere
-			// var center = new THREE.Vector3();
-			// obj.geometry.computeBoundingBox();   
-			// obj.geometry.boundingBox.getCenter(center);
-			// obj.localToWorld( center );
-			// //draw the triangles
-			// geometry.vertices.push(pointsOfIntersection.vertices[0].clone());
-			// pointsOfIntersection.vertices.forEach(function(p,i){
-			// 	if (i > 0){
-			// 		geometry.vertices.push(center);
-			// 		geometry.vertices.push(pointsOfIntersection.vertices[i].clone());
-			// 	}
-			// 	offset = i * 2;
-			// 	if (2+offset < 2*pointsOfIntersection.vertices.length){
-			// 		geometry.faces.push(new THREE.Face3(0 + offset, 1 + offset, 2 + offset));
-			// 	}
-			// })
-			// geometry.computeVertexNormals();
-			// var mesh = new THREE.Mesh(geometry, material);
-			// params.scene.add( mesh );
-			// objs.push(mesh);
-
-			// var planeBSP = new ThreeBSP(plane);
-			// var sphereBSP = new ThreeBSP(obj);
-			// var intersectBSP = planeBSP.intersect(sphereBSP);
-			// var mesh = intersectBSP.toMesh(material);
-			// params.scene.add( mesh );
 
 			//in case we want to see the points
 			// var pointsMaterial = new THREE.PointsMaterial({
@@ -416,28 +372,104 @@ function drawSlice(size, position, rotation, opacity, color){
 
 	params.spheres.forEach(function(m,i){ 
 
+		//this is an interesting package, but doesn't seem to work well enough for our purposes
+		// var planeBSP = new ThreeBSP(plane);
+		// var sphereBSP = new ThreeBSP(m);
+		// var intersectBSP = planeBSP.intersect(sphereBSP);
+		// var mesh = intersectBSP.toMesh(material);
+		// params.scene.add( mesh );
+
+
+		var box = new THREE.Box3().setFromObject( m );
+		var size = new THREE.Vector3();
+		box.getSize(size);
+		var minDistance = (size.x + size.y + size.z)/3.* 0.001;
+
 		pointsOfIntersection = new THREE.Geometry();
-		drawIntersectionPoints(plane, m);
+		drawIntersectionPoints(plane, m, minDistance);
 
 		if (pointsOfIntersection.vertices.length > 0){
 			//add the objects that have any intersection
+			//I will do this in two steps pieces
+			//First: I will get a convex Geometry of the object.  This apparently doesn't look good right at the intersection
+			// -- I will clean up the convex geometry by adjusting normals and removing the face that hits the plane
+			//Second: I will draw a flat geometry at the surface of intersection
+			//These will be combined into a single geometry that is then shown to the viewer
+			//I don't know how easily this will work in another setup...
 
+
+			//create a list of vertices for the intersection to use in convex geometry
 			m.intersected = true;
 			vertices = [];
 			m.geometry.vertices.forEach(function(v){
-				if (v.dot(normal) < 0){
+				if (v.dot(normal) <= 0){
 					vertices.push(v)
 				}
 			})
+
 			pointsOfIntersection.vertices.forEach(function(v){
-				vertices.push(new THREE.Vector3(v.x - m.position.x, v.y - m.position.y, v.z - m.position.z))
+				vertices.push(new THREE.Vector3(v.x - m.position.x, v.y - m.position.y, v.z - m.position.z));
 			})
-			var g = new THREE.ConvexGeometry( vertices );
-			g.computeVertexNormals();
-			g.computeFaceNormals();
+			vertices.push(new THREE.Vector3(0,0,0));
+			var gC = new THREE.ConvexGeometry( vertices );
+			gC.computeVertexNormals();
+			gC.computeFaceNormals();
+
+			//some of these normals are not coming our correctly... I will try to fix that here
+			//I will also delete the front face here
+			toDelete = [];
+			gC.faces.forEach(function(f,i){
+				//console.log(f.normal)
+				var d = f.normal.dot(normal);
+				if (d > (1 - 1e-4)){ //delete the front face
+					toDelete.push(i);
+				}
+				f.vertexNormals.forEach(function(n,j){
+					var d = n.dot(normal);
+					if (d > 0){
+						n = new THREE.Vector3(0,0,0);
+						gC.faces[i].vertexNormals[j] = n;
+					}
+				})
+
+			})
+			toDelete.forEach(function(i){
+				delete gC.faces[i];
+			})
+			gC.faces = gC.faces.filter( function(v) { return v; });
+			gC.elementsNeedUpdate = true; // update faces
+			gC.normalsNeedUpdate = true;
 
 
-			var mesh = new THREE.Mesh(g, m.material.clone());
+			//create a surface using the pointsOfIntersection and drawing triangles
+			var gF = new THREE.Geometry();
+			gF.vertices.push(pointsOfIntersection.vertices[0].clone().sub(m.position));
+			pointsOfIntersection.vertices.forEach(function(v,i){
+				if (i > 0){
+					gF.vertices.push(new THREE.Vector3(0,0,0));
+					gF.vertices.push(pointsOfIntersection.vertices[i].clone().sub(m.position));
+				}
+				offset = i * 2;
+				if (2+offset < 2*pointsOfIntersection.vertices.length){
+					gF.faces.push(new THREE.Face3(0 + offset, 1 + offset, 2 + offset));
+				}
+			})
+			gF.computeVertexNormals();
+
+			//combine these into a single geometry
+			var singleGeometry = new THREE.Geometry();
+
+			var mesh = new THREE.Mesh(gC)
+			mesh.updateMatrix();
+			singleGeometry.merge(mesh.geometry, mesh.matrix);
+
+			mesh = new THREE.Mesh(gF)
+			mesh.updateMatrix();
+			singleGeometry.merge(mesh.geometry, mesh.matrix);
+
+
+			mesh = new THREE.Mesh(singleGeometry, m.material.clone());
+
 			mesh.position.set(m.position.x, m.position.y, m.position.z)
 			mesh.rotation.set(m.rotation.x, m.rotation.y, m.rotation.z)
 			mesh.material.opacity = params.hardOpacity;
@@ -445,6 +477,11 @@ function drawSlice(size, position, rotation, opacity, color){
 			mesh.side = THREE.DoubleSide;
 			params.scene.add(mesh)
 			objs.push(mesh)
+
+			//to see the normals
+			//var helper = new THREE.VertexNormalsHelper( mesh, 0.1, "red", 1 );
+			//var helper = new THREE.FaceNormalsHelper( mesh, 0.1, "red", 1 );
+			//params.scene.add(helper)
 
 
 		} else {
