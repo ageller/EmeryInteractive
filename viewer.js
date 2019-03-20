@@ -16,11 +16,14 @@ function defineParams(){
 
 		//camera view (and tween)
 		this.defaultView = new THREE.Vector3(3.3,1.75,1.5);
+		this.coordinationView = new THREE.Vector3(1.75,-3.3,1.5);
 		this.defaultViewTween;
+		this.coordinationViewTween;
 
 		//will hold all the outer spheres
 		this.spheres = [];
 		this.hemiSpheres = [];
+		this.coordination = [];
 
 		//will hold items for slice view
 		this.sliceMesh = [];
@@ -44,6 +47,11 @@ function defineParams(){
 		this.yRfac = Math.PI/2.;//testing dynamic slicing
 		this.slicePlanePosition = new THREE.Vector3(this.xPfac, this.size/2., this.size/2.); 
 		this.slicePlaneRotation = new THREE.Vector3(0, this.yRfac, 0); 
+
+		//for coordination
+		this.cylinderColor = "gray";
+		this.cylinderRadialSegments = 32;
+		this.cylinderheightSegments = 1;
 
 		//this size of the sparse model
 		this.sparseScale = 0.2;
@@ -115,6 +123,7 @@ function init(){
 
 function defineTweens(){
 	params.defaultViewTween = new TWEEN.Tween(params.camera.position).to(params.defaultView, params.tweenDuration).easing(TWEEN.Easing.Linear.None);
+	params.coordinationViewTween = new TWEEN.Tween(params.camera.position).to(params.coordinationView, params.tweenDuration).easing(TWEEN.Easing.Linear.None);
 }
 
 //draw a quarter sphere
@@ -203,13 +212,14 @@ function drawHalfSphere(radius, widthSegments, heightSegments, opacity, color, p
 }
 
 //draw a full sphere
-function drawSphere(radius, widthSegments, heightSegments, opacity, color, position){
+function drawSphere(radius, widthSegments, heightSegments, opacity, color, position, visible = true){
 	var geometry = new THREE.SphereGeometry(radius, widthSegments, heightSegments, 0, 2.*Math.PI, 0, Math.PI)
 	var material = new THREE.MeshPhongMaterial( { 
 		color: color, 
 		flatShading: false, 
 		transparent:true,
 		opacity:opacity, 
+		visible:visible
 		//shininess:50,
 	});
 
@@ -228,6 +238,26 @@ function drawSphere(radius, widthSegments, heightSegments, opacity, color, posit
 	
 	return sphere;
 
+}
+
+//draw a cylinder
+function drawCylinder(radius, height, radialSegments, heightSegments, color, position, rotation, visible = false){
+	var geometry = new THREE.CylinderGeometry(radius, radius, height, radialSegments, heightSegments);
+
+	var material = new THREE.MeshPhongMaterial( { 
+		color: color, 
+		flatShading: false, 
+		transparent:false,
+		visible:visible
+	});
+
+	cylinder = new THREE.Mesh( geometry, material );
+	cylinder.position.set(position.x, position.y, position.z)
+	cylinder.rotation.set(rotation.x, rotation.y, rotation.z)
+
+	params.scene.add( cylinder );
+	
+	return cylinder;
 }
 
 //draw the slice view
@@ -622,9 +652,7 @@ function updateSlicePlaneDepth(){
 
 }
 
-//draw the scene (with lighting)
-function drawScene(){
-
+function drawMainSpheres(){
 	var radius = params.size*Math.sqrt(2)/4.
 
 	//draw the full spheres (this should be from an input file)
@@ -682,16 +710,115 @@ function drawScene(){
 		params.hemiSpheres.push(mesh);
 	})
 
+}
 
-	//draw slice
+function drawCoordination(){
+	var radius = params.size*Math.sqrt(2)/4.*params.sparseScale;
+
+	//spheres
+	//corner
+	var p1  = new THREE.Vector3(0, 				0, 				0);
+
+	//middle "ring"
+	var p2 = new THREE.Vector3(params.size/2.,	params.size/2.,	0);
+	var p3 = new THREE.Vector3(-params.size/2.,	params.size/2.,	0);
+	var p4 = new THREE.Vector3(-params.size/2.,	-params.size/2.,	0);
+	var p5 = new THREE.Vector3(params.size/2.,	-params.size/2.,	0);
+
+	//top "ring"
+	var p6 = new THREE.Vector3(params.size/2.,	0,				params.size/2.);
+	var p7 = new THREE.Vector3(0,				params.size/2.,	params.size/2.);
+	var p8 = new THREE.Vector3(-params.size/2.,	0,				params.size/2.);
+	var p9 = new THREE.Vector3(0,				-params.size/2.,params.size/2.);
+
+	//bottom "ring"
+	var p10 = new THREE.Vector3(params.size/2.,	0,				-params.size/2.);
+	var p11 = new THREE.Vector3(0,				params.size/2.,	-params.size/2.);
+	var p12 = new THREE.Vector3(-params.size/2.,0,				-params.size/2.);
+	var p13 = new THREE.Vector3(0,				-params.size/2.,-params.size/2.);
+
+
+	var allP = [p1, p2,p3,p4,p5, p6,p7,p8,p9, p10,p11,p12,p13]
+	allP.forEach(function(p){
+		var mesh = drawSphere(radius, params.sphereSegments, params.sphereSegments, params.hardOpacity, params.sphereColor, p, false);
+		params.coordination.push(mesh);
+	});
+
+	//cylinders
+	//positions
+	var n = new THREE.Vector3(2,2,2);
+	var p1to2 = p2.clone().sub(p1).divide(n);
+	var p1to3 = p3.clone().sub(p1).divide(n);
+	var p1to4 = p4.clone().sub(p1).divide(n);
+	var p1to5 = p5.clone().sub(p1).divide(n);
+
+	var p1to6 = p6.clone().sub(p1).divide(n);
+	var p1to7 = p7.clone().sub(p1).divide(n);
+	var p1to8 = p8.clone().sub(p1).divide(n);
+	var p1to9 = p9.clone().sub(p1).divide(n);
+
+	var p1to10 = p10.clone().sub(p1).divide(n);
+	var p1to11 = p11.clone().sub(p1).divide(n);
+	var p1to12 = p12.clone().sub(p1).divide(n);
+	var p1to13 = p13.clone().sub(p1).divide(n);
+
+	//lengths
+	var h1to2 = p1.clone().sub(p2).length();
+	var h1to3 = p1.clone().sub(p3).length();
+	var h1to4 = p1.clone().sub(p4).length();
+	var h1to5 = p1.clone().sub(p5).length();
+
+	var h1to6 = p1.clone().sub(p6).length();
+	var h1to7 = p1.clone().sub(p7).length();
+	var h1to8 = p1.clone().sub(p8).length();
+	var h1to9 = p1.clone().sub(p9).length();
+
+	var h1to10 = p1.clone().sub(p10).length();
+	var h1to11 = p1.clone().sub(p11).length();
+	var h1to12 = p1.clone().sub(p12).length();
+	var h1to13 = p1.clone().sub(p13).length();
+
+
+	//rotation (not sure what the algorithm is here...)
+	var r1to2 = new THREE.Vector3(0, 0, -Math.atan2(p2.y, p2.x));
+	var r1to3 = new THREE.Vector3(0, 0, -Math.atan2(p3.y, p3.x));
+	var r1to4 = new THREE.Vector3(0, 0, -Math.atan2(p4.y, p4.x));
+	var r1to5 = new THREE.Vector3(0, 0, -Math.atan2(p5.y, p5.x));
+
+	var r1to6 = new THREE.Vector3(0, 						-Math.acos(p6.z/h1to6), 2.*Math.acos(p6.z/h1to6));
+	var r1to7 = new THREE.Vector3(Math.acos(p6.z/h1to6), 	-Math.acos(p7.z/h1to7), 0);
+	var r1to8 = new THREE.Vector3(0,						Math.acos(p8.z/h1to8), 	2.*Math.acos(p8.z/h1to8));
+	var r1to9 = new THREE.Vector3(-Math.acos(p9.z/h1to9), 	0, 						0);
+
+	var r1to10 = new THREE.Vector3(0, 						Math.acos(p6.z/h1to6), 2.*Math.acos(p6.z/h1to6));
+	var r1to11 = new THREE.Vector3(-Math.acos(p6.z/h1to6), 	Math.acos(p7.z/h1to7), 0);
+	var r1to12 = new THREE.Vector3(0,						-Math.acos(p8.z/h1to8), 	2.*Math.acos(p8.z/h1to8));
+	var r1to13 = new THREE.Vector3(Math.acos(p9.z/h1to9), 	0, 						0);
+
+	var allP = [p1to2,p1to3,p1to4,p1to5, p1to6,p1to7,p1to8,p1to9, p1to10,p1to11,p1to12,p1to13]
+	var allR = [r1to2,r1to3,r1to4,r1to5, r1to6,r1to7,r1to8,r1to9, r1to10,r1to11,r1to12,r1to13]
+	var allH = [h1to2,h1to3,h1to4,h1to5, h1to6,h1to7,h1to8,h1to9, h1to10,h1to11,h1to12,h1to13]
+	allP.forEach(function(p,i){
+		var mesh = drawCylinder(radius/4., allH[i], params.cylinderRadialSegments, params.cylinderHeightSegments, params.cylinderColor, allP[i], allR[i]);
+		params.coordination.push(mesh);
+	});
+}
+
+
+//draw the scene (with lighting)
+function drawScene(){
+
+	//draw the main spheres (for default, hard-Sphere and Sparse views)
+	drawMainSpheres();
+
+	//draw the slice view (updateSlice calls drawSlice -- written this way to facilitate dynamic updating of slice mesh)
 	updateSlice(params.slicePlanePosition, params.slicePlaneRotation);
 
+	//draw the coordinate view
+	drawCoordination();
 
-
-	//draw the box
+	//draw the box with axes
 	drawBox();
-
-
 
 	//lights
 	addLights()
@@ -707,6 +834,9 @@ function animate(time) {
 	TWEEN.update(time);
 
 
+	if (params.keyboard.down("C")){
+		console.log(params.camera.position)
+	}
 
 	//testing dynamically updating the slice location
 	if (params.isSlice){
@@ -754,15 +884,20 @@ function showHemiSpheres(bool){
 		m.material.visible = bool;
 	})
 }
-
+function showSpheres(bool){
+	params.spheres.forEach(function(m){
+		m.material.visible = bool;
+	})
+}
 function showSliceMesh(bool){
 	params.sliceMesh.forEach(function(m){
 		m.material.visible = bool;
 	})
-	params.spheres.forEach(function(m){
-		m.material.visible = !bool;
-	});
-
+}
+function showCoordination(bool){
+	params.coordination.forEach(function(m){
+		m.material.visible = bool;
+	})
 }
 function changeSphereOpacity(opacity){
 	params.spheres.forEach(function(m){
@@ -783,15 +918,19 @@ function defaultView(){
 	d3.selectAll('#resetButton').classed('buttonClicked', true);
 	d3.selectAll('#resetButton').classed('buttonHover', false);
 
-	showHemiSpheres(true);
-	changeSphereOpacity(params.defaultOuterOpacity);
 	showSliceMesh(false);
+	showCoordination(false);
 	if (params.isSparse){
 		changeSphereScale(1./params.sparseScale);
+		params.isSparse = false;
 	}
-
-	params.isSparse = false;
 	params.isSlice = false;
+
+	showHemiSpheres(true);
+	showSpheres(true);
+	changeSphereOpacity(params.defaultOuterOpacity);
+
+
 	params.defaultViewTween.start();
 
 }
@@ -804,15 +943,16 @@ function hardSphereView(){
 	d3.selectAll('#hardSphereButton').classed('buttonHover', false);
 
 	showHemiSpheres(false);
+	showCoordination(false);
 	showSliceMesh(false);
 	if (params.isSparse){
 		changeSphereScale(1./params.sparseScale);
+		params.isSparse = false;
 	}
-
-	changeSphereOpacity(params.hardOpacity);
-
-	params.isSparse = false;
 	params.isSlice = false;
+
+	showSpheres(true);
+	changeSphereOpacity(params.hardOpacity);
 
 	params.defaultViewTween.start();
 }
@@ -825,12 +965,10 @@ function sliceView(){
 	d3.selectAll('#sliceButton').classed('buttonHover', false);
 
 	showHemiSpheres(false);
-	showSliceMesh(true);
-	if (params.isSparse){
-		changeSphereScale(1./params.sparseScale);
-	}
+	showSpheres(false);
+	showCoordination(false);
 
-	params.isSparse = false;
+	showSliceMesh(true);
 	params.isSlice = true;
 
 	params.defaultViewTween.start();
@@ -844,14 +982,16 @@ function sparseView(){
 	d3.selectAll('#sparseButton').classed('buttonHover', false);
 
 	showHemiSpheres(false);
+	showSliceMesh(false);
+	showCoordination(false);
+
 	if (!params.isSparse){
 		changeSphereScale(params.sparseScale);
+		params.isSparse = true;
 	}
-	showSliceMesh(false);
-
+	showSpheres(true);
 	changeSphereOpacity(params.hardOpacity);
 
-	params.isSparse = true;
 	params.isSlice = false;
 
 	params.defaultViewTween.start();
@@ -865,16 +1005,14 @@ function coordinationView(){
 	d3.selectAll('#coordinationButton').classed('buttonHover', false);
 
 	showHemiSpheres(false);
-	if (!params.isSparse){
-		changeSphereScale(params.sparseScale);
-	}
+	showSpheres(false);
 	showSliceMesh(false);
-	changeSphereOpacity(params.hardOpacity);
 
-	params.isSparse = true;
+	showCoordination(true);
+
 	params.isSlice = false;
 
-	params.defaultViewTween.start();
+	params.coordinationViewTween.start();
 }
 
 function showHelp(){
