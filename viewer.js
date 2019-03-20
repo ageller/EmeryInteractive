@@ -423,8 +423,15 @@ function drawSlice(size, position, rotation, opacity, color){
 	params.slicePlane = plane;
 	params.slicePlanePosition = position;
 	updateSlicePlaneDepth();
-
 	params.scene.add( plane );
+
+	var edges = new THREE.EdgesGeometry( geometry );
+	var material = new THREE.LineBasicMaterial( {
+		color: "red",
+		visible: false,
+	});
+	var planeLine = new THREE.LineSegments( edges,  material);
+	params.scene.add(planeLine);
 
 	params.spheres.forEach(function(m,i){ 
 
@@ -578,6 +585,7 @@ function drawSlice(size, position, rotation, opacity, color){
 
 	return {
 		"plane":plane,
+		"planeLine":planeLine,
 		"mesh":objs,
 	}
 
@@ -656,8 +664,9 @@ function updateSlice(p,r){
 	})
 	params.sliceMesh = [];
 
-	var slice = drawSlice(2.*params.size, p, r, params.sliceOpacity, params.sliceColor);
+	var slice = drawSlice(4.*params.size, p, r, params.sliceOpacity, params.sliceColor);
 	params.sliceMesh.push(slice.plane);
+	params.sliceMesh.push(slice.planeLine);
 	slice.mesh.forEach(function(m){
 		params.sliceMesh.push(m);
 	})
