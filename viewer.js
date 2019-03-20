@@ -115,7 +115,7 @@ function init(){
 	//controls
 	//params.controls = new THREE.TrackballControls( params.camera, params.renderer.domElement );
 	params.controls = new THREE.OrbitControls( params.camera);
-	//params.controls.enablePan = false;
+	params.controls.enablePan = false;
 	params.controls.rotateSpeed = 0.5;
 	params.domElement = params.renderer.domElement;
 	//params.controls.addEventListener( 'change', function(){console.log(params.camera.position) });
@@ -126,8 +126,14 @@ function init(){
 }
 
 function defineTweens(){
-	params.defaultViewTween = new TWEEN.Tween(params.camera.position).to(params.defaultView, params.tweenDuration).easing(TWEEN.Easing.Linear.None);
-	params.coordinationViewTween = new TWEEN.Tween(params.camera.position).to(params.coordinationView, params.tweenDuration).easing(TWEEN.Easing.Linear.None);
+	params.defaultViewTween = new TWEEN.Tween(params.camera.position)
+		.to(params.defaultView, params.tweenDuration)
+		.easing(TWEEN.Easing.Linear.None);
+
+
+	params.coordinationViewTween = new TWEEN.Tween(params.camera.position)
+		.to(params.coordinationView, params.tweenDuration)
+		.easing(TWEEN.Easing.Linear.None);
 }
 
 //draw a quarter sphere
@@ -1101,7 +1107,6 @@ function defaultView(){
 	showHemiSpheres(true);
 	showSpheres(true);
 	changeSphereOpacity(params.defaultOuterOpacity);
-
 
 	params.defaultViewTween.start();
 
