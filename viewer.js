@@ -393,7 +393,7 @@ function drawSlice(size, position, rotation, opacity, color){
 	params.slicePlane = plane;
 	params.slicePlanePosition = position;
 	updateSlicePlaneDepth();
-	
+
 	params.scene.add( plane );
 
 	params.spheres.forEach(function(m,i){ 
@@ -706,37 +706,40 @@ function animate(time) {
     params.keyboard.update();
 	TWEEN.update(time);
 
-	//check location of slice plane for blending
-	updateSlicePlaneDepth();
+
 
 	//testing dynamically updating the slice location
-	var doSliceUpdate = false;
-	if (params.keyboard.pressed("up")){
-		params.xPfac += params.size*0.02;
-		doSliceUpdate = true;
-	}
-	if (params.keyboard.pressed("down")){
-		params.xPfac -= params.size*0.02;
-		doSliceUpdate = true;
-	}
-	if (params.keyboard.pressed("left")){
-		params.yRfac += Math.PI*0.02;
-		doSliceUpdate = true;
-	}
-	if (params.keyboard.pressed("right")){
-		params.yRfac -= Math.PI*0.02;
-		doSliceUpdate = true;
-	}
+	if (params.isSlice){
 
-	if (doSliceUpdate){
-		params.xPfac = THREE.Math.clamp(params.xPfac, -0.5*params.size, 1.5*params.size);
-		params.yRfac = THREE.Math.clamp(params.yRfac, -Math.PI/2., Math.PI/2.);
-		var p = params.slicePlanePosition.clone();
-		p.x = params.xPfac;
-		var r = params.slicePlaneRotation.clone();
-		r.y = params.yRfac; 
-		updateSlice(p, r);
-		if (params.isSlice){
+		//check location of slice plane for blending
+		updateSlicePlaneDepth();
+
+		var doSliceUpdate = false;
+		if (params.keyboard.pressed("up")){
+			params.xPfac += params.size*0.02;
+			doSliceUpdate = true;
+		}
+		if (params.keyboard.pressed("down")){
+			params.xPfac -= params.size*0.02;
+			doSliceUpdate = true;
+		}
+		if (params.keyboard.pressed("left")){
+			params.yRfac += Math.PI*0.02;
+			doSliceUpdate = true;
+		}
+		if (params.keyboard.pressed("right")){
+			params.yRfac -= Math.PI*0.02;
+			doSliceUpdate = true;
+		}
+
+		if (doSliceUpdate){
+			params.xPfac = THREE.Math.clamp(params.xPfac, -0.5*params.size, 1.5*params.size);
+			params.yRfac = THREE.Math.clamp(params.yRfac, -Math.PI/2., Math.PI/2.);
+			var p = params.slicePlanePosition.clone();
+			p.x = params.xPfac;
+			var r = params.slicePlaneRotation.clone();
+			r.y = params.yRfac; 
+			updateSlice(p, r);
 			showSliceMesh(true);
 		}
 	}
