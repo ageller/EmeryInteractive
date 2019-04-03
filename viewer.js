@@ -76,6 +76,8 @@ function defineParams(){
 
 		this.offsetPosition = new THREE.Vector3(this.size, this.size, this.size);
 
+		//for tooltips
+		this.ttMeshIndex = 0;
 
 	};
 
@@ -1006,6 +1008,7 @@ function animate(time) {
 	params.controls.update();
     params.keyboard.update();
 	TWEEN.update(time);
+	moveTooltip(d3.select('#tooltip1'));
 
 	if (params.keyboard.down("C")){
 		console.log(params.camera.position)
@@ -1330,7 +1333,76 @@ function resizeContainers(){
 	}
 }
 
+///////////////////////////
+// for finding the circle based on clicks
+///////////////////////////
+function getClickedMesh(pageX, pageY, tt, meshArray=params.spheres){
 
+	var mpos = new THREE.Vector3(pageX,pageY, 0)
+	var meshPos = new THREE.Vector3(0,0, 0)
+	var dist = 1e100;
+	var mesPos;
+	meshArray.forEach(function(p,i){
+		pos = screenXY(p)
+		var tdist = mpos.distanceTo(pos); //need to add on depth?
+		if (tdist < dist){ 
+			dist = tdist
+			meshPos = pos; 
+			params.ttMeshIndex = i;
+
+		}
+	});
+
+	moveTooltip(tt, pos=meshPos);
+
+}
+function moveTooltip(tt, pos=null, meshArray=params.spheres){
+	if (pos == null){
+		pos = screenXY(meshArray[params.ttMeshIndex]);
+	}
+	tt.style("top",pos.y )
+	tt.style("left", pos.x );
+	tt.select('.tooltipContent').html("index="+params.ttMeshIndex + " x="+pos.x+" y="+pos.y+" z="+pos.z);
+
+}
+
+function screenXY(mesh){
+
+	var vector = mesh.position.clone();
+	var w = d3.select('#WebGLContainer');
+	var width = parseFloat(w.style('width'));
+	var height = parseFloat(w.style('height'));
+	var left = parseFloat(w.style('left'));
+	var top = parseFloat(w.style('top'));
+
+	vector.project(params.camera);
+
+	vector.x = ( vector.x * width/2. ) + width/2. + left;
+	vector.y = - ( vector.y * height/2. ) + height/2. + top;
+
+	screenXYcheck = true;
+	if (vector.z > 1){
+		screenXYcheck = false;
+	}
+
+	vector.z = 0;
+
+	return vector;
+}
+
+function showTooltip(e, pageX = null, pageY = null){
+
+	var tt = d3.select('#tooltip1')
+
+	if (pageX == null) pageX = e.pageX;
+	if (pageY == null) pageY = e.pageY;
+
+	tt.style("display","block").style("opacity", 1.);
+	getClickedMesh(pageX, pageY, tt);
+
+}
+
+///////////////////////////
 //this is called to start everything
 function WebGLStart(){
 
@@ -1351,6 +1423,7 @@ function WebGLStart(){
 // runs on load
 ///////////////////////////
 window.addEventListener("resize", resizeContainers)
+d3.select('#WebGLContainer').node().addEventListener("dblclick", showTooltip);
 
 //called upon loading
 WebGLStart();

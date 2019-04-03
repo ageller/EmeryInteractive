@@ -58,3 +58,37 @@ body {
 	background-color: var(--button-clicked-color);
 	/*color: var(--button-background-color);*/
 }
+
+.tooltip{
+	position:absolute;
+	height:auto;
+	width: auto;
+	padding: 10px;
+	margin: 0px;
+	z-index: 4;
+	background-color: lightgray;
+	text-align: center;
+	border: 2px solid var(--button-clicked-color);
+	/*opacity: 0.0;
+	display: none;*/
+}
+.close{
+	position:absolute;
+	top:2px;
+	left:2px;
+	border-radius: 50%;
+	width: 32px;
+	height: 32px;
+	padding: 0;
+	border: 2px solid;
+	text-align: center;
+	font: 32px Arial, sans-serif;
+	color: var(--button-foreground-color);
+	background-color:var(--button-background-color);
+	cursor:pointer;
+}
+
+.tooltipContent{
+	margin-left: 40px;
+	color:black;
+}
