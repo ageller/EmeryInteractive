@@ -48,6 +48,9 @@ function defineParams(){
 		this.slicePlanePosition = new THREE.Vector3(this.xPfac, this.size/2., this.size/2.); 
 		this.slicePlaneRotation = new THREE.Vector3(0, this.yRfac, 0); 
 
+		//for clicking
+		this.highlightColor = 0xFF6347;
+
 		//for coordination
 		this.cylinderColor = "gray";
 		this.cylinderRadialSegments = 32;
@@ -1354,18 +1357,32 @@ function getClickedMesh(pageX, pageY, tt, meshArray=params.spheres){
 	});
 
 	moveTooltip(tt, pos=meshPos);
+	highlightSphere(true)
 
 }
 function moveTooltip(tt, pos=null, meshArray=params.spheres){
 	if (pos == null){
 		pos = screenXY(meshArray[params.ttMeshIndex]);
 	}
+	var mesh = meshArray[params.ttMeshIndex];
 	tt.style("top",pos.y )
 	tt.style("left", pos.x );
-	tt.select('.tooltipContent').html("index="+params.ttMeshIndex + " x="+pos.x+" y="+pos.y+" z="+pos.z);
+	tt.select('.tooltipContent').html("x="+mesh.position.x+" y="+mesh.position.y+" z="+mesh.position.z);
 
 }
-
+function highlightSphere(bool, meshArray=params.spheres){
+	var color = params.sphereColor
+	if (bool){
+		color = params.highlightColor;
+		var box = new THREE.Box3().setFromObject( meshArray[params.ttMeshIndex] );
+		var helper = new THREE.Box3Helper( box, params.highlightColor );
+		helper.name = "sphereBox"
+		params.scene.add( helper );
+	} else {
+    	params.scene.remove( params.scene.getObjectByName("sphereBox") );
+	}
+	meshArray[params.ttMeshIndex].material.color.setHex(color);
+}
 function screenXY(mesh){
 
 	var vector = mesh.position.clone();
@@ -1392,6 +1409,9 @@ function screenXY(mesh){
 
 function showTooltip(e, pageX = null, pageY = null){
 
+	highlightSphere(false);
+
+	//e = d3.event;
 	var tt = d3.select('#tooltip1')
 
 	if (pageX == null) pageX = e.pageX;
@@ -1399,7 +1419,6 @@ function showTooltip(e, pageX = null, pageY = null){
 
 	tt.style("display","block").style("opacity", 1.);
 	getClickedMesh(pageX, pageY, tt);
-
 }
 
 ///////////////////////////
@@ -1424,6 +1443,11 @@ function WebGLStart(){
 ///////////////////////////
 window.addEventListener("resize", resizeContainers)
 d3.select('#WebGLContainer').node().addEventListener("dblclick", showTooltip);
+//d3.select('#WebGLContainer').on("dblclick", showTooltip); //not sure why I can't make this work in a d3 way
+d3.select('#tooltip1').select('#tooltipClose').on("click", function(){
+	d3.select('#tooltip1').style('display','none')
+	highlightSphere(false);
+});
 
 //called upon loading
 WebGLStart();
