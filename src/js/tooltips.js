@@ -1,6 +1,25 @@
-///////////////////////////
+
+function createTooltip(loc){
+
+	var tt = d3.select('body').append('div')
+		.attr('id','tooltip'+loc)
+		.attr('class','tooltip')
+		.style('font-size','20px')
+		.style('display','block')
+		.style('opacity',1)
+	tt.append('span')
+		.attr('id','tootltipClose')
+		.attr('class','close buttonHover')
+		.html('&times;')
+		.on('click',function(){
+			highlightSphere(false, loc);
+		});
+	tt.append('span')
+		.attr('class','tooltipContent');
+
+
+}
 // for finding the circle based on clicks
-///////////////////////////
 function getClickedMesh(pageX, pageY, meshArray=params.spheres){
 
 	var mpos = new THREE.Vector3(pageX,pageY, 0)
@@ -22,29 +41,38 @@ function getClickedMesh(pageX, pageY, meshArray=params.spheres){
 			"meshPos":meshPos};
 
 }
-function moveTooltip(tt, i, pos=null, meshArray=params.spheres){
-	if (pos == null){
-		pos = screenXY(meshArray[params.ttMeshIndex[i]]);
-	}
-	var mesh = meshArray[params.ttMeshIndex[i]];
+function moveTooltip(meshIndex, meshArray=params.spheres){
+	var tt = d3.select('#tooltip'+meshIndex)
+
+	var mesh = meshArray[meshIndex];
+
+	pos = screenXY(mesh);
 	tt.style("top",pos.y )
 	tt.style("left", pos.x );
 	tt.select('.tooltipContent').html("x="+mesh.position.x+" y="+mesh.position.y+" z="+mesh.position.z);
 
 }
-function highlightSphere(bool, i, meshArray=params.spheres){
-	var color = params.sphereColor
+function highlightSphere(bool, loc, meshArray=params.spheres){
+
+	var color = params.sphereColor;
+	var boxName = "sphereBox"+loc;
 	if (bool){
 		color = params.highlightColor;
-		var box = new THREE.Box3().setFromObject( meshArray[params.ttMeshIndex[i]] );
-		var helper = new THREE.Box3Helper( box, params.highlightColor );
-		helper.name = "sphereBox"+params.ttMeshIndex[i]
-		params.scene.add( helper );
+		var test = params.scene.getObjectByName(boxName);
+		if (test == null){
+			var box = new THREE.Box3().setFromObject( meshArray[loc] );
+			var helper = new THREE.Box3Helper( box, params.highlightColor );
+			helper.name = boxName;
+			params.scene.add( helper );
+		}
 	} else {
-    	params.scene.remove( params.scene.getObjectByName("sphereBox"+params.ttMeshIndex[i]) );
+		params.scene.remove( params.scene.getObjectByName(boxName) ); //remove the box
+		params.ttMeshIndex.splice(params.ttMeshIndex.indexOf(loc),1); //remove the value from the ttMeshIndex array
+		d3.select('#tooltip'+loc).remove(); //remove the tooltip
 	}
-	meshArray[params.ttMeshIndex[i]].material.color.setHex(color);
+	meshArray[loc].material.color.setHex(color);
 }
+
 function screenXY(mesh){
 
 	var vector = mesh.position.clone();
@@ -71,27 +99,42 @@ function screenXY(mesh){
 
 function showTooltip(e, pageX = null, pageY = null){
 
-	var i = params.ttMeshIndex.length - 1;
 
-	if (params.ttMeshIndex.length > 0){
-		highlightSphere(false, i); //turn off previous highlighting (will highlight again later)
-	}
 
 	//e = d3.event;
 	if (pageX == null) pageX = e.pageX;
 	if (pageY == null) pageY = e.pageY;
 
 	var clicked = getClickedMesh(pageX, pageY);
-	if (params.keyboard.pressed("shift") && params.ttMeshIndex.length < 3){
+	createTooltip(clicked['index']);
+
+	if (params.keyboard.pressed("shift")){
 		params.ttMeshIndex.push(clicked['index']);
 	} else {
+		params.ttMeshIndex.forEach(function(foo, i){
+			highlightSphere(false, i); //turn off previous highlighting
+		});
 		params.ttMeshIndex = [clicked['index']];
 	}
 
-	params.ttMeshIndex.forEach(function(foo, i){
-		var tt = d3.select('#tooltip'+i);
-		tt.style("display","block").style("opacity", 1.); //turn on tooltip
-		moveTooltip(tt, i, pos=clicked['meshPos']); //move it into position
-		highlightSphere(true, i); //highlight the sphere
+	if (params.ttMeshIndex.length > 3){ //only allow three to be highlighted
+		highlightSphere(false, params.ttMeshIndex[2]); //turn off previous highlighting
+		params.ttMeshIndex = params.ttMeshIndex.slice(0,2);
+		params.ttMeshIndex.push(clicked['index']);
+	}
+
+
+	params.ttMeshIndex.forEach(function(loc){
+		moveTooltip(loc); //move it into position
+		highlightSphere(true, loc); //highlight the sphere
 	})
 }
+
+
+///////////////////////////
+// runs on load
+///////////////////////////
+d3.select('#WebGLContainer').node().addEventListener("dblclick", showTooltip);
+//d3.select('#WebGLContainer').on("dblclick", showTooltip); //not sure why I can't make this work in a d3 way
+
+

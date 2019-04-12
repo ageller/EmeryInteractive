@@ -81,8 +81,8 @@ function animate(time) {
     params.keyboard.update();
 	TWEEN.update(time);
 
-	params.ttMeshIndex.forEach(function(foo, i){
-		moveTooltip(d3.select('#tooltip'+i),i);
+	params.ttMeshIndex.forEach(function(loc){
+		moveTooltip(loc);
 	})
 
 	if (params.keyboard.down("C")){
@@ -274,16 +274,6 @@ function WebGLStart(){
 // runs on load
 ///////////////////////////
 window.addEventListener("resize", resizeContainers)
-d3.select('#WebGLContainer').node().addEventListener("dblclick", showTooltip);
-//d3.select('#WebGLContainer').on("dblclick", showTooltip); //not sure why I can't make this work in a d3 way
-var allTT = [0,1,2];
-allTT.forEach(function(i){
-	d3.select('#tooltip'+i).select('#tooltipClose').on("click", function(){
-		d3.select('#tooltip'+i).style('display','none')
-		highlightSphere(false, i);
-	});
-})
-
 
 //called upon loading
 WebGLStart();
