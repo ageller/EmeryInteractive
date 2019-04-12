@@ -38,17 +38,18 @@ function getClickedMesh(pageX, pageY, meshArray=params.spheres){
 	});
 
 	return {"index":index,
-			"meshPos":meshPos};
+			"meshPos":meshPos
+			};
 
 }
-function moveTooltip(meshIndex, meshArray=params.spheres){
+function moveTooltip(meshIndex, offset=10, meshArray=params.spheres, ){
 	var tt = d3.select('#tooltip'+meshIndex)
 
 	var mesh = meshArray[meshIndex];
 
 	pos = screenXY(mesh);
-	tt.style("top",pos.y )
-	tt.style("left", pos.x );
+	tt.style("top",pos.y+offset )
+	tt.style("left", pos.x+offset );
 	tt.select('.tooltipContent').html("x="+mesh.position.x+" y="+mesh.position.y+" z="+mesh.position.z);
 
 }
@@ -69,10 +70,31 @@ function highlightSphere(bool, loc, meshArray=params.spheres){
 		params.scene.remove( params.scene.getObjectByName(boxName) ); //remove the box
 		params.ttMeshIndex.splice(params.ttMeshIndex.indexOf(loc),1); //remove the value from the ttMeshIndex array
 		d3.select('#tooltip'+loc).remove(); //remove the tooltip
+		params.scene.remove( params.scene.getObjectByName('ttArrow') ); //remove any arrow 
+		params.scene.remove( params.scene.getObjectByName('ttplane') ); //remove any arrow 
+		if (params.ttMeshIndex.length == 2){//draw back an arrow if we've removed a plane
+			drawTTarrow();
+		}		
+
 	}
 	meshArray[loc].material.color.setHex(color);
 }
 
+//https://stackoverflow.com/questions/26714230/draw-arrow-helper-along-three-line-or-two-vectors
+function drawTTarrow(meshArray=params.spheres){
+	var from = meshArray[params.ttMeshIndex[0]].position;
+	var to = meshArray[params.ttMeshIndex[1]].position;
+	var direction = to.clone().sub(from);
+	var length = direction.length();
+	var arrowHelper = new THREE.ArrowHelper(direction.normalize(), from, length, params.highlightColor, params.size/10., params.size/10. );
+	console.log("arrow", from , to, direction, length)
+	arrowHelper.name = 'ttArrow'
+	params.scene.add( arrowHelper );
+}
+
+function drawTTplane(meshArray=params.spheres){
+
+}
 function screenXY(mesh){
 
 	var vector = mesh.position.clone();
@@ -128,6 +150,15 @@ function showTooltip(e, pageX = null, pageY = null){
 		moveTooltip(loc); //move it into position
 		highlightSphere(true, loc); //highlight the sphere
 	})
+
+	if (params.ttMeshIndex.length == 2){
+		params.scene.remove( params.scene.getObjectByName('ttPlane') ); //remove any plane 
+		drawTTarrow();
+	}
+	if (params.ttMeshIndex.length == 3){
+		params.scene.remove( params.scene.getObjectByName('ttArrow') ); //remove any arrow 
+		drawTTplane();
+	}
 }
 
 
