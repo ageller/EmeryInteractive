@@ -46,7 +46,6 @@ function defaultView(){
 		eventAction: 'clicked',
 		eventLabel: 'Default View'
 	});
-	console.log('sent to google', ga)
 
 	d3.selectAll('.buttonDiv').classed('buttonClicked', false);
 	d3.selectAll('.buttonDiv').classed('buttonHover', true);
@@ -72,6 +71,14 @@ function defaultView(){
 
 function hardSphereView(){
 	console.log('hard-sphere model');
+	//google analytics
+	ga('send', { 
+		hitType: 'event',
+		eventCategory: 'button',
+		eventAction: 'clicked',
+		eventLabel: 'Hard-Sphere Model'
+	});
+
 	d3.selectAll('.buttonDiv').classed('buttonClicked', false);
 	d3.selectAll('.buttonDiv').classed('buttonHover', true);
 	d3.selectAll('#hardSphereButton').classed('buttonClicked', true);
@@ -95,6 +102,14 @@ function hardSphereView(){
 
 function sliceView(){
 	console.log('slice');
+	//google analytics
+	ga('send', { 
+		hitType: 'event',
+		eventCategory: 'button',
+		eventAction: 'clicked',
+		eventLabel: 'Slice'
+	});
+
 	d3.selectAll('.buttonDiv').classed('buttonClicked', false);
 	d3.selectAll('.buttonDiv').classed('buttonHover', true);;
 	d3.selectAll('#sliceButton').classed('buttonClicked', true);
@@ -113,6 +128,14 @@ function sliceView(){
 
 function sparseView(){
 	console.log('sparse model');
+	//google analytics
+	ga('send', { 
+		hitType: 'event',
+		eventCategory: 'button',
+		eventAction: 'clicked',
+		eventLabel: 'Sparse Model'
+	});
+
 	d3.selectAll('.buttonDiv').classed('buttonClicked', false);
 	d3.selectAll('.buttonDiv').classed('buttonHover', true);
 	d3.selectAll('#sparseButton').classed('buttonClicked', true);
@@ -137,6 +160,14 @@ function sparseView(){
 
 function coordinationView(){
 	console.log('coordination');
+	//google analytics
+	ga('send', { 
+		hitType: 'event',
+		eventCategory: 'button',
+		eventAction: 'clicked',
+		eventLabel: 'Coordination'
+	});
+
 	d3.selectAll('.buttonDiv').classed('buttonClicked', false);
 	d3.selectAll('.buttonDiv').classed('buttonHover', true);
 	d3.selectAll('#coordinationButton').classed('buttonClicked', true);
@@ -156,6 +187,14 @@ function coordinationView(){
 
 function showHelp(){
 	console.log('help');
+	//google analytics
+	ga('send', { 
+		hitType: 'event',
+		eventCategory: 'button',
+		eventAction: 'clicked',
+		eventLabel: 'Help'
+	});
+
 	d3.selectAll('.buttonDiv').classed('buttonClicked', false);
 	d3.selectAll('.buttonDiv').classed('buttonHover', true);
 	d3.selectAll('#helpButton').classed('buttonClicked', true);
@@ -235,4 +274,15 @@ function setupButtons(vHeight, vWidth, m, b){
 		.on('click',showHelp)
 
 
+	//attach a google analytics event to clicks in the render window
+	d3.select('#WebGLContainer').on('click', function(){
+		ga('send', { 
+			hitType: 'event',
+			eventCategory: 'WebGL',
+			eventAction: 'clicked',
+			eventLabel: 'Render Window'
+		});
+	});
+
 }
+
