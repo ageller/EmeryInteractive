@@ -284,7 +284,7 @@ function WebGLStart(){
 // runs on load
 ///////////////////////////
 window.addEventListener("resize", resizeContainers)
-window.addEventListener("touchstart", touchHandler, false);
+window.addEventListener("touchstart", touchHandler);
 
 //called upon loading
 WebGLStart();
