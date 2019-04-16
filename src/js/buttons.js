@@ -39,6 +39,14 @@ function changeSphereScale(scale){
 //functions attached to buttons
 function defaultView(){
 	console.log('default view');
+	//google analytics
+	ga('send', { 
+		hitType: 'event',
+		eventCategory: 'button',
+		eventAction: 'clicked',
+		eventLabel: 'Default View'
+	});
+
 	d3.selectAll('.buttonDiv').classed('buttonClicked', false);
 	d3.selectAll('.buttonDiv').classed('buttonHover', true);
 	d3.selectAll('#resetButton').classed('buttonClicked', true);
@@ -151,4 +159,79 @@ function showHelp(){
 	d3.selectAll('.buttonDiv').classed('buttonHover', true);
 	d3.selectAll('#helpButton').classed('buttonClicked', true);
 	d3.selectAll('#helpButton').classed('buttonHover', false);
+}
+
+function setupButtons(vHeight, vWidth, m, b){
+	//buttons
+	d3.select('#buttonContainer')
+		.style('position','absolute')
+		.style('top',vHeight + 2.*m + 'px')
+		.style('left',m +'px')
+		.style('margin',0)
+		.style('padding',0)
+		.style('width',vWidth + 'px')
+		.style('height',2.*b + m + 'px')
+
+	var bw = (vWidth - 2.*m - 2.)/3. //-2 accounts for button border width
+	d3.select('#resetButton')
+		.style('position','absolute')
+		.style('top',0)
+		.style('left',0)
+		.style('width', bw + 'px')
+		.style('height',b-2 + 'px')
+		.classed('buttonClicked', true)
+		.classed('buttonHover', false)
+		.on('click', defaultView)
+
+	d3.select('#hardSphereButton')
+		.style('position','absolute')
+		.style('top',0)
+		.style('left',bw + m + 'px')
+		.style('width',bw + 'px')
+		.style('height',b-2 + 'px')
+		.classed('buttonClicked', false)
+		.classed('buttonHover', true)
+		.on('click', hardSphereView)
+
+	d3.select('#sliceButton')
+		.style('position','absolute')
+		.style('top',0)
+		.style('left',2.*bw + 2.*m + 'px')
+		.style('width',bw + 'px')
+		.style('height',b-2 + 'px')
+		.classed('buttonClicked', false)
+		.classed('buttonHover', true)
+		.on('click', sliceView)
+
+	d3.select('#sparseButton')
+		.style('position','absolute')
+		.style('top',b + m + 'px')
+		.style('left',0)
+		.style('width',bw + 'px')
+		.style('height',b-2 + 'px')
+		.classed('buttonHover', true)
+		.classed('buttonClicked', false)
+		.on('click', sparseView)
+
+	d3.select('#coordinationButton')
+		.style('position','absolute')
+		.style('top',b + m + 'px')
+		.style('left',bw + m + 'px')
+		.style('width',bw + 'px')
+		.style('height',b-2 + 'px')
+		.classed('buttonClicked', false)
+		.classed('buttonHover', true)
+		.on('click',coordinationView)
+
+	d3.select('#helpButton')
+		.style('position','absolute')
+		.style('top',b + m + 'px')
+		.style('left',2*bw + 2*m + 'px')
+		.style('width',bw + 'px')
+		.style('height',b-2 + 'px')
+		.classed('buttonClicked', false)
+		.classed('buttonHover', true)
+		.on('click',showHelp)
+
+
 }
