@@ -98,9 +98,9 @@ function drawTTplane(meshArray=params.spheres){
 	var p2 = meshArray[params.ttMeshIndex[1]].position.clone();
 	var p3 = meshArray[params.ttMeshIndex[2]].position.clone();
 	//trying to avoid issues when it doesn't get the plane correct (when you click on a corner and the normal is the same direction)
-	p1.multiplyScalar(0.999);
-	p2.multiplyScalar(0.999);
-	p3.multiplyScalar(0.999);
+	p1.addScalar(1e-4);
+	p2.addScalar(1e-4);
+	p3.addScalar(1e-4);
 	var plane = new THREE.Plane().setFromCoplanarPoints(p1, p2, p3);
 
 	// Create a basic  geometry
@@ -116,7 +116,7 @@ function drawTTplane(meshArray=params.spheres){
 	var focalPoint = new THREE.Vector3().copy(coplanarPoint).add(plane.normal);
 	geometry.lookAt(focalPoint);
 	geometry.translate(coplanarPoint.x, coplanarPoint.y, coplanarPoint.z);
-	console.log("plane",params.ttMeshIndex,p1, p2, p3, coplanarPoint, plane.normal, focalPoint)
+	//console.log("plane",params.ttMeshIndex,p1, p2, p3, coplanarPoint, plane.normal, focalPoint)
 
 	// Create mesh with the geometry
 	var planeMesh = new THREE.Mesh(geometry, material);
@@ -162,10 +162,19 @@ function showTooltip(e, pageX = null, pageY = null){
 	if (params.keyboard.pressed("shift")){
 		params.ttMeshIndex.push(clicked['index']);
 	} else {
-		params.ttMeshIndex.forEach(function(foo, i){
-			highlightSphere(false, i); //turn off previous highlighting
-		});
-		params.ttMeshIndex = [clicked['index']];
+		if (params.ttMeshIndex.length >0){
+			var arr = params.ttMeshIndex.slice(); //becuase highlightSphere modifies the ttMeshIndex array
+			arr.forEach(function(loc, i){
+				highlightSphere(false, loc); //turn off previous highlighting
+				if (i == arr.length-1){
+					params.ttMeshIndex = [clicked['index']];
+				}
+			});
+		} else {
+			params.ttMeshIndex = [clicked['index']];
+		}
+
+
 	}
 
 	if (params.ttMeshIndex.length > 3){ //only allow three to be highlighted
