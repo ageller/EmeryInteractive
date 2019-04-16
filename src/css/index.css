@@ -96,3 +96,6 @@ body {
 .noTouch{
 	touch-action:none;
 }
+.touch{
+	touch-action:manipulation;
+}
