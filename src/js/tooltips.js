@@ -44,7 +44,6 @@ function getClickedMesh(pageX, pageY, meshArray=params.spheres){
 }
 function moveTooltip(meshIndex, offset=10, meshArray=params.spheres, ){
 	var tt = d3.select('#tooltip'+meshIndex)
-
 	var mesh = meshArray[meshIndex];
 
 	pos = screenXY(mesh);
@@ -71,7 +70,7 @@ function highlightSphere(bool, loc, meshArray=params.spheres){
 		params.ttMeshIndex.splice(params.ttMeshIndex.indexOf(loc),1); //remove the value from the ttMeshIndex array
 		d3.select('#tooltip'+loc).remove(); //remove the tooltip
 		params.scene.remove( params.scene.getObjectByName('ttArrow') ); //remove any arrow 
-		params.scene.remove( params.scene.getObjectByName('ttplane') ); //remove any arrow 
+		params.scene.remove( params.scene.getObjectByName('ttPlane') ); //remove any arrow 
 		if (params.ttMeshIndex.length == 2){//draw back an arrow if we've removed a plane
 			drawTTarrow();
 		}		
@@ -82,17 +81,47 @@ function highlightSphere(bool, loc, meshArray=params.spheres){
 
 //https://stackoverflow.com/questions/26714230/draw-arrow-helper-along-three-line-or-two-vectors
 function drawTTarrow(meshArray=params.spheres){
-	var from = meshArray[params.ttMeshIndex[0]].position;
-	var to = meshArray[params.ttMeshIndex[1]].position;
-	var direction = to.clone().sub(from);
+	var from = meshArray[params.ttMeshIndex[0]].position.clone();
+	var to = meshArray[params.ttMeshIndex[1]].position.clone();
+	var direction = to.sub(from);
 	var length = direction.length();
 	var arrowHelper = new THREE.ArrowHelper(direction.normalize(), from, length, params.highlightColor, params.size/10., params.size/10. );
-	console.log("arrow", from , to, direction, length)
 	arrowHelper.name = 'ttArrow'
 	params.scene.add( arrowHelper );
 }
 
+//see info here: https://github.com/mrdoob/three.js/issues/5312
+//https://stackoverflow.com/questions/40366339/three-js-planegeometry-from-math-plane
 function drawTTplane(meshArray=params.spheres){
+
+	var p1 = meshArray[params.ttMeshIndex[0]].position.clone();
+	var p2 = meshArray[params.ttMeshIndex[1]].position.clone();
+	var p3 = meshArray[params.ttMeshIndex[2]].position.clone();
+	//trying to avoid issues when it doesn't get the plane correct (when you click on a corner and the normal is the same direction)
+	p1.multiplyScalar(0.999);
+	p2.multiplyScalar(0.999);
+	p3.multiplyScalar(0.999);
+	var plane = new THREE.Plane().setFromCoplanarPoints(p1, p2, p3);
+
+	// Create a basic  geometry
+	var geometry = new THREE.PlaneGeometry( 3.*params.size, 3.*params.size, 1 );
+	var material = new THREE.MeshBasicMaterial( {
+		color: params.highlightColor, 
+		side: THREE.DoubleSide,
+	});
+
+	// Align the geometry to the plane
+	var coplanarPoint = new THREE.Vector3();
+	plane.coplanarPoint(coplanarPoint); //this fails when focalPoint == 0,0,0
+	var focalPoint = new THREE.Vector3().copy(coplanarPoint).add(plane.normal);
+	geometry.lookAt(focalPoint);
+	geometry.translate(coplanarPoint.x, coplanarPoint.y, coplanarPoint.z);
+	console.log("plane",params.ttMeshIndex,p1, p2, p3, coplanarPoint, plane.normal, focalPoint)
+
+	// Create mesh with the geometry
+	var planeMesh = new THREE.Mesh(geometry, material);
+	planeMesh.name = 'ttPlane';
+	params.scene.add(planeMesh);
 
 }
 function screenXY(mesh){
