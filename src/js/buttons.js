@@ -46,7 +46,7 @@ function defaultView(){
 		eventAction: 'clicked',
 		eventLabel: 'Default View'
 	});
-	console.log('sent to google')
+	console.log('sent to google', ga)
 
 	d3.selectAll('.buttonDiv').classed('buttonClicked', false);
 	d3.selectAll('.buttonDiv').classed('buttonHover', true);
