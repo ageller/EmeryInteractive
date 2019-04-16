@@ -258,11 +258,11 @@ function resizeContainers(){
 
 //to disable pinch zoom on mobile outside of interactive window
 function touchHandler(event){
+	d3.selectAll("div").style('background-color','red')
 	if(event.touches.length > 1){
 		//the event is multi-touch
 		//you can then prevent the behavior
 		event.preventDefault();
-		d3.selectAll("div").style('background-color','red')
 	}
 }
 
