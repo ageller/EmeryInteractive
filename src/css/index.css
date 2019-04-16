@@ -92,3 +92,7 @@ body {
 	margin-left: 40px;
 	color:black;
 }
+
+.noTouch{
+	touch-action:none;
+}

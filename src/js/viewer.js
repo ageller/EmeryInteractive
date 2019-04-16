@@ -256,15 +256,6 @@ function resizeContainers(){
 	}
 }
 
-//to disable pinch zoom on mobile outside of interactive window
-function touchHandler(event){
-	d3.selectAll("div").style('background-color','red')
-	if(event.touches.length > 1){
-		//the event is multi-touch
-		//you can then prevent the behavior
-		event.preventDefault();
-	}
-}
 
 ///////////////////////////
 //this is called to start everything
@@ -284,7 +275,6 @@ function WebGLStart(){
 // runs on load
 ///////////////////////////
 window.addEventListener("resize", resizeContainers)
-window.addEventListener("touchstart", touchHandler, false);
 
 //called upon loading
 WebGLStart();
