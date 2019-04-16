@@ -29,6 +29,7 @@ function updateSlice(p,r){
 		params.sliceMesh.push(m);
 	})
 }
+
 function updateSlicePlaneDepth(){
 	var normal = params.slicePlane.geometry.faces[0].normal;
 	var pos = params.camera.position.clone().sub(params.slicePlanePosition.clone().sub(params.offsetPosition));
@@ -78,7 +79,7 @@ function drawScene(){
 function animate(time) {
 	requestAnimationFrame( animate );
 	params.controls.update();
-    params.keyboard.update();
+	params.keyboard.update();
 	TWEEN.update(time);
 
 	params.ttMeshIndex.forEach(function(loc){
@@ -255,6 +256,14 @@ function resizeContainers(){
 	}
 }
 
+//to disable pinch zoom on mobile outside of interactive window
+function touchHandler(event){
+	if(event.touches.length > 1){
+		//the event is multi-touch
+		//you can then prevent the behavior
+		event.preventDefault()
+	}
+}
 
 ///////////////////////////
 //this is called to start everything
@@ -274,6 +283,7 @@ function WebGLStart(){
 // runs on load
 ///////////////////////////
 window.addEventListener("resize", resizeContainers)
+window.addEventListener("touchstart", touchHandler, false);
 
 //called upon loading
 WebGLStart();
