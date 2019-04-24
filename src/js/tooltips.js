@@ -150,52 +150,53 @@ function screenXY(mesh){
 
 function showTooltip(e, pageX = null, pageY = null){
 
+	if (!params.showingCoordiation){
 
+		//e = d3.event;
+		if (pageX == null) pageX = e.pageX;
+		if (pageY == null) pageY = e.pageY;
 
-	//e = d3.event;
-	if (pageX == null) pageX = e.pageX;
-	if (pageY == null) pageY = e.pageY;
+		var clicked = getClickedMesh(pageX, pageY);
+		createTooltip(clicked['index']);
 
-	var clicked = getClickedMesh(pageX, pageY);
-	createTooltip(clicked['index']);
-
-	if (params.keyboard.pressed("shift")){
-		params.ttMeshIndex.push(clicked['index']);
-	} else {
-		if (params.ttMeshIndex.length >0){
-			var arr = params.ttMeshIndex.slice(); //becuase highlightSphere modifies the ttMeshIndex array
-			arr.forEach(function(loc, i){
-				highlightSphere(false, loc); //turn off previous highlighting
-				if (i == arr.length-1){
-					params.ttMeshIndex = [clicked['index']];
-				}
-			});
+		if (params.keyboard.pressed("shift")){
+			params.ttMeshIndex.push(clicked['index']);
 		} else {
-			params.ttMeshIndex = [clicked['index']];
+			if (params.ttMeshIndex.length >0){
+				var arr = params.ttMeshIndex.slice(); //because highlightSphere modifies the ttMeshIndex array
+				arr.forEach(function(loc, i){
+					highlightSphere(false, loc); //turn off previous highlighting
+					if (i == arr.length-1){
+						params.ttMeshIndex = [clicked['index']];
+					}
+				});
+			} else {
+				params.ttMeshIndex = [clicked['index']];
+			}
+
+
+		}
+
+		if (params.ttMeshIndex.length > 3){ //only allow three to be highlighted
+			highlightSphere(false, params.ttMeshIndex[2]); //turn off previous highlighting
+			params.ttMeshIndex = params.ttMeshIndex.slice(0,2);
+			params.ttMeshIndex.push(clicked['index']);
 		}
 
 
-	}
+		params.ttMeshIndex.forEach(function(loc){
+			moveTooltip(loc); //move it into position
+			highlightSphere(true, loc); //highlight the sphere
+		})
 
-	if (params.ttMeshIndex.length > 3){ //only allow three to be highlighted
-		highlightSphere(false, params.ttMeshIndex[2]); //turn off previous highlighting
-		params.ttMeshIndex = params.ttMeshIndex.slice(0,2);
-		params.ttMeshIndex.push(clicked['index']);
-	}
-
-
-	params.ttMeshIndex.forEach(function(loc){
-		moveTooltip(loc); //move it into position
-		highlightSphere(true, loc); //highlight the sphere
-	})
-
-	if (params.ttMeshIndex.length == 2){
-		params.scene.remove( params.scene.getObjectByName('ttPlane') ); //remove any plane 
-		drawTTarrow();
-	}
-	if (params.ttMeshIndex.length == 3){
-		params.scene.remove( params.scene.getObjectByName('ttArrow') ); //remove any arrow 
-		drawTTplane();
+		if (params.ttMeshIndex.length == 2){
+			params.scene.remove( params.scene.getObjectByName('ttPlane') ); //remove any plane 
+			drawTTarrow();
+		}
+		if (params.ttMeshIndex.length == 3){
+			params.scene.remove( params.scene.getObjectByName('ttArrow') ); //remove any arrow 
+			drawTTplane();
+		}
 	}
 }
 

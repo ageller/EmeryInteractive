@@ -16,6 +16,16 @@ function showSliceMesh(bool){
 	})
 }
 function showCoordination(bool){
+	params.showingCoordiation = bool;
+	if (bool){
+		var arr = params.ttMeshIndex.slice(); //because highlightSphere modifies the ttMeshIndex array
+		arr.forEach(function(loc, i){
+			highlightSphere(false, loc); //turn off previous highlighting
+			if (i == arr.length-1){
+				params.ttMeshIndex = []; //reset mesh index
+			}
+		});
+	}
 	params.coordination.forEach(function(m){
 		m.material.visible = bool;
 	})

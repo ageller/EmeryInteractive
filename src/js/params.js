@@ -81,7 +81,9 @@ function defineParams(){
 
 		//for tooltips
 		this.ttMeshIndex = [];
+		this.showingCoordiation = false; //won't allow tooltips in coordination view
 
+		//for help screen
 		this.transition = d3.transition().duration(1000);
 		this.helpOpacity = 0.7;
 
