@@ -1,21 +1,26 @@
+//this file contains all the functions related to the buttons
 
 //helpers for buttons
 function showHemiSpheres(bool){
+	//turns on/off the hemispheres
 	params.hemiSpheres.forEach(function(m){
 		m.material.visible = bool;
 	})
 }
 function showSpheres(bool){
+	//turns on/off the spheres
 	params.spheres.forEach(function(m){
 		m.material.visible = bool;
 	})
 }
 function showSliceMesh(bool){
+	//turns on/off the slice view
 	params.sliceMesh.forEach(function(m){
 		m.material.visible = bool;
 	})
 }
 function showCoordination(bool){
+	//turns on/off the coordination view, and limits the double-click ability
 	params.showingCoordiation = bool;
 	if (bool){
 		var arr = params.ttMeshIndex.slice(); //because highlightSphere modifies the ttMeshIndex array
@@ -31,23 +36,27 @@ function showCoordination(bool){
 	})
 }
 function showLabels(bool){
+	//turns on/off the labels
 	params.labels.forEach(function(m){
 		m.material.visible = bool;
 	})
 }
 function changeSphereOpacity(opacity){
+	//changes the opacity of the spheres
 	params.spheres.forEach(function(m){
 		m.material.opacity = opacity;
 	})
 }
 
 function changeSphereScale(scale){
+	//changes the size of the spheres
 	params.spheres.forEach(function(m){
 		m.geometry.scale(scale, scale, scale);
 	})	
 }
 //functions attached to buttons
 function defaultView(){
+	//makes all changes needed for the default view
 	console.log('default view');
 	//google analytics
 	ga('send', { 
@@ -80,6 +89,7 @@ function defaultView(){
 }
 
 function hardSphereView(){
+	//makes all changes needed for the hard sphere view
 	console.log('hard-sphere model');
 	//google analytics
 	ga('send', { 
@@ -111,6 +121,7 @@ function hardSphereView(){
 }
 
 function sliceView(){
+	//makes all changes needed for the slice view
 	console.log('slice');
 	//google analytics
 	ga('send', { 
@@ -137,6 +148,7 @@ function sliceView(){
 }
 
 function sparseView(){
+	//makes all changes needed for the sparse view
 	console.log('sparse model');
 	//google analytics
 	ga('send', { 
@@ -169,6 +181,7 @@ function sparseView(){
 }
 
 function coordinationView(){
+	//makes all changes needed for the coordination view
 	console.log('coordination');
 	//google analytics
 	ga('send', { 
@@ -196,6 +209,7 @@ function coordinationView(){
 }
 
 function showHelp(){
+	//toggles the help screen on/off
 	console.log('help');
 	//google analytics
 	ga('send', { 
@@ -219,6 +233,7 @@ function showHelp(){
 }
 
 function setupButtons(vHeight, vWidth, m, b){
+	//creates all the buttons and links them to the function above
 	//buttons
 	d3.select('#buttonContainer')
 		.style('position','absolute')

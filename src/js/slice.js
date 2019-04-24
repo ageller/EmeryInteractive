@@ -1,3 +1,4 @@
+//this file contains all the functions needed for the slice view
 
 //draw the slice view
 //https://jsfiddle.net/8uxw667m/4/
@@ -9,6 +10,8 @@ function drawSlice(size, position, rotation, opacity, color){
 	var check = 0;
 
 	function setPointOfIntersection(line, plane, minDistance) {
+		//find the intersection points between then plan and the spheres
+
 		var pointOfIntersection = new THREE.Vector3();
 		plane.intersectLine(line, pointOfIntersection);
 		//find the minimum distance so that I don't add so many points! (slows things down a bit here, but I think this is needed)
@@ -29,6 +32,7 @@ function drawSlice(size, position, rotation, opacity, color){
 
 
 	function sortPoints(plane, obj){
+		//sort the points so that we can draw the outline of the sliced surface
 
 		//get the center of the sphere
 		var center = new THREE.Vector3();
@@ -72,6 +76,8 @@ function drawSlice(size, position, rotation, opacity, color){
 	}
 
 	function drawIntersectionPoints(plane, obj, minDistance) {
+		//get the intersection and draw it (using above functions)
+
 		var a = new THREE.Vector3(),
 			b = new THREE.Vector3(),
 			c = new THREE.Vector3();
@@ -132,6 +138,7 @@ function drawSlice(size, position, rotation, opacity, color){
 
 	////////////////////
 
+	//define the plane
 	var geometry = new THREE.PlaneGeometry( size, size, 1 );
 	var material = new THREE.MeshBasicMaterial( {
 		color: color, 
@@ -172,6 +179,7 @@ function drawSlice(size, position, rotation, opacity, color){
 	var planeLine = new THREE.LineSegments( edges,  material);
 	params.scene.add(planeLine);
 
+	//check each sphere for intersection with the plane
 	params.spheres.forEach(function(m,i){ 
 
 		//this is an interesting package, but doesn't seem to work well enough for our purposes

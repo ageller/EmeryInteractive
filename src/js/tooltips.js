@@ -1,5 +1,7 @@
+//this file contains all the functions related to the tooltips (launched from double clicking)
 
 function createTooltip(loc){
+	//create an individual tooltip showing the location of the selected sphere
 
 	var tt = d3.select('body').append('div')
 		.attr('id','tooltip'+loc)
@@ -19,8 +21,8 @@ function createTooltip(loc){
 
 
 }
-// for finding the circle based on clicks
 function getClickedMesh(pageX, pageY, meshArray=params.spheres){
+	// for finding the sphere based on the mouse click location
 
 	var mpos = new THREE.Vector3(pageX,pageY, 0)
 	var meshPos = new THREE.Vector3(0,0, 0)
@@ -42,7 +44,10 @@ function getClickedMesh(pageX, pageY, meshArray=params.spheres){
 			};
 
 }
+
 function moveTooltip(meshIndex, offset=10, meshArray=params.spheres, ){
+	//move a tooltip (when the user changes the camera location)
+
 	var tt = d3.select('#tooltip'+meshIndex)
 	var mesh = meshArray[meshIndex];
 
@@ -53,6 +58,7 @@ function moveTooltip(meshIndex, offset=10, meshArray=params.spheres, ){
 
 }
 function highlightSphere(bool, loc, meshArray=params.spheres){
+	//turn on/off the highlighting of a selected sphere (change color, add box)
 
 	var color = params.sphereColor;
 	var boxName = "sphereBox"+loc;
@@ -79,8 +85,10 @@ function highlightSphere(bool, loc, meshArray=params.spheres){
 	meshArray[loc].material.color.setHex(color);
 }
 
-//https://stackoverflow.com/questions/26714230/draw-arrow-helper-along-three-line-or-two-vectors
 function drawTTarrow(meshArray=params.spheres){
+	//draw an arrow to connect 2 selected spheres
+	//https://stackoverflow.com/questions/26714230/draw-arrow-helper-along-three-line-or-two-vectors
+
 	var from = meshArray[params.ttMeshIndex[0]].position.clone();
 	var to = meshArray[params.ttMeshIndex[1]].position.clone();
 	var direction = to.sub(from);
@@ -90,9 +98,11 @@ function drawTTarrow(meshArray=params.spheres){
 	params.scene.add( arrowHelper );
 }
 
-//see info here: https://github.com/mrdoob/three.js/issues/5312
-//https://stackoverflow.com/questions/40366339/three-js-planegeometry-from-math-plane
+
 function drawTTplane(meshArray=params.spheres){
+	//draw a plane to connect 3 selected spheres
+	//see info here: https://github.com/mrdoob/three.js/issues/5312
+	//https://stackoverflow.com/questions/40366339/three-js-planegeometry-from-math-plane
 
 	var p1 = meshArray[params.ttMeshIndex[0]].position.clone();
 	var p2 = meshArray[params.ttMeshIndex[1]].position.clone();
@@ -124,7 +134,9 @@ function drawTTplane(meshArray=params.spheres){
 	params.scene.add(planeMesh);
 
 }
+
 function screenXY(mesh){
+	//get the screen (x,y) coordinates of a given mesh
 
 	var vector = mesh.position.clone();
 	var w = d3.select('#WebGLContainer');
@@ -149,6 +161,7 @@ function screenXY(mesh){
 }
 
 function showTooltip(e, pageX = null, pageY = null){
+	//define and show a tooltip (uses function from above)
 
 	if (!params.showingCoordiation){
 

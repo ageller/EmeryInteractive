@@ -1,5 +1,8 @@
+//this contains all functions needed to draw the different views.  Ideally this will be defined from an input file.
 
 function drawMainSpheres(){
+	//used for the default view, hard sphere view, and sparse view
+
 	var radius = params.size*Math.sqrt(2)/4.
 
 	//draw the full spheres (this should be from an input file)
@@ -60,6 +63,8 @@ function drawMainSpheres(){
 }
 
 function drawCoordination(){
+	//this is the coordination view.  Maybe we should simply move the spheres from drawMainSpheres ?  That would allow double clicking.
+
 	var radius = params.size*Math.sqrt(2)/4.*params.sparseScale;
 
 	//spheres
@@ -152,8 +157,8 @@ function drawCoordination(){
 }
 
 
-//define lights
 function addLights(){
+	//define lights
 	params.lights = [];
 	//params.lights[0] = new THREE.DirectionalLight(0xffffff, 1.2)
 	params.lights[0] = new THREE.PointLight( 0xffffff, 1.2, 0 );

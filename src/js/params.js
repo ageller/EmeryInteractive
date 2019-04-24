@@ -1,8 +1,10 @@
 //all "global" variables are contained within params object
+
 var params;
 function defineParams(){
 	params = new function() {
 
+		//these hold the main three.js objects
 		this.container = null;
 		this.renderer = null;
 		this.scene = null;
@@ -56,7 +58,7 @@ function defineParams(){
 		this.cylinderRadialSegments = 32;
 		this.cylinderheightSegments = 1;
 
-		//this size of the sparse model
+		//size of the sparse model
 		this.sparseScale = 0.2;
 		this.isSparse = false;
 
@@ -69,6 +71,7 @@ function defineParams(){
 		this.canvasMinWidth = 380; //minimum width of canvas, in pixels
 		this.textMinWidth = 380; //minimum width of text, in pixels
 
+		//will hold the lights
 		this.lights = [];
 
 		//for text

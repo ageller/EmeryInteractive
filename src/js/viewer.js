@@ -1,21 +1,23 @@
+//this file contains all the functions used by the three.js renderer to draw and animate the scene
 
-
-//keep text always facing the screen
 function updateTextRotation(){
+	//keep text always facing the screen
+
 	params.text.forEach(function(m){
 		m.quaternion.copy(params.camera.quaternion);
 	});
 }
 
-//keep the light coming from the camera location
 function updateLights(){
+	//keep the light coming from the camera location
+
 	params.lights.forEach(function(l){
 		l.position.copy(params.camera.position );
 	});
 }
 
-//for the slice, in case we want to change it dynamically
 function updateSlice(p,r){
+	//for the slice, in case we want to change it dynamically
 
 	params.sliceMesh.forEach(function(m){
 		params.scene.remove(m);
@@ -31,6 +33,8 @@ function updateSlice(p,r){
 }
 
 function updateSlicePlaneDepth(){
+	//fix to allow viewer to see through the slice plane when objects are behind it (changing the depthText option)
+	
 	var normal = params.slicePlane.geometry.faces[0].normal;
 	var pos = params.camera.position.clone().sub(params.slicePlanePosition.clone().sub(params.offsetPosition));
 	var pCheck = normal.dot(pos)*Math.cos(params.yRfac);
@@ -44,8 +48,8 @@ function updateSlicePlaneDepth(){
 
 
 
-//draw the scene (with lighting)
 function drawScene(){
+	//draw the scene (with lighting)
 
 	//draw the main spheres (for default, hard-Sphere and Sparse views)
 	drawMainSpheres();
@@ -75,24 +79,29 @@ function drawScene(){
 
 }
 
-//this is the animation loop
 function animate(time) {
+	//this is the main animation loop
+
 	requestAnimationFrame( animate );
+
+	//a few items to update
 	params.controls.update();
 	params.keyboard.update();
 	TWEEN.update(time);
 
+	//move the tooltips if necessary
 	params.ttMeshIndex.forEach(function(loc){
 		moveTooltip(loc);
 	})
 
-	if (params.keyboard.down("C")){
-		console.log(params.camera.position)
-	}
+
+	//if you want to know the camera position, uncomment this. typing c will show it in the console
+	// if (params.keyboard.down("C")){
+	// 	console.log(params.camera.position)
+	// }
 
 	//testing dynamically updating the slice location
 	if (params.isSlice){
-
 
 
 		var doSliceUpdate = false;
@@ -125,12 +134,13 @@ function animate(time) {
 		}
 	}
 
+	//draw everything in the render window
 	params.renderer.render( params.scene, params.camera );
 
 }
 
-//resize all the divs and buttons
 function resizeContainers(){
+	//resize all the divs and buttons (used when browser window is resized)
 
 	console.log('resizing')
 	var m = 10; //margin
@@ -177,8 +187,10 @@ function resizeContainers(){
 		.style('height',vHeight - 2.*iPadding + 2.*b + 2.*m + 'px')
 		.style('z-index',1)
 
+	//buttons
 	setupButtons(vHeight, vWidth, m, b);
 
+	//renderer
 	if (params.renderer != null){
 		var width = parseFloat(params.container.style('width'));
 		var height = parseFloat(params.container.style('width'));
@@ -231,16 +243,16 @@ function resizeContainers(){
 
 
 ///////////////////////////
-//this is called to start everything
 function WebGLStart(){
+	//this is called to start everything
 
-//initialize everything
+	//initialize everything
 	init();
 
-//draw everything
+	//draw everything
 	drawScene();
 
-//begin the animation
+	//begin the animation
 	animate();
 }
 

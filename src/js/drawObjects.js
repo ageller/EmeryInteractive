@@ -1,6 +1,8 @@
+//This file contains all the functions needed to draw the individual objects.  draw.js uses this file heavily.
 
-//draw a full sphere
 function drawSphere(radius, widthSegments, heightSegments, opacity, color, position, visible = true){
+	//draw a full sphere
+
 	var geometry = new THREE.SphereGeometry(radius, widthSegments, heightSegments, 0, 2.*Math.PI, 0, Math.PI)
 	var material = new THREE.MeshPhongMaterial( { 
 		color: color, 
@@ -28,8 +30,9 @@ function drawSphere(radius, widthSegments, heightSegments, opacity, color, posit
 
 }
 
-//draw a half sphere
 function drawHalfSphere(radius, widthSegments, heightSegments, opacity, color, position, rotation){
+	//draw a half sphere
+
 	var sphere = new THREE.SphereGeometry(radius, widthSegments, heightSegments, 0, Math.PI, 0, Math.PI)
 	var circle = new THREE.CircleGeometry(radius, widthSegments, 0., 2.*Math.PI)
 
@@ -63,8 +66,9 @@ function drawHalfSphere(radius, widthSegments, heightSegments, opacity, color, p
 
 }
 
-//draw a quarter sphere
 function drawQuarterSphere(radius, widthSegments, heightSegments, opacity, color, position, rotation){
+	//draw a quarter sphere
+
 	var sphere = new THREE.SphereGeometry(radius, widthSegments, heightSegments, 0, Math.PI/2., 0, Math.PI/2.)
 	var circle1 = new THREE.CircleGeometry(radius, widthSegments, 0., Math.PI/2.)
 	var circle2 = new THREE.CircleGeometry(radius, widthSegments, 0., Math.PI/2.)
@@ -116,8 +120,9 @@ function drawQuarterSphere(radius, widthSegments, heightSegments, opacity, color
 
 
 
-//draw a cylinder
 function drawCylinder(radius, height, radialSegments, heightSegments, color, position, rotation, visible = false){
+	//draw a cylinder
+
 	var geometry = new THREE.CylinderGeometry(radius, radius, height, radialSegments, heightSegments);
 
 	var material = new THREE.MeshPhongMaterial( { 
@@ -138,8 +143,9 @@ function drawCylinder(radius, height, radialSegments, heightSegments, color, pos
 
 
 
-//draw the outside box
 function drawBox(){
+	//draw the outside box
+
 	var geometry = new THREE.BoxBufferGeometry( params.size, params.size, params.size);
 
 	var edges = new THREE.EdgesGeometry( geometry );
@@ -150,9 +156,10 @@ function drawBox(){
 
 }
 
-//draw the outside axes
 function drawAxes(){
+	//draw the outside axes
 	//The X axis is orange. The Y axis is green. The Z axis is blue.
+
 	var cubeAxis = new THREE.AxesHelper(1.5*params.size);
 	cubeAxis.position.set(0,0,0);
 	params.scene.add( cubeAxis );
@@ -230,8 +237,9 @@ function drawAxes(){
 
 }
 
-// the two labels 
 function drawLabels(){
+	// the two labels (a and r)
+
 	var loader = new THREE.FontLoader();
 
 	loader.load( params.fontFile, function ( font ) {
