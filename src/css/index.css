@@ -17,7 +17,7 @@ body {
 }
 
 .title{
-	font-size:48px;
+	font-size:36px;
 	padding:2px;
 }
 .subTitle{
@@ -36,6 +36,9 @@ body {
 }
 .scrollable{
 	overflow:auto;
+}
+.hidden{
+	display:none;
 }
 .buttonDiv{
 	padding: 0px;
@@ -98,4 +101,13 @@ body {
 }
 .touch{
 	touch-action:manipulation;
+}
+#helpContainer{
+	position:absolute;
+	top:0;
+	left:0;
+	width:100%;
+	height:100%;
+	z-index:10;
+	cursor:pointer;
 }

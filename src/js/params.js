@@ -82,6 +82,9 @@ function defineParams(){
 		//for tooltips
 		this.ttMeshIndex = [];
 
+		this.transition = d3.transition().duration(1000);
+		this.helpOpacity = 0.7;
+
 	};
 
 

@@ -199,6 +199,13 @@ function showHelp(){
 	d3.selectAll('.buttonDiv').classed('buttonHover', true);
 	d3.selectAll('#helpButton').classed('buttonClicked', true);
 	d3.selectAll('#helpButton').classed('buttonHover', false);
+
+	d3.select('#helpContainer').classed('hidden', false)
+	d3.select('#helpContainer').transition(params.transition)
+		.style('background-color','rgba(100, 100, 100,'+params.helpOpacity+')')
+		.style('opacity',1);
+
+
 }
 
 function setupButtons(vHeight, vWidth, m, b){
@@ -211,6 +218,7 @@ function setupButtons(vHeight, vWidth, m, b){
 		.style('padding',0)
 		.style('width',vWidth + 'px')
 		.style('height',2.*b + m + 'px')
+		.style('z-index',1)
 
 	var bw = (vWidth - 2.*m - 2.)/3. //-2 accounts for button border width
 	d3.select('#resetButton')

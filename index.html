@@ -33,6 +33,33 @@
 </head>
 
 <body class="noTouch">
+
+	<div id="helpContainer" style='background-color:white'>
+		<div id="loading" class="title">Loading...</div>
+		<div id="helpText" class="bordered scrollable hidden">
+
+			<div class="subTitle">Viewer (top-left)</div>
+			<ul class="para">
+				<li>Left-click (or touch) and hold to rotate.</li>
+				<li>Use mouse wheel (or two-fingers scroll) to zoom in and out.</li>
+				<li>Double-click (or double-tap) to highlight a specific sphere.</li>
+				<li>Holding shift while double-clicking (or double-tapping) will allow you to highlight 2 or 3 spheres.</li>
+				<li>If 2 (3) sphere are highlighted, an arrow (plane) is drawn to connect them.</li>
+			</ul>
+
+			<div class="subTitle">Buttons (bottom-left)</div>
+			<ul class="para">
+				<li>Navigate to different views with the buttons.</li>
+				<li>Within the "Slice" view, use the arrow keys to move the slice plane.</li>
+				<li>The "Help" button shows this screen.</li>
+			</ul>
+
+			<div id="clickToBegin" class="title">Click anywhere to begin.</div>
+
+		</div>
+	</div>
+
+
 	<!-- This will contain the canvas -->
 	<div id="WebGLContainer" class="bordered touch"></div>
 

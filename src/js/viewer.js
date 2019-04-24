@@ -156,6 +156,7 @@ function resizeContainers(){
 		.style('margin',0)
 		.style('width',vWidth + 'px')
 		.style('height',vHeight + 'px')
+		.style('z-index',1)
 	if (params.renderer != null){
 		d3.select("#WebGLContainer").select('canvas')
 			.style('width', vWidth)
@@ -164,18 +165,20 @@ function resizeContainers(){
 
 
 	//text 
-	iWidth = Math.max(params.textMinWidth, parseFloat(window.innerWidth) - vWidth - 4.*m);
+	var iWidth = Math.max(params.textMinWidth, parseFloat(window.innerWidth) - vWidth - 4.*m);
+	var iPadding = 20;
 	d3.select('#textContainer')
 		.style('position','absolute')
 		.style('top',m + 'px')
 		.style('left',(vWidth + 2.*m) +'px')
 		.style('margin',0)
-		.style('padding',0)
-		.style('width',iWidth + 'px')
-		.style('height',vHeight + 2.*b + 2.*m + 'px')
+		.style('padding',iPadding + 'px')
+		.style('width',iWidth - 2.*iPadding + 'px')
+		.style('height',vHeight - 2.*iPadding + 2.*b + 2.*m + 'px')
+		.style('z-index',1)
 
 	setupButtons(vHeight, vWidth, m, b);
-	
+
 	if (params.renderer != null){
 		var width = parseFloat(params.container.style('width'));
 		var height = parseFloat(params.container.style('width'));
@@ -185,6 +188,45 @@ function resizeContainers(){
 
 		params.renderer.setSize( width, height);
 	}
+
+	//create the help boxes
+	// var helpDivIDs = ['WebGLContainer','textContainer','buttonContainer']
+	// var helpDivNames = ['WebGLHelp','textHelp','buttonHelp']
+	//d3.select('#helpContainer').selectAll('div').remove();
+	d3.select('#loading').remove();
+	d3.select('#helpContainer').selectAll('div').classed('hidden', false);
+	d3.select('#helpContainer')
+		.style('background-color','rgba(100, 100, 100,'+params.helpOpacity+')')
+		// //clone the divs from the main page, for formatting
+		// .selectAll("div")
+		// 	.data(helpDivIDs).enter()
+		// 		.append(function(d,i){
+		// 			var clone = d3.select('#'+d).node().cloneNode(true);
+		// 			clone.id = helpDivNames[i];
+		// 			clone.innerHTML = "";
+		// 			d3.select(clone).classed('bordered', true)
+		// 			return clone;
+		// 		})
+		//fade out on click
+		.on('click', function(){
+			d3.selectAll('.buttonDiv').classed('buttonClicked', false);
+			d3.selectAll('.buttonDiv').classed('buttonHover', true);
+			d3.select('#helpContainer').transition(params.transition)
+				.style('background-color','rgba(100, 100, 100, 0)')
+				.style('opacity',0)
+				.on("end", function(){
+					d3.select('#helpContainer').classed('hidden', true)
+				});
+		})
+
+	//copy over the styles
+	var el = document.getElementById('textContainer')
+	var css = window.getComputedStyle(el);
+	for (var i=0, l = el.style.length; i<l; i++) {
+		d3.select('#helpText').style(el.style[i],css.getPropertyValue(""+el.style[i]));
+	}
+	d3.select('#helpText')
+		.style('background-color','rgba(100, 100, 100, 1)')
 }
 
 
