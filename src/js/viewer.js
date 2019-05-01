@@ -138,7 +138,24 @@ function animate(time) {
 	params.renderer.render( params.scene, params.camera );
 
 }
-
+function resizeText(){
+	var sH = d3.select('#textContainer').node().scrollHeight;
+	var oH = d3.select('#textContainer').node().offsetHeight;
+	//console.log('resizing text...', sH, oH);
+	var sT = parseFloat(d3.selectAll('.subTitle').style('font-size'));
+	var pT = parseFloat(d3.selectAll('.para').style('font-size'));
+	n = 0.;
+	nmax = 100.;
+	nfac = 5.;
+	while (sH > oH && n < nmax){
+		n+=1;
+		d3.selectAll('.subTitle').style('font-size', sT-n/nfac+'px');
+		d3.selectAll('.para').style('font-size', pT-n/nfac+'px');
+		sH = d3.select('#textContainer').node().scrollHeight;
+		oH = d3.select('#textContainer').node().offsetHeight;
+		//console.log(n, sH, oH, sT-n/nfac, pT-n/nfac)
+	}
+}
 function resizeContainers(){
 	//resize all the divs and buttons (used when browser window is resized)
 
@@ -187,6 +204,9 @@ function resizeContainers(){
 		.style('height',vHeight - 2.*iPadding + 2.*b + 2.*m + 'px')
 		.style('z-index',1)
 
+	//try to fit the text so that there is no scroll bar in the textContainer
+	resizeText();
+
 	//buttons
 	setupButtons(vHeight, vWidth, m, b);
 
@@ -207,8 +227,10 @@ function resizeContainers(){
 	//d3.select('#helpContainer').selectAll('div').remove();
 	d3.select('#loading').remove();
 	d3.select('#helpContainer').selectAll('div').classed('hidden', false);
-	d3.selectAll('#textContainer').classed('scrollable', false);
-	d3.selectAll('#textContainer').classed('notScrollable', true);
+	if (!d3.select('#helpContainer').classed('hidden')){
+		d3.selectAll('#textContainer').classed('scrollable', false);
+		d3.selectAll('#textContainer').classed('notScrollable', true);
+	}
 	d3.select('#helpContainer')
 		.style('background-color','rgba(100, 100, 100,'+params.helpOpacity+')')
 		// //clone the divs from the main page, for formatting
