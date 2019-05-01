@@ -227,6 +227,7 @@ function showHelp(){
 	d3.selectAll('#textContainer').classed('notScrollable', true);
 
 	d3.select('#helpContainer').classed('hidden', false)
+	resizeText('#helpText');
 	d3.select('#helpContainer').transition(params.transition)
 		.style('background-color','rgba(100, 100, 100,'+params.helpOpacity+')')
 		.style('opacity',1);

@@ -138,23 +138,51 @@ function animate(time) {
 	params.renderer.render( params.scene, params.camera );
 
 }
-function resizeText(){
-	var sH = d3.select('#textContainer').node().scrollHeight;
-	var oH = d3.select('#textContainer').node().offsetHeight;
-	//console.log('resizing text...', sH, oH);
-	var sT = parseFloat(d3.selectAll('.subTitle').style('font-size'));
-	var pT = parseFloat(d3.selectAll('.para').style('font-size'));
-	n = 0.;
-	nmax = 100.;
-	nfac = 5.;
-	while (sH > oH && n < nmax){
-		n+=1;
-		d3.selectAll('.subTitle').style('font-size', sT-n/nfac+'px');
-		d3.selectAll('.para').style('font-size', pT-n/nfac+'px');
-		sH = d3.select('#textContainer').node().scrollHeight;
-		oH = d3.select('#textContainer').node().offsetHeight;
-		//console.log(n, sH, oH, sT-n/nfac, pT-n/nfac)
+function resizeText(id){
+	//main text
+	var sMin = 16;
+	var sH = d3.select(id).node().scrollHeight;
+	var oH = d3.select(id).node().offsetHeight;
+	var tT = null;
+	if (d3.select(id).selectAll('.title').node()){
+		tT = parseFloat(d3.select(id).selectAll('.title').style('font-size'));
 	}
+	var sT = parseFloat(d3.select(id).selectAll('.subTitle').style('font-size'));
+	var pT = parseFloat(d3.select(id).selectAll('.para').style('font-size'));
+	//console.log('resizing ...', id, sH, oH, oH-sH, sT);
+	var n = 0.;
+	var nmax = 100.;
+	var nfac = 5.;
+	var sfac = 1.;
+	var done = false;
+	if (sH > oH) sfac = -1.//shrink
+	if (sfac == 1 && ((oH-sH) <= 2 && sT >= 24)) done = true;
+	if (sfac == -1 && sT <= sMin) done = true;
+	while (!done && n < nmax){
+		n+=1;
+		sT += sfac*n/nfac;
+		tT += sfac*n/nfac;
+		pT += sfac*n/nfac
+		if (tT) d3.select(id).selectAll('.title').style('font-size', tT +'px');
+		d3.select(id).selectAll('.subTitle').style('font-size', sT +'px');
+		d3.select(id).selectAll('.para').style('font-size', pT +'px');
+		sH = d3.select(id).node().scrollHeight;
+		oH = d3.select(id).node().offsetHeight;
+		if (sfac == 1 && sH > oH) {
+			sfac = -1.;//shrink
+			nfac += 0.1;
+		}
+		if ((sfac == -1 && (oH-sH) <= 2) || sT < 24){
+			sfac == 1.;
+			nfac += 0.1;
+		}
+		if (sfac == -1 && sH <= oH) done = true;
+		if (sfac == 1 && ((oH-sH) <= 2 && sT >= 24)) done = true;
+		if (sfac == -1 && sT <= sMin) done = true;
+		//console.log("text", id, n, sfac, nfac, sH, oH, sT + sfac*n/nfac, pT + sfac*n/nfac)
+	}
+
+
 }
 function resizeContainers(){
 	//resize all the divs and buttons (used when browser window is resized)
@@ -205,7 +233,7 @@ function resizeContainers(){
 		.style('z-index',1)
 
 	//try to fit the text so that there is no scroll bar in the textContainer
-	resizeText();
+	resizeText('#textContainer');
 
 	//buttons
 	setupButtons(vHeight, vWidth, m, b);
@@ -258,6 +286,7 @@ function resizeContainers(){
 				});
 		})
 
+
 	//copy over the styles
 	var el = document.getElementById('textContainer')
 	var css = window.getComputedStyle(el);
@@ -266,6 +295,7 @@ function resizeContainers(){
 	}
 	d3.select('#helpText')
 		.style('background-color','rgba(100, 100, 100, 1)')
+	resizeText('#helpText');
 }
 
 

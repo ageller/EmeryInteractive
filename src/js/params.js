@@ -69,7 +69,7 @@ function defineParams(){
 		this.aspect = 1; //desired aspect ratio of viewer
 		this.canvasFrac = 0.5; //maximum fraction of window space for canvas
 		this.canvasMinWidth = 380; //minimum width of canvas, in pixels
-		this.textMinWidth = 380; //minimum width of text, in pixels
+		this.textMinWidth = 200; //minimum width of text, in pixels
 
 		//will hold the lights
 		this.lights = [];
