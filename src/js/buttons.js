@@ -223,6 +223,8 @@ function showHelp(){
 	d3.selectAll('.buttonDiv').classed('buttonHover', true);
 	d3.selectAll('#helpButton').classed('buttonClicked', true);
 	d3.selectAll('#helpButton').classed('buttonHover', false);
+	d3.selectAll('#textContainer').classed('scrollable', false);
+	d3.selectAll('#textContainer').classed('notScrollable', true);
 
 	d3.select('#helpContainer').classed('hidden', false)
 	d3.select('#helpContainer').transition(params.transition)

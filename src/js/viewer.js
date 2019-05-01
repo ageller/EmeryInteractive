@@ -207,6 +207,8 @@ function resizeContainers(){
 	//d3.select('#helpContainer').selectAll('div').remove();
 	d3.select('#loading').remove();
 	d3.select('#helpContainer').selectAll('div').classed('hidden', false);
+	d3.selectAll('#textContainer').classed('scrollable', false);
+	d3.selectAll('#textContainer').classed('notScrollable', true);
 	d3.select('#helpContainer')
 		.style('background-color','rgba(100, 100, 100,'+params.helpOpacity+')')
 		// //clone the divs from the main page, for formatting
@@ -227,7 +229,10 @@ function resizeContainers(){
 				.style('background-color','rgba(100, 100, 100, 0)')
 				.style('opacity',0)
 				.on("end", function(){
-					d3.select('#helpContainer').classed('hidden', true)
+					d3.select('#helpContainer').classed('hidden', true);
+					d3.selectAll('#textContainer').classed('scrollable', true);
+					d3.selectAll('#textContainer').classed('notScrollable', false);
+
 				});
 		})
 

@@ -37,6 +37,9 @@ body {
 .scrollable{
 	overflow:auto;
 }
+.notScrollable{
+	overflow:hidden;
+}
 .hidden{
 	display:none;
 }
