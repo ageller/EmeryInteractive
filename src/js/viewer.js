@@ -113,23 +113,35 @@ function animate(time) {
 			params.xPfac -= params.size*0.02;
 			doSliceUpdate = true;
 		}
-		if (params.keyboard.pressed("left")){
-			params.yRfac += Math.PI*0.02;
-			doSliceUpdate = true;
-		}
-		if (params.keyboard.pressed("right")){
-			params.yRfac -= Math.PI*0.02;
-			doSliceUpdate = true;
+		if (params.keyboard.pressed("shift")){
+			if (params.keyboard.pressed("left")){
+				params.xRfac += Math.PI*0.02;
+				doSliceUpdate = true;
+			}
+			if (params.keyboard.pressed("right")){
+				params.xRfac -= Math.PI*0.02;
+				doSliceUpdate = true;
+			}
+		}else{
+			if (params.keyboard.pressed("left")){
+				params.yRfac += Math.PI*0.02;
+				doSliceUpdate = true;
+			}
+			if (params.keyboard.pressed("right")){
+				params.yRfac -= Math.PI*0.02;
+				doSliceUpdate = true;
+			}
 		}
 
 		if (doSliceUpdate){
 			params.xPfac = THREE.Math.clamp(params.xPfac, -0.5*params.size, 1.5*params.size);
-			params.yRfac = THREE.Math.clamp(params.yRfac, -Math.PI/2., Math.PI/2.);
 			var p = params.slicePlanePosition.clone();
 			p.x = params.xPfac;
-			var r = params.slicePlaneRotation.clone();
-			r.y = params.yRfac; 
-			updateSlice(p, r);
+
+			params.xRfac = THREE.Math.clamp(params.xRfac, -Math.PI/2., Math.PI/2.);
+			params.yRfac = THREE.Math.clamp(params.yRfac, -Math.PI/2., Math.PI/2.);
+			params.slicePlaneRotation = new THREE.Euler( params.xRfac, params.yRfac, 0, 'XYZ' );			
+			updateSlice(p, params.slicePlaneRotation);
 			showSliceMesh(true);
 		}
 	}
