@@ -1,6 +1,6 @@
 //this file contains all the functions related to the tooltips (launched from double clicking)
 
-function createTooltip(loc){
+function createTooltip(loc, meshArray=params.spheres){
 	//create an individual tooltip showing the location of the selected sphere
 
 	var tt = d3.select('body').append('div')
@@ -19,8 +19,11 @@ function createTooltip(loc){
 				params.doSliceUpdate = true;
 			}
 		});
+
+	var mesh = meshArray[loc];
 	tt.append('span')
-		.attr('class','tooltipContent');
+		.attr('class','tooltipContent')
+		.text("x="+mesh.position.x+" y="+mesh.position.y+" z="+mesh.position.z);
 
 
 }
@@ -48,7 +51,7 @@ function getClickedMesh(pageX, pageY, meshArray=params.spheres){
 
 }
 
-function moveTooltip(meshIndex, offset=10, meshArray=params.spheres, ){
+function moveTooltip(meshIndex, offset=10, meshArray=params.spheres){
 	//move a tooltip (when the user changes the camera location)
 
 	var tt = d3.select('#tooltip'+meshIndex)
@@ -57,7 +60,6 @@ function moveTooltip(meshIndex, offset=10, meshArray=params.spheres, ){
 	pos = screenXY(mesh);
 	tt.style("top",pos.y+offset )
 	tt.style("left", pos.x+offset );
-	tt.select('.tooltipContent').html("x="+mesh.position.x+" y="+mesh.position.y+" z="+mesh.position.z);
 
 }
 function highlightSphere(show, loc, meshArray=params.spheres){
@@ -210,9 +212,22 @@ function defineTooltip(e, pageX = null, pageY = null){
 			params.ttMeshIndex.push(clicked['index']);
 		}
 
-	}
+	
 
-	showTooltips();
+		showTooltips();
+
+		//google analytics
+		var mesh = params.spheres[clicked['index']];
+		var label = "Double Clicked Sphere: x="+mesh.position.x+" y="+mesh.position.y+" z="+mesh.position.z;
+		console.log(label)
+		ga('send', { 
+			hitType: 'event',
+			eventCategory: 'WebGL',
+			eventAction: 'double clicked',
+			eventLabel: label
+		});
+
+	}
 }
 
 function showTooltips(show=true){
@@ -243,6 +258,7 @@ function showTooltips(show=true){
 		if (params.isSlice){ //this is not efficient, but is the easiest way to get the correct colors for the slice spheres
 			params.doSliceUpdate = true;
 		}
+
 	} else {
 		var ttMeshIndex = params.ttMeshIndex.slice(0); //copy this array to save the ttMeshIndex to I can show in other views later
 		var arr = params.ttMeshIndex.slice(); //because highlightSphere modifies the ttMeshIndex array
