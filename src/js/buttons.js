@@ -1,44 +1,36 @@
 //this file contains all the functions related to the buttons
 
 //helpers for buttons
-function showHemiSpheres(bool){
+function showHemiSpheres(show){
 	//turns on/off the hemispheres
 	params.hemiSpheres.forEach(function(m){
-		m.material.visible = bool;
+		m.material.visible = show;
 	})
 }
-function showSpheres(bool){
+function showSpheres(show){
 	//turns on/off the spheres
 	params.spheres.forEach(function(m){
-		m.material.visible = bool;
+		m.material.visible = show;
 	})
 }
-function showSliceMesh(bool){
+function showSliceMesh(show){
 	//turns on/off the slice view
 	params.sliceMesh.forEach(function(m){
-		m.material.visible = bool;
+		m.material.visible = show;
 	})
 }
-function showCoordination(bool){
+function showCoordination(show){
 	//turns on/off the coordination view, and limits the double-click ability
-	params.showingCoordiation = bool;
-	if (bool){
-		var arr = params.ttMeshIndex.slice(); //because highlightSphere modifies the ttMeshIndex array
-		arr.forEach(function(loc, i){
-			highlightSphere(false, loc); //turn off previous highlighting
-			if (i == arr.length-1){
-				params.ttMeshIndex = []; //reset mesh index
-			}
-		});
-	}
+	params.showingCoordiation = show;
+	showTooltips(!show)
 	params.coordination.forEach(function(m){
-		m.material.visible = bool;
+		m.material.visible = show;
 	})
 }
-function showLabels(bool){
+function showLabels(show){
 	//turns on/off the labels
 	params.labels.forEach(function(m){
-		m.material.visible = bool;
+		m.material.visible = show;
 	})
 }
 function changeSphereOpacity(opacity){
@@ -79,10 +71,13 @@ function defaultView(){
 	}
 	params.isSlice = false;
 
+
 	showLabels(true);
 	showHemiSpheres(true);
 	showSpheres(true);
 	changeSphereOpacity(params.defaultOuterOpacity);
+
+	checkClickedPlane();
 
 	params.defaultViewTween.start();
 
@@ -117,6 +112,8 @@ function hardSphereView(){
 	showSpheres(true);
 	changeSphereOpacity(params.hardOpacity);
 
+	checkClickedPlane();
+
 	params.defaultViewTween.start();
 }
 
@@ -143,6 +140,9 @@ function sliceView(){
 
 	showSliceMesh(true);
 	params.isSlice = true;
+	params.doSliceUpdate = true;
+
+	checkClickedPlane();
 
 	params.defaultViewTween.start();
 }
@@ -177,6 +177,8 @@ function sparseView(){
 
 	params.isSlice = false;
 
+	checkClickedPlane();
+
 	params.defaultViewTween.start();
 }
 
@@ -204,6 +206,8 @@ function coordinationView(){
 	showCoordination(true);
 
 	params.isSlice = false;
+
+	checkClickedPlane();
 
 	params.coordinationViewTween.start();
 }
@@ -269,25 +273,26 @@ function setupButtons(vHeight, vWidth, m, b){
 		.classed('buttonHover', true)
 		.on('click', hardSphereView)
 
-	d3.select('#sliceButton')
+	d3.select('#sparseButton')
 		.style('position','absolute')
 		.style('top',0)
 		.style('left',2.*bw + 2.*m + 'px')
+		.style('width',bw + 'px')
+		.style('height',b-2 + 'px')
+		.classed('buttonHover', true)
+		.classed('buttonClicked', false)
+		.on('click', sparseView)
+
+	d3.select('#sliceButton')
+		.style('position','absolute')
+		.style('top',b + m + 'px')
+		.style('left',0)
 		.style('width',bw + 'px')
 		.style('height',b-2 + 'px')
 		.classed('buttonClicked', false)
 		.classed('buttonHover', true)
 		.on('click', sliceView)
 
-	d3.select('#sparseButton')
-		.style('position','absolute')
-		.style('top',b + m + 'px')
-		.style('left',0)
-		.style('width',bw + 'px')
-		.style('height',b-2 + 'px')
-		.classed('buttonHover', true)
-		.classed('buttonClicked', false)
-		.on('click', sparseView)
 
 	d3.select('#coordinationButton')
 		.style('position','absolute')

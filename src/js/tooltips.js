@@ -15,6 +15,9 @@ function createTooltip(loc){
 		.html('&times;')
 		.on('click',function(){
 			highlightSphere(false, loc);
+			if (params.isSlice){ //this is not efficient, but is the easiest way to get the correct colors for the slice spheres
+				params.doSliceUpdate = true;
+			}
 		});
 	tt.append('span')
 		.attr('class','tooltipContent');
@@ -57,12 +60,12 @@ function moveTooltip(meshIndex, offset=10, meshArray=params.spheres, ){
 	tt.select('.tooltipContent').html("x="+mesh.position.x+" y="+mesh.position.y+" z="+mesh.position.z);
 
 }
-function highlightSphere(bool, loc, meshArray=params.spheres){
+function highlightSphere(show, loc, meshArray=params.spheres){
 	//turn on/off the highlighting of a selected sphere (change color, add box)
 
 	var color = params.sphereColor;
 	var boxName = "sphereBox"+loc;
-	if (bool){
+	if (show){
 		color = params.highlightColor;
 		var test = params.scene.getObjectByName(boxName);
 		if (test == null){
@@ -83,6 +86,7 @@ function highlightSphere(bool, loc, meshArray=params.spheres){
 
 	}
 	meshArray[loc].material.color.setHex(color);
+
 }
 
 function drawTTarrow(meshArray=params.spheres){
@@ -124,14 +128,25 @@ function drawTTplane(meshArray=params.spheres){
 	var coplanarPoint = new THREE.Vector3();
 	plane.coplanarPoint(coplanarPoint); //this fails when focalPoint == 0,0,0
 	var focalPoint = new THREE.Vector3().copy(coplanarPoint).add(plane.normal);
-	geometry.lookAt(focalPoint);
-	geometry.translate(coplanarPoint.x, coplanarPoint.y, coplanarPoint.z);
+	// geometry.lookAt(focalPoint);
+	// geometry.translate(coplanarPoint.x, coplanarPoint.y, coplanarPoint.z);
 	//console.log("plane",params.ttMeshIndex,p1, p2, p3, coplanarPoint, plane.normal, focalPoint)
 
 	// Create mesh with the geometry
 	var planeMesh = new THREE.Mesh(geometry, material);
+	planeMesh.translateOnAxis(coplanarPoint.clone().normalize(), coplanarPoint.length());
+	planeMesh.lookAt(focalPoint);
 	planeMesh.name = 'ttPlane';
 	params.scene.add(planeMesh);
+
+	//update the slice plane to be the same
+	params.slicePlanePosition = planeMesh.position;//coplanarPoint;
+	params.slicePlaneRotation = planeMesh.rotation;
+	params.xPfac = params.slicePlanePosition.x;
+	params.xRfac = params.slicePlaneRotation.x;
+	params.yRfac = params.slicePlaneRotation.y;
+	params.doSliceUpdate = true;
+
 
 }
 
@@ -160,7 +175,7 @@ function screenXY(mesh){
 	return vector;
 }
 
-function showTooltip(e, pageX = null, pageY = null){
+function defineTooltip(e, pageX = null, pageY = null){
 	//define and show a tooltip (uses function from above)
 
 	if (!params.showingCoordiation){
@@ -170,7 +185,6 @@ function showTooltip(e, pageX = null, pageY = null){
 		if (pageY == null) pageY = e.pageY;
 
 		var clicked = getClickedMesh(pageX, pageY);
-		createTooltip(clicked['index']);
 
 		if (params.keyboard.pressed("shift")){
 			params.ttMeshIndex.push(clicked['index']);
@@ -196,28 +210,53 @@ function showTooltip(e, pageX = null, pageY = null){
 			params.ttMeshIndex.push(clicked['index']);
 		}
 
-
-		params.ttMeshIndex.forEach(function(loc){
-			moveTooltip(loc); //move it into position
-			highlightSphere(true, loc); //highlight the sphere
-		})
-
-		if (params.ttMeshIndex.length == 2){
-			params.scene.remove( params.scene.getObjectByName('ttPlane') ); //remove any plane 
-			drawTTarrow();
-		}
-		if (params.ttMeshIndex.length == 3){
-			params.scene.remove( params.scene.getObjectByName('ttArrow') ); //remove any arrow 
-			drawTTplane();
-		}
 	}
+
+	showTooltips();
 }
 
+function showTooltips(show=true){
+	//define and show a tooltip (uses function from above)
+	if (show){
+		if (!params.showingCoordiation){
 
+			params.ttMeshIndex.forEach(function(loc){
+				if (d3.select('#tooltip'+loc).node() == null) {
+					createTooltip(loc);
+				}
+				moveTooltip(loc); //move it into position
+				highlightSphere(true, loc); //highlight the sphere
+			})
+
+			if (params.ttMeshIndex.length == 2){
+				params.scene.remove( params.scene.getObjectByName('ttArrow') ); //remove any arrow 
+				params.scene.remove( params.scene.getObjectByName('ttPlane') ); //remove any plane 
+				drawTTarrow();
+			}
+			if (params.ttMeshIndex.length == 3){
+				params.scene.remove( params.scene.getObjectByName('ttArrow') ); //remove any arrow 
+				params.scene.remove( params.scene.getObjectByName('ttPlane') ); //remove any plane 
+				drawTTplane();
+			}
+		}
+
+		if (params.isSlice){ //this is not efficient, but is the easiest way to get the correct colors for the slice spheres
+			params.doSliceUpdate = true;
+		}
+	} else {
+		var ttMeshIndex = params.ttMeshIndex.slice(0); //copy this array to save the ttMeshIndex to I can show in other views later
+		var arr = params.ttMeshIndex.slice(); //because highlightSphere modifies the ttMeshIndex array
+		arr.forEach(function(loc, i){
+			highlightSphere(false, loc); //turn off previous highlighting
+		});
+		params.ttMeshIndex = ttMeshIndex;
+	}
+
+}
 ///////////////////////////
 // runs on load
 ///////////////////////////
-d3.select('#WebGLContainer').node().addEventListener("dblclick", showTooltip);
-//d3.select('#WebGLContainer').on("dblclick", showTooltip); //not sure why I can't make this work in a d3 way
+d3.select('#WebGLContainer').node().addEventListener("dblclick", defineTooltip);
+//d3.select('#WebGLContainer').on("dblclick", defineTooltip); //not sure why I can't make this work in a d3 way
 
 

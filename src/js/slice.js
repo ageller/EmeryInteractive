@@ -181,7 +181,6 @@ function drawSlice(size, position, rotation, opacity, color){
 
 	//check each sphere for intersection with the plane
 	params.spheres.forEach(function(m,i){ 
-
 		//this is an interesting package, but doesn't seem to work well enough for our purposes
 		// var planeBSP = new ThreeBSP(plane);
 		// var sphereBSP = new ThreeBSP(m);
@@ -231,7 +230,6 @@ function drawSlice(size, position, rotation, opacity, color){
 			toDelete = [];
 			var n0 = new THREE.Vector3(0,0,0);
 			gC.faces.forEach(function(f,i){
-				//console.log(f.normal)
 				var d = f.normal.dot(normal);
 				if (d > (1 - 1e-4)){ //delete the front face
 					toDelete.push(i);

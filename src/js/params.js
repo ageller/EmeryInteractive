@@ -42,6 +42,7 @@ function defineParams(){
 		this.sphereColor = 0x228B22;
 
 		//for slice
+		this.doSliceUpdate = false; //will be checked every frame
 		this.sliceColor = 0xAFEEEE;
 		this.sliceOpacity = 0.7;
 		this.isSlice = false;

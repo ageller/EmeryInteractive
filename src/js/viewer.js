@@ -16,6 +16,14 @@ function updateLights(){
 	});
 }
 
+function checkClickedPlane(){
+	//show/hide the plane from the double clicks if the slice plane is also shown
+	var x = params.scene.getObjectByName('ttPlane')
+	if (typeof x != "undefined"){
+		x.visible = !params.isSlice;
+	}
+}
+
 function updateSlice(p,r){
 	//for the slice, in case we want to change it dynamically
 
@@ -23,6 +31,15 @@ function updateSlice(p,r){
 		params.scene.remove(m);
 	})
 	params.sliceMesh = [];
+
+	//in case there's already a plane drawn from double clicking
+	checkClickedPlane();
+
+	//seeing a small blending issue at x=0 (not sure the best way to fix this!)
+	var check = Math.max(Math.abs(p.x),1e-2);
+	sign = 1.
+	if (p.x != 0) sign = Math.sign(p.x);
+	p.x = sign*check;
 
 	var slice = drawSlice(4.*params.size, p, r, params.sliceOpacity, params.sliceColor);
 	params.sliceMesh.push(slice.plane);
@@ -104,45 +121,45 @@ function animate(time) {
 	if (params.isSlice){
 
 
-		var doSliceUpdate = false;
 		if (params.keyboard.pressed("up")){
 			params.xPfac += params.size*0.02;
-			doSliceUpdate = true;
+			params.doSliceUpdate = true;
 		}
 		if (params.keyboard.pressed("down")){
 			params.xPfac -= params.size*0.02;
-			doSliceUpdate = true;
+			params.doSliceUpdate = true;
 		}
 		if (params.keyboard.pressed("shift")){
 			if (params.keyboard.pressed("left")){
 				params.xRfac += Math.PI*0.02;
-				doSliceUpdate = true;
+				params.doSliceUpdate = true;
 			}
 			if (params.keyboard.pressed("right")){
 				params.xRfac -= Math.PI*0.02;
-				doSliceUpdate = true;
+				params.doSliceUpdate = true;
 			}
 		}else{
 			if (params.keyboard.pressed("left")){
 				params.yRfac += Math.PI*0.02;
-				doSliceUpdate = true;
+				params.doSliceUpdate = true;
 			}
 			if (params.keyboard.pressed("right")){
 				params.yRfac -= Math.PI*0.02;
-				doSliceUpdate = true;
+				params.doSliceUpdate = true;
 			}
 		}
 
-		if (doSliceUpdate){
+		if (params.doSliceUpdate){
 			params.xPfac = THREE.Math.clamp(params.xPfac, -0.5*params.size, 1.5*params.size);
 			var p = params.slicePlanePosition.clone();
 			p.x = params.xPfac;
 
-			params.xRfac = THREE.Math.clamp(params.xRfac, -Math.PI/2., Math.PI/2.);
-			params.yRfac = THREE.Math.clamp(params.yRfac, -Math.PI/2., Math.PI/2.);
-			params.slicePlaneRotation = new THREE.Euler( params.xRfac, params.yRfac, 0, 'XYZ' );			
+			//params.xRfac = THREE.Math.clamp(params.xRfac, -Math.PI/2., Math.PI/2.);
+			//params.yRfac = THREE.Math.clamp(params.yRfac, -Math.PI/2., Math.PI/2.);
+			params.slicePlaneRotation = new THREE.Euler( params.xRfac, params.yRfac, 0, 'XYZ' );
 			updateSlice(p, params.slicePlaneRotation);
 			showSliceMesh(true);
+			params.doSliceUpdate = false;
 		}
 	}
 
