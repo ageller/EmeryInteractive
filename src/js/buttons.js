@@ -56,7 +56,6 @@ function defaultView(){
 		eventCategory: 'button',
 		eventAction: 'clicked',
 		eventLabel: 'Default View',
-		timingLabel: timeStamp(),
 	});
 
 	d3.selectAll('.buttonDiv').classed('buttonClicked', false);
@@ -93,7 +92,6 @@ function hardSphereView(){
 		eventCategory: 'button',
 		eventAction: 'clicked',
 		eventLabel: 'Hard-Sphere Model',
-		timingLabel: timeStamp(),
 	});
 
 	d3.selectAll('.buttonDiv').classed('buttonClicked', false);
@@ -128,7 +126,6 @@ function sliceView(){
 		eventCategory: 'button',
 		eventAction: 'clicked',
 		eventLabel: 'Slice',
-		timingLabel: timeStamp(),
 	});
 
 	d3.selectAll('.buttonDiv').classed('buttonClicked', false);
@@ -159,7 +156,6 @@ function sparseView(){
 		eventCategory: 'button',
 		eventAction: 'clicked',
 		eventLabel: 'Sparse Model',
-		timingLabel: timeStamp(),
 	});
 
 	d3.selectAll('.buttonDiv').classed('buttonClicked', false);
@@ -195,7 +191,6 @@ function coordinationView(){
 		eventCategory: 'button',
 		eventAction: 'clicked',
 		eventLabel: 'Coordination',
-		timingLabel: timeStamp(),
 	});
 
 	d3.selectAll('.buttonDiv').classed('buttonClicked', false);
@@ -226,7 +221,6 @@ function showHelp(){
 		eventCategory: 'button',
 		eventAction: 'clicked',
 		eventLabel: 'Help',
-		timingLabel: timeStamp(),
 	});
 
 	d3.selectAll('.buttonDiv').classed('buttonClicked', false);
@@ -328,7 +322,6 @@ function setupButtons(vHeight, vWidth, m, b){
 			eventCategory: 'WebGL',
 			eventAction: 'clicked',
 			eventLabel: 'Render Window',
-			timingLabel: timeStamp(),
 		});
 	});
 
@@ -336,8 +329,8 @@ function setupButtons(vHeight, vWidth, m, b){
 //for timestamps in google analytics
 function timeStamp() {
 	try {
-		var timestamp = new Date();
-		var time = timestamp.toString().split(' ');
+		var times = new Date();
+		var time = times.toString().split(' ');
 		return time[3]+ " " +time[1]+ " " +time[2]+ " "+time[4];
 	} catch(e) {
 		return "unknown";

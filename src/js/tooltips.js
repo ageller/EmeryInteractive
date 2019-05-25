@@ -225,7 +225,6 @@ function defineTooltip(e, pageX = null, pageY = null){
 			eventCategory: 'WebGL',
 			eventAction: 'double clicked',
 			eventLabel: label, 
-			timingLabel: timeStamp(),
 		});
 
 	}
