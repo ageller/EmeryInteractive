@@ -223,8 +223,8 @@ function defineTooltip(e, pageX = null, pageY = null){
 		ga('send', { 
 			hitType: 'event',
 			eventCategory: 'WebGL',
-			eventAction: 'double clicked',
-			eventLabel: label, 
+			eventAction: label,
+			eventLabel: timeStamp(), 
 		});
 
 	}

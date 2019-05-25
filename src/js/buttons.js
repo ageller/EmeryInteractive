@@ -54,8 +54,8 @@ function defaultView(){
 	ga('send', { 
 		hitType: 'event',
 		eventCategory: 'button',
-		eventAction: 'clicked',
-		eventLabel: 'Default View',
+		eventAction: 'clicked Default View',
+		eventLabel: timeStamp(),
 	});
 
 	d3.selectAll('.buttonDiv').classed('buttonClicked', false);
@@ -90,8 +90,8 @@ function hardSphereView(){
 	ga('send', { 
 		hitType: 'event',
 		eventCategory: 'button',
-		eventAction: 'clicked',
-		eventLabel: 'Hard-Sphere Model',
+		eventAction: 'clicked Hard-Sphere Model',
+		eventLabel: timeStamp(),
 	});
 
 	d3.selectAll('.buttonDiv').classed('buttonClicked', false);
@@ -124,8 +124,8 @@ function sliceView(){
 	ga('send', { 
 		hitType: 'event',
 		eventCategory: 'button',
-		eventAction: 'clicked',
-		eventLabel: 'Slice',
+		eventAction: 'clicked Slice',
+		eventLabel: timeStamp(),
 	});
 
 	d3.selectAll('.buttonDiv').classed('buttonClicked', false);
@@ -154,8 +154,8 @@ function sparseView(){
 	ga('send', { 
 		hitType: 'event',
 		eventCategory: 'button',
-		eventAction: 'clicked',
-		eventLabel: 'Sparse Model',
+		eventAction: 'clicked Sparse Model',
+		eventLabel: timeStamp(),
 	});
 
 	d3.selectAll('.buttonDiv').classed('buttonClicked', false);
@@ -189,8 +189,8 @@ function coordinationView(){
 	ga('send', { 
 		hitType: 'event',
 		eventCategory: 'button',
-		eventAction: 'clicked',
-		eventLabel: 'Coordination',
+		eventAction: 'clicked Coordination',
+		eventLabel: timeStamp(),
 	});
 
 	d3.selectAll('.buttonDiv').classed('buttonClicked', false);
@@ -219,8 +219,8 @@ function showHelp(){
 	ga('send', { 
 		hitType: 'event',
 		eventCategory: 'button',
-		eventAction: 'clicked',
-		eventLabel: 'Help',
+		eventAction: 'clicked Help',
+		eventLabel: timeStamp(),
 	});
 
 	d3.selectAll('.buttonDiv').classed('buttonClicked', false);
@@ -320,13 +320,15 @@ function setupButtons(vHeight, vWidth, m, b){
 		ga('send', { 
 			hitType: 'event',
 			eventCategory: 'WebGL',
-			eventAction: 'clicked',
-			eventLabel: 'Render Window',
+			eventAction: 'Clicked in Render Window',
+			eventLabel: timeStamp(),
 		});
 	});
 
 }
 //for timestamps in google analytics
+//is there a way I can add this to analytics events?
+//https://gtm.tips/add-timestamp-ga-events/
 function timeStamp() {
 	try {
 		var times = new Date();
