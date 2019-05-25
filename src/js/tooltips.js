@@ -219,12 +219,13 @@ function defineTooltip(e, pageX = null, pageY = null){
 		//google analytics
 		var mesh = params.spheres[clicked['index']];
 		var label = "Double Clicked Atom: x="+mesh.position.x+" y="+mesh.position.y+" z="+mesh.position.z;
-		console.log(label)
+		console.log(label, timeStamp())
 		ga('send', { 
 			hitType: 'event',
 			eventCategory: 'WebGL',
 			eventAction: 'double clicked',
-			eventLabel: label
+			eventLabel: label, 
+			timingLabel: timeStamp(),
 		});
 
 	}

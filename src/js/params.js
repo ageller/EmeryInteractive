@@ -47,8 +47,8 @@ function defineParams(){
 		this.sliceOpacity = 0.7;
 		this.isSlice = false;
 		this.xPfac = this.size;//testing dynamic slicing
-		this.yRfac = Math.PI/2.;//testing dynamic slicing
 		this.xRfac = 0.;//testing dynamic slicing
+		this.yRfac = Math.PI/2.;//testing dynamic slicing
 		this.slicePlanePosition = new THREE.Vector3(this.xPfac, this.size/2., this.size/2.); 
 		this.slicePlaneRotation = new THREE.Euler(this.xRfac, this.yRfac, 0, 'XYZ' );//new THREE.Vector3(this.xRfac, this.yRfac, 0); 
 

@@ -55,7 +55,8 @@ function defaultView(){
 		hitType: 'event',
 		eventCategory: 'button',
 		eventAction: 'clicked',
-		eventLabel: 'Default View'
+		eventLabel: 'Default View',
+		timingLabel: timeStamp(),
 	});
 
 	d3.selectAll('.buttonDiv').classed('buttonClicked', false);
@@ -91,7 +92,8 @@ function hardSphereView(){
 		hitType: 'event',
 		eventCategory: 'button',
 		eventAction: 'clicked',
-		eventLabel: 'Hard-Sphere Model'
+		eventLabel: 'Hard-Sphere Model',
+		timingLabel: timeStamp(),
 	});
 
 	d3.selectAll('.buttonDiv').classed('buttonClicked', false);
@@ -125,7 +127,8 @@ function sliceView(){
 		hitType: 'event',
 		eventCategory: 'button',
 		eventAction: 'clicked',
-		eventLabel: 'Slice'
+		eventLabel: 'Slice',
+		timingLabel: timeStamp(),
 	});
 
 	d3.selectAll('.buttonDiv').classed('buttonClicked', false);
@@ -155,7 +158,8 @@ function sparseView(){
 		hitType: 'event',
 		eventCategory: 'button',
 		eventAction: 'clicked',
-		eventLabel: 'Sparse Model'
+		eventLabel: 'Sparse Model',
+		timingLabel: timeStamp(),
 	});
 
 	d3.selectAll('.buttonDiv').classed('buttonClicked', false);
@@ -190,7 +194,8 @@ function coordinationView(){
 		hitType: 'event',
 		eventCategory: 'button',
 		eventAction: 'clicked',
-		eventLabel: 'Coordination'
+		eventLabel: 'Coordination',
+		timingLabel: timeStamp(),
 	});
 
 	d3.selectAll('.buttonDiv').classed('buttonClicked', false);
@@ -220,7 +225,8 @@ function showHelp(){
 		hitType: 'event',
 		eventCategory: 'button',
 		eventAction: 'clicked',
-		eventLabel: 'Help'
+		eventLabel: 'Help',
+		timingLabel: timeStamp(),
 	});
 
 	d3.selectAll('.buttonDiv').classed('buttonClicked', false);
@@ -321,9 +327,20 @@ function setupButtons(vHeight, vWidth, m, b){
 			hitType: 'event',
 			eventCategory: 'WebGL',
 			eventAction: 'clicked',
-			eventLabel: 'Render Window'
+			eventLabel: 'Render Window',
+			timingLabel: timeStamp(),
 		});
 	});
 
+}
+//for timestamps in google analytics
+function timeStamp() {
+	try {
+		var timestamp = new Date();
+		var time = timestamp.toString().split(' ');
+		return time[3]+ " " +time[1]+ " " +time[2]+ " "+time[4];
+	} catch(e) {
+		return "unknown";
+	}
 }
 
