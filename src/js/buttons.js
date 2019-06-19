@@ -55,7 +55,7 @@ function defaultView(){
 		hitType: 'event',
 		eventCategory: 'button',
 		eventAction: 'clicked Default View',
-		eventLabel: timeStamp(),
+		eventLabel: 'clicked Default View, ' + timeStamp(),
 	});
 
 	d3.selectAll('.buttonDiv').classed('buttonClicked', false);
@@ -91,7 +91,7 @@ function hardSphereView(){
 		hitType: 'event',
 		eventCategory: 'button',
 		eventAction: 'clicked Hard-Sphere Model',
-		eventLabel: timeStamp(),
+		eventLabel: 'clicked Hard-Sphere Model, ' + timeStamp(),
 	});
 
 	d3.selectAll('.buttonDiv').classed('buttonClicked', false);
@@ -125,7 +125,7 @@ function sliceView(){
 		hitType: 'event',
 		eventCategory: 'button',
 		eventAction: 'clicked Slice',
-		eventLabel: timeStamp(),
+		eventLabel: 'clicked Slice, ' + timeStamp(),
 	});
 
 	d3.selectAll('.buttonDiv').classed('buttonClicked', false);
@@ -155,7 +155,7 @@ function sparseView(){
 		hitType: 'event',
 		eventCategory: 'button',
 		eventAction: 'clicked Sparse Model',
-		eventLabel: timeStamp(),
+		eventLabel: 'clicked Sparse Model, ' + timeStamp(),
 	});
 
 	d3.selectAll('.buttonDiv').classed('buttonClicked', false);
@@ -190,7 +190,7 @@ function coordinationView(){
 		hitType: 'event',
 		eventCategory: 'button',
 		eventAction: 'clicked Coordination',
-		eventLabel: timeStamp(),
+		eventLabel: 'clicked Coordination, ' + timeStamp(),
 	});
 
 	d3.selectAll('.buttonDiv').classed('buttonClicked', false);
@@ -220,7 +220,7 @@ function showHelp(){
 		hitType: 'event',
 		eventCategory: 'button',
 		eventAction: 'clicked Help',
-		eventLabel: timeStamp(),
+		eventLabel: 'clicked Help, ' + timeStamp(),
 	});
 
 	d3.selectAll('.buttonDiv').classed('buttonClicked', false);
@@ -321,7 +321,7 @@ function setupButtons(vHeight, vWidth, m, b){
 			hitType: 'event',
 			eventCategory: 'WebGL',
 			eventAction: 'Clicked in Render Window',
-			eventLabel: timeStamp(),
+			eventLabel: 'Clicked in Render Window, ' + timeStamp(),
 		});
 	});
 
