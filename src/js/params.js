@@ -92,6 +92,8 @@ function defineParams(){
 		this.transition = d3.transition().duration(1000);
 		this.helpOpacity = 0.7;
 
+		this.userIP = null;
+
 	};
 
 

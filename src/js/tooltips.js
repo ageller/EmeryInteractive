@@ -224,7 +224,7 @@ function defineTooltip(e, pageX = null, pageY = null){
 			hitType: 'event',
 			eventCategory: 'WebGL',
 			eventAction: label,
-			eventLabel: label + ', ' + timeStamp(), 
+			eventLabel: label + ', ' + timeStamp() + ' , ' + params.userIP, 
 		});
 
 	}

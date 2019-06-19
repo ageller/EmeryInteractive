@@ -62,6 +62,26 @@ function init(){
 
 }
 
+//for timestamps in google analytics
+//is there a way I can add this to analytics events?
+//https://gtm.tips/add-timestamp-ga-events/
+function timeStamp() {
+	try {
+		var times = new Date();
+		var time = times.toString().split(' ');
+		return time[3]+ " " +time[1]+ " " +time[2]+ " "+time[4];
+	} catch(e) {
+		return "unknown";
+	}
+}
+
+
+//for IP addresses for google analytics
+function getIP(json) {
+	params.userIP = json.ip;
+	console.log("IP address : ", params.userIP)
+}
+
 //Google Analytics https://developers.google.com/analytics/devguides/collection/analyticsjs/
 (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
 (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
