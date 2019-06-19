@@ -45,6 +45,7 @@ function drawMainSpheres(){
 	})
 
 
+	//Quarter spheres
 	var r1 = new THREE.Vector3(0,				Math.PI/2.,		0); 
 	var r2 = new THREE.Vector3(0,				0,				0); 
 	var r3 = new THREE.Vector3(Math.PI/2.,		Math.PI/2.,		0);  
