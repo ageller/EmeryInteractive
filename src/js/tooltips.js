@@ -6,7 +6,9 @@ function createTooltip(loc, meshArray=params.spheres){
 	var tt = d3.select('body').append('div')
 		.attr('id','tooltip'+loc)
 		.attr('class','tooltip')
-		.style('font-size','20px')
+		.style('font-size','16px')
+		.style('line-height','16px')
+		.style('height','16px')
 		.style('display','block')
 		.style('opacity',1)
 	tt.append('span')
@@ -80,12 +82,7 @@ function highlightSphere(show, loc, meshArray=params.spheres){
 		params.scene.remove( params.scene.getObjectByName(boxName) ); //remove the box
 		params.ttMeshIndex.splice(params.ttMeshIndex.indexOf(loc),1); //remove the value from the ttMeshIndex array
 		d3.select('#tooltip'+loc).remove(); //remove the tooltip
-		params.scene.remove( params.scene.getObjectByName('ttArrow') ); //remove any arrow 
-		params.scene.remove( params.scene.getObjectByName('ttPlane') ); //remove any arrow 
-		if (params.ttMeshIndex.length == 2){//draw back an arrow if we've removed a plane
-			drawTTarrow();
-		}		
-
+		showTooltips();	//show the current tooltips and redraw related mesh		
 	}
 	meshArray[loc].material.color.setHex(color);
 
@@ -150,6 +147,57 @@ function drawTTplane(meshArray=params.spheres){
 	params.doSliceUpdate = true;
 
 
+
+}
+
+function drawTTtetrahedron(meshArray=params.spheres){
+	//draw a tetrahedron to connect 4 selected spheres
+	//see info here: https://stackoverflow.com/questions/25982511/simple-tetrahedron-using-three-geometry
+	//https://threejs.org/docs/#api/en/geometries/TetrahedronGeometry
+
+	// var p1 = meshArray[params.ttMeshIndex[0]].position.clone();
+	// var p2 = meshArray[params.ttMeshIndex[1]].position.clone();
+	// var p3 = meshArray[params.ttMeshIndex[2]].position.clone();
+	// var p4 = meshArray[params.ttMeshIndex[3]].position.clone();
+	//there is a TetrahedronGeometry function, but I can't figure out how to give it vertices in the correct order...
+	// THREE.TetrahedronGeometry = function ( radius, detail ) {
+	// 	var vertices = [p1.x, p1.y, p1.z,   p2.x, p2.y, p2.z,   p3.x, p3.y, p3.z,    p4.x, p4.y, p4.z];
+	// 	var indices = [ 2,  1,  0,    0,  3,  2,    1,  3,  0,    2,  3,  1];
+	// 	THREE.PolyhedronGeometry.call( this, vertices, indices, radius, detail );
+	// };
+	// THREE.TetrahedronGeometry.prototype = Object.create( THREE.Geometry.prototype );
+	// // Create a basic  geometry
+	// var geometry = new THREE.TetrahedronGeometry();
+
+	//so try to convex hull
+	var vertices = [];
+	params.ttMeshIndex.forEach(function(i){
+		vertices.push(meshArray[i].position.clone());
+	})
+	var geometry = new THREE.ConvexGeometry( vertices );
+	geometry.computeVertexNormals();
+	geometry.computeFaceNormals();
+
+	var material = new THREE.MeshBasicMaterial( {
+		color: params.highlightColor, 
+		side: THREE.DoubleSide,
+	});
+
+	// Create mesh with the geometry
+	var tetrahedronMesh = new THREE.Mesh(geometry, material);
+	tetrahedronMesh.name = 'ttTetrahedron';
+	params.scene.add(tetrahedronMesh);
+
+	//also create lines so the we can see the edges
+	var edges = new THREE.EdgesGeometry( geometry );
+	var material = new THREE.LineBasicMaterial( {
+		color: "black", //better color?
+	});
+	var lines = new THREE.LineSegments( edges,  material);
+	lines.name = 'ttTetrahedronLines'; 
+	params.scene.add(lines);
+
+
 }
 
 function screenXY(mesh){
@@ -206,9 +254,9 @@ function defineTooltip(e, pageX = null, pageY = null){
 
 		}
 
-		if (params.ttMeshIndex.length > 3){ //only allow three to be highlighted
-			highlightSphere(false, params.ttMeshIndex[2]); //turn off previous highlighting
-			params.ttMeshIndex = params.ttMeshIndex.slice(0,2);
+		if (params.ttMeshIndex.length > 4){ //only allow four to be highlighted
+			highlightSphere(false, params.ttMeshIndex[3]); //turn off previous highlighting
+			params.ttMeshIndex = params.ttMeshIndex.slice(0,3);
 			params.ttMeshIndex.push(clicked['index']);
 		}
 
@@ -242,16 +290,18 @@ function showTooltips(show=true){
 				moveTooltip(loc); //move it into position
 				highlightSphere(true, loc); //highlight the sphere
 			})
-
+			params.scene.remove( params.scene.getObjectByName('ttArrow') ); //remove any arrow 
+			params.scene.remove( params.scene.getObjectByName('ttPlane') ); //remove any plane 
+			params.scene.remove( params.scene.getObjectByName('ttTetrahedron') ); //remove any tetrahedron 
+			params.scene.remove( params.scene.getObjectByName('ttTetrahedronLines') ); //remove the tetrahedron edge lines 
 			if (params.ttMeshIndex.length == 2){
-				params.scene.remove( params.scene.getObjectByName('ttArrow') ); //remove any arrow 
-				params.scene.remove( params.scene.getObjectByName('ttPlane') ); //remove any plane 
 				drawTTarrow();
 			}
 			if (params.ttMeshIndex.length == 3){
-				params.scene.remove( params.scene.getObjectByName('ttArrow') ); //remove any arrow 
-				params.scene.remove( params.scene.getObjectByName('ttPlane') ); //remove any plane 
 				drawTTplane();
+			}
+			if (params.ttMeshIndex.length == 4){
+				drawTTtetrahedron();
 			}
 		}
 

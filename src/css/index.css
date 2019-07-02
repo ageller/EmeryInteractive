@@ -70,7 +70,7 @@ html,body {
 	position:absolute;
 	height:auto;
 	width: auto;
-	padding: 10px;
+	padding: 8px;
 	margin: 0px;
 	z-index: 4;
 	background-color: lightgray;
@@ -84,19 +84,19 @@ html,body {
 	top:2px;
 	left:2px;
 	border-radius: 50%;
-	width: 32px;
-	height: 32px;
+	width: 24px;
+	height: 24px;
 	padding: 0;
 	border: 2px solid;
 	text-align: center;
-	font: 32px Arial, sans-serif;
+	font: 24px Arial, sans-serif;
 	color: var(--button-foreground-color);
 	background-color:var(--button-background-color);
 	cursor:pointer;
 }
 
 .tooltipContent{
-	margin-left: 40px;
+	margin-left: 28px;
 	color:black;
 }
 
