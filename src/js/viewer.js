@@ -219,6 +219,7 @@ function resizeContainers(){
 	console.log('resizing')
 	var m = 10; //margin
 	var b = 50; //button height
+	var controlsWidth = 200; //width of the controls container
 
 	var vHeight = parseFloat(window.innerHeight) - 4.*m - 2.*b;
 	var vWidth = vHeight/params.aspect;
@@ -231,11 +232,15 @@ function resizeContainers(){
 		vHeight = vWidth*params.aspect;
 	}
 
+	var iWidth = Math.max(params.textMinWidth, parseFloat(window.innerWidth) - vWidth - 4.*m);
+	var iPadding = 20;
+
+
 	//canvas
 	d3.select('#WebGLContainer')
 		.style('position','absolute')
 		.style('top',m + 'px')
-		.style('left',m +'px')
+		.style('left',controlsWidth + 2.*m +'px')
 		.style('padding',0)
 		.style('margin',0)
 		.style('width',vWidth + 'px')
@@ -249,15 +254,13 @@ function resizeContainers(){
 
 
 	//text 
-	var iWidth = Math.max(params.textMinWidth, parseFloat(window.innerWidth) - vWidth - 4.*m);
-	var iPadding = 20;
 	d3.select('#textContainer')
 		.style('position','absolute')
 		.style('top',m + 'px')
-		.style('left',(vWidth + 2.*m) +'px')
+		.style('left',(controlsWidth + vWidth + 3.*m) +'px')
 		.style('margin',0)
 		.style('padding',iPadding + 'px')
-		.style('width',iWidth - 2.*iPadding + 'px')
+		.style('width',iWidth - 2.*iPadding - controlsWidth + 'px')
 		.style('height',vHeight - 2.*iPadding + 2.*b + 2.*m + 'px')
 		.style('z-index',1)
 
@@ -265,7 +268,10 @@ function resizeContainers(){
 	resizeText('#textContainer');
 
 	//buttons
-	setupButtons(vHeight, vWidth, m, b);
+	setupButtons(vHeight, vWidth, controlsWidth, m, b);
+
+	//controls
+	resizeControls(vHeight, controlsWidth, m, b);
 
 	//renderer
 	if (params.renderer != null){
@@ -302,8 +308,9 @@ function resizeContainers(){
 		// 		})
 		//fade out on click
 		.on('click', function(){
-			d3.selectAll('.buttonDiv').classed('buttonClicked', false);
+			//d3.selectAll('.buttonDiv').classed('buttonClicked', false);
 			d3.selectAll('.buttonDiv').classed('buttonHover', true);
+			d3.selectAll('#helpButton').classed('buttonClicked', false);
 			d3.select('#helpContainer').transition(params.transition)
 				.style('background-color','rgba(100, 100, 100, 0)')
 				.style('opacity',0)

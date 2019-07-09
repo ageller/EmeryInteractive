@@ -48,7 +48,7 @@ function init(){
 
 	//define the three.js controls
 	//params.controls = new THREE.TrackballControls( params.camera, params.renderer.domElement );
-	params.controls = new THREE.OrbitControls( params.camera);
+	params.controls = new THREE.OrbitControls( params.camera, params.renderer.domElement);
 	params.controls.enablePan = false;
 	params.controls.rotateSpeed = 0.5;
 	params.domElement = params.renderer.domElement;

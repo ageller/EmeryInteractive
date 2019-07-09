@@ -92,7 +92,15 @@ function defineParams(){
 		this.transition = d3.transition().duration(1000);
 		this.helpOpacity = 0.7;
 
+		//holds the IP address
 		this.userIP = null;
+
+		//for recording questions
+		this.inQuestion = false;
+		this.questionN = 0;
+
+		//show/hide tooltips
+		this.showTooltips = true;
 
 	};
 

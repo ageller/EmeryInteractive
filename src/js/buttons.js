@@ -223,7 +223,7 @@ function showHelp(){
 		eventLabel: 'clicked Help, ' + timeStamp() + ' , ' + params.userIP,
 	});
 
-	d3.selectAll('.buttonDiv').classed('buttonClicked', false);
+	//d3.selectAll('.buttonDiv').classed('buttonClicked', false);
 	d3.selectAll('.buttonDiv').classed('buttonHover', true);
 	d3.selectAll('#helpButton').classed('buttonClicked', true);
 	d3.selectAll('#helpButton').classed('buttonHover', false);
@@ -239,13 +239,13 @@ function showHelp(){
 
 }
 
-function setupButtons(vHeight, vWidth, m, b){
+function setupButtons(vHeight, vWidth, controlsWidth, m, b){
 	//creates all the buttons and links them to the function above
 	//buttons
 	d3.select('#buttonContainer')
 		.style('position','absolute')
 		.style('top',vHeight + 2.*m + 'px')
-		.style('left',m +'px')
+		.style('left',controlsWidth + 2.*m +'px')
 		.style('margin',0)
 		.style('padding',0)
 		.style('width',vWidth + 'px')
@@ -310,7 +310,7 @@ function setupButtons(vHeight, vWidth, m, b){
 		.style('left',2*bw + 2*m + 'px')
 		.style('width',bw + 'px')
 		.style('height',b-2 + 'px')
-		.classed('buttonClicked', false)
+		.classed('buttonClicked', true)
 		.classed('buttonHover', true)
 		.on('click',showHelp)
 
