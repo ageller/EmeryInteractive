@@ -80,8 +80,9 @@ function highlightSphere(show, loc, meshArray=params.spheres){
 		d3.select('#tooltip'+loc).remove(); //remove the tooltip
 		showTooltips();	//show the current tooltips and redraw related mesh		
 	}
-	meshArray[loc].material.color.setHex(color);
 
+	//set the sphere color
+	meshArray[loc].material.color.setHex(color);
 }
 
 function drawTTarrow(meshArray=params.spheres){

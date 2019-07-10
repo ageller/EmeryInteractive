@@ -152,6 +152,8 @@ function setupControls(vHeight, controlsWidth, m, b){
 
 function checkControlsText(id, value){
 	console.log(id, value)
+	if (id.includes('miller')) setMillerIndex();
+	if (id.includes('mirror')) setMirror();
 }
 
 function startQuestion(){
@@ -224,11 +226,17 @@ function setMirror(){
 			for (var k = 0; k<Z; k++){	
 				if (i > 0 || j > 0 || k> 0){
 					params.spheres.forEach(function(m){
-						var mm = m.clone();
+						var p = m.position;
+						var g = m.geometry;
+						var m = m.material.clone(); //so that the colors of the mirrored objects don't change
+						m.color.setHex(params.sphereColor);
+						var mm = new THREE.Mesh(g,m);
+						//need an if statement so that I don't copy the ends?
+						//var mm = m.clone();
 						mm.name = "sphereMirror";
-						var p = mm.position;
 						mm.position.set(p.x + i*params.size, p.y + j*params.size, p.z + k*params.size);
-						params.scene.add(mm)
+						mm.renderOrder = -1;
+						params.scene.add(mm);
 					})	
 				}
 			}

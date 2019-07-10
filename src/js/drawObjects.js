@@ -1,6 +1,6 @@
 //This file contains all the functions needed to draw the individual objects.  draw.js uses this file heavily.
 
-function drawSphere(radius, widthSegments, heightSegments, opacity, color, position, visible = true){
+function drawSphere(radius, widthSegments, heightSegments, opacity, color, position, visible = true, name = "sphere"){
 	//draw a full sphere
 
 	var geometry = new THREE.SphereGeometry(radius, widthSegments, heightSegments, 0, 2.*Math.PI, 0, Math.PI)
@@ -15,6 +15,7 @@ function drawSphere(radius, widthSegments, heightSegments, opacity, color, posit
 
 	sphere = new THREE.Mesh( geometry, material );
 	sphere.position.set(position.x, position.y, position.z)
+	sphere.name = name;
 	//update the vertices of the plane geometry so that I can check for the intersection -- not needed (and also breaks the sparse view)
 	//https://stackoverflow.com/questions/23990354/how-to-update-vertices-geometry-after-rotate-or-move-object
 	// sphere.updateMatrix();
@@ -30,7 +31,7 @@ function drawSphere(radius, widthSegments, heightSegments, opacity, color, posit
 
 }
 
-function drawHalfSphere(radius, widthSegments, heightSegments, opacity, color, position, rotation){
+function drawHalfSphere(radius, widthSegments, heightSegments, opacity, color, position, rotation, name = 'halfSpheref'){
 	//draw a half sphere
 
 	var sphere = new THREE.SphereGeometry(radius, widthSegments, heightSegments, 0, Math.PI, 0, Math.PI)
@@ -57,6 +58,7 @@ function drawHalfSphere(radius, widthSegments, heightSegments, opacity, color, p
 	});
 
 	var mesh = new THREE.Mesh(singleGeometry, material);
+	mesh.name = name;
 	mesh.position.set(position.x, position.y, position.z);
 	mesh.rotation.set(rotation.x, rotation.y, rotation.z);
 	mesh.renderOrder = -1;
@@ -66,7 +68,7 @@ function drawHalfSphere(radius, widthSegments, heightSegments, opacity, color, p
 
 }
 
-function drawQuarterSphere(radius, widthSegments, heightSegments, opacity, color, position, rotation){
+function drawQuarterSphere(radius, widthSegments, heightSegments, opacity, color, position, rotation, name = 'quarterSphere'){
 	//draw a quarter sphere
 
 	var sphere = new THREE.SphereGeometry(radius, widthSegments, heightSegments, 0, Math.PI/2., 0, Math.PI/2.)
@@ -109,6 +111,7 @@ function drawQuarterSphere(radius, widthSegments, heightSegments, opacity, color
 	});
 
 	var mesh = new THREE.Mesh(singleGeometry, material);
+	mesh.name = name;
 	mesh.position.set(position.x, position.y, position.z);
 	mesh.rotation.set(rotation.x, rotation.y, rotation.z);
 	mesh.renderOrder = -1;
@@ -120,7 +123,7 @@ function drawQuarterSphere(radius, widthSegments, heightSegments, opacity, color
 
 
 
-function drawCylinder(radius, height, radialSegments, heightSegments, color, position, rotation, visible = false){
+function drawCylinder(radius, height, radialSegments, heightSegments, color, position, rotation, visible = false, name = 'cylinder'){
 	//draw a cylinder
 
 	var geometry = new THREE.CylinderGeometry(radius, radius, height, radialSegments, heightSegments);
@@ -133,6 +136,7 @@ function drawCylinder(radius, height, radialSegments, heightSegments, color, pos
 	});
 
 	cylinder = new THREE.Mesh( geometry, material );
+	cylinder.name = name;
 	cylinder.position.set(position.x, position.y, position.z)
 	cylinder.rotation.set(rotation.x, rotation.y, rotation.z)
 
@@ -143,7 +147,7 @@ function drawCylinder(radius, height, radialSegments, heightSegments, color, pos
 
 
 
-function drawBox(){
+function drawBox(name = 'box'){
 	//draw the outside box
 
 	var geometry = new THREE.BoxBufferGeometry( params.size, params.size, params.size);
@@ -152,6 +156,7 @@ function drawBox(){
 	var material = new THREE.LineBasicMaterial( {color: 0x000000} )
 	var line = new THREE.LineSegments( edges,  material);
 	line.position.set(params.size/2, params.size/2., params.size/2.);
+	line.name = name;
 	params.scene.add( line );
 
 }
@@ -170,6 +175,7 @@ function drawAxes(){
 	var cX = new THREE.Mesh( gX, mX );
 	cX.position.set(1.5*params.size, 0, 0);
 	cX.rotation.set(0, 0, -Math.PI/2);
+	cX.name = 'x-axis';
 	params.scene.add( cX );
 
 	var gY = new THREE.ConeGeometry( params.size/30., params.size/10., 16, 1 );
@@ -177,6 +183,7 @@ function drawAxes(){
 	var cY = new THREE.Mesh( gY, mY );
 	cY.position.set(0, 1.5*params.size, 0);
 	cY.rotation.set(0, 0, 0);
+	cY.name = 'y-axis';
 	params.scene.add( cY );
 
 	var gZ = new THREE.ConeGeometry( params.size/30., params.size/10., 16, 1 );
@@ -184,6 +191,7 @@ function drawAxes(){
 	var cZ = new THREE.Mesh( gZ, mZ );
 	cZ.position.set(0, 0, 1.5*params.size);
 	cZ.rotation.set(Math.PI/2, 0, 0);
+	cZ.name = 'z-axis';
 	params.scene.add( cZ );
 
 	//add font to the axes

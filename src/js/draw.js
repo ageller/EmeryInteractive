@@ -93,7 +93,7 @@ function drawCoordination(){
 
 	var allP = [p1, p2,p3,p4,p5, p6,p7,p8,p9, p10,p11,p12,p13]
 	allP.forEach(function(p){
-		var mesh = drawSphere(radius, params.sphereSegments, params.sphereSegments, params.hardOpacity, params.sphereColor, p, false);
+		var mesh = drawSphere(radius, params.sphereSegments, params.sphereSegments, params.hardOpacity, params.sphereColor, p, false, 'coordinationSphere');
 		params.coordination.push(mesh);
 	});
 

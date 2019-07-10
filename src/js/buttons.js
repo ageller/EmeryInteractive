@@ -9,10 +9,15 @@ function showHemiSpheres(show){
 }
 function showSpheres(show){
 	//turns on/off the spheres
-	params.spheres.forEach(function(m){
-		m.material.visible = show;
-	})
+	// params.spheres.forEach(function(m){
+	// 	m.material.visible = show;
+	// })
+	//also do this for the mirrored spheres
+	params.scene.traverse(function(child) {
+		if (child.name == "sphereMirror" || child.name == "sphere") child.material.visible = show;
+	});
 }
+
 function showSliceMesh(show){
 	//turns on/off the slice view
 	params.sliceMesh.forEach(function(m){
@@ -35,9 +40,13 @@ function showLabels(show){
 }
 function changeSphereOpacity(opacity){
 	//changes the opacity of the spheres
-	params.spheres.forEach(function(m){
-		m.material.opacity = opacity;
-	})
+	// params.spheres.forEach(function(m){
+	// 	m.material.opacity = opacity;
+	// })
+	//also do this for the mirrored spheres
+	params.scene.traverse(function(child) {
+		if (child.name == "sphereMirror" || child.name == "sphere") child.material.opacity = opacity;
+	});
 }
 
 function changeSphereScale(scale){
@@ -149,6 +158,7 @@ function sliceView(){
 	params.doSliceUpdate = true;
 
 	checkClickedPlane();
+
 
 	params.defaultViewTween.start();
 }
