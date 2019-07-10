@@ -45,6 +45,12 @@ function changeSphereScale(scale){
 	params.spheres.forEach(function(m){
 		m.geometry.scale(scale, scale, scale);
 	})	
+	//also change the box outline scale
+	params.ttMeshIndex.forEach(function(loc){
+		var boxName = "sphereBox"+loc;
+		var o = params.scene.getObjectByName(boxName);
+		o.geometry.scale(scale, scale, scale);
+	})
 }
 //functions attached to buttons
 function defaultView(){

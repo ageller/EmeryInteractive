@@ -188,13 +188,12 @@ function checkTooltips(){
 	params.showTooltips = !params.showTooltips;
 	console.log('Show tooltips', params.showTooltips);
 
+	d3.selectAll('.tooltip').classed('hidden', !params.showTooltips);
+
+	d3.select('#tooltipButton').classed('buttonClicked', params.showTooltips)
 	if (params.showTooltips){
-		d3.select('#tooltipButton')
-			.classed('buttonClicked', true)
-			.text('Tooltips On');
+		d3.select('#tooltipButton').text('Tooltips On');
 	} else {
-		d3.select('#tooltipButton')
-			.classed('buttonClicked', false)
-			.text('Tooltips Off');
+		d3.select('#tooltipButton').text('Tooltips Off');
 	}
 }

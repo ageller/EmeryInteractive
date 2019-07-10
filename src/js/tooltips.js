@@ -6,11 +6,7 @@ function createTooltip(loc, meshArray=params.spheres){
 	var tt = d3.select('body').append('div')
 		.attr('id','tooltip'+loc)
 		.attr('class','tooltip')
-		.style('font-size','16px')
-		.style('line-height','16px')
-		.style('height','16px')
-		.style('display','block')
-		.style('opacity',1)
+		.classed('hidden', !params.showTooltips);
 	tt.append('span')
 		.attr('id','tootltipClose')
 		.attr('class','close buttonHover')

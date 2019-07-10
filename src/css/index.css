@@ -76,6 +76,11 @@ html,body {
 	background-color: lightgray;
 	text-align: center;
 	border: 2px solid var(--button-clicked-color);
+	font-size:16px;
+	line-height:16px;
+	height:16px;
+	opacity:1;
+	/*display:block;*/
 	/*opacity: 0.0;
 	display: none;*/
 }
@@ -89,7 +94,8 @@ html,body {
 	padding: 0;
 	border: 2px solid;
 	text-align: center;
-	font: 24px Arial, sans-serif;
+	font: 36px Arial, sans-serif;
+	line-height:25px;
 	color: var(--button-foreground-color);
 	background-color:var(--button-background-color);
 	cursor:pointer;
