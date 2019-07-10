@@ -66,6 +66,29 @@ html,body {
 	/*color: var(--button-background-color);*/
 }
 
+/*these are the same as above, but allowing me to exclude these from selections*/
+.buttonDivControls{
+	padding: 0px;
+	margin: 0px;
+	text-align: center;
+	border: 2px solid var(--button-foreground-color);
+	/*border-radius: 5px;*/
+	opacity: 1.0;
+	display:block;
+	font-size:20px;
+	color: var(--button-foreground-color);
+	background-color:var(--button-background-color);
+	cursor: pointer;
+}
+.buttonHoverControls:hover {
+	background-color: var(--button-foreground-color);
+	color: var(--button-background-color);
+}
+.buttonClickedControls {
+	background-color: var(--button-clicked-color);
+	/*color: var(--button-background-color);*/
+}
+
 .tooltip{
 	position:absolute;
 	height:auto;

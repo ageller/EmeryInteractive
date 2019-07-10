@@ -44,9 +44,9 @@ function setupControls(vHeight, controlsWidth, m, b){
 	function createButton(parent, id, width, height, top, left, text='Submit'){
 		parent.append('div')
 			.attr('id',id)
-			.attr('class','buttonDiv')
-			.classed('buttonClicked', false)
-			.classed('buttonHover', false)
+			.attr('class','buttonDivControls')
+			.classed('buttonClickedControls', false)
+			.classed('buttonHoverControls', false)
 			.style('position', 'absolute')
 			.style('top', top + 'px')
 			.style('left', left + 'px')
@@ -55,14 +55,14 @@ function setupControls(vHeight, controlsWidth, m, b){
 			.style('line-height', height + 'px')
 			.text(text)
 			.on('mousedown', function(){
-				d3.select('#'+id).classed('buttonHover', false);
-				d3.select('#'+id).classed('buttonClicked', true);
+				d3.select('#'+id).classed('buttonHoverControls', false);
+				d3.select('#'+id).classed('buttonClickedControls', true);
 			})
 			.on('mouseup', function(){
-				d3.select('#'+id).classed('buttonClicked', false);
+				d3.select('#'+id).classed('buttonClickedControls', false);
 			})
 			.on('mouseout', function(){
-				d3.select('#'+id).classed('buttonHover', true);
+				d3.select('#'+id).classed('buttonHoverControls', true);
 			})
 	}
 
@@ -146,7 +146,7 @@ function setupControls(vHeight, controlsWidth, m, b){
 		.text('Additional Controls')	
 	createButton(tooltips, 'tooltipButton',controlsWidth - 20 - 4, 24, bh + 2.*fs1 + m, m ,'Tooltips On')
 	d3.select('#tooltipButton')
-		.classed('buttonClicked', params.showTooltips)
+		.classed('buttonClickedControls', params.showTooltips)
 		.on('click', checkTooltips)
 }
 
@@ -161,13 +161,13 @@ function startQuestion(){
 	label = ""
 	if (params.inQuestion){
 		d3.select('#questionButton')
-			.classed('buttonClicked', true)
+			.classed('buttonClickedControls', true)
 			.text('Stop');
 		params.questionN = d3.select('#questionNumber').node().value;
 		label = 'Started Question ' + params.questionN;
 	} else {
 		d3.select('#questionButton')
-			.classed('buttonClicked', false)
+			.classed('buttonClickedControls', false)
 			.text('Start');
 		label = 'Stopped Question'
 	}
@@ -252,7 +252,7 @@ function checkTooltips(){
 
 	d3.selectAll('.tooltip').classed('hidden', !params.showTooltips);
 
-	d3.select('#tooltipButton').classed('buttonClicked', params.showTooltips)
+	d3.select('#tooltipButton').classed('buttonClickedControls', params.showTooltips)
 	if (params.showTooltips){
 		d3.select('#tooltipButton').text('Tooltips On');
 		label += 'On';
