@@ -207,6 +207,34 @@ function setMirror(){
 		eventAction: 'clicked Mirror Button',
 		eventLabel: label + ' , ' + timeStamp() + ' , ' + params.userIP,
 	});
+
+	//remove all mirrored spheres
+	var toRemove = [];
+	params.scene.traverse(function(child) {
+		if (child.name == "sphereMirror") toRemove.push(child);
+	});
+	toRemove.forEach(function(child){
+		params.scene.remove(child);
+	})
+
+
+	//add the mirrored spheres
+	for (var i = 0; i<X; i++){
+		for (var j = 0; j<Y; j++){
+			for (var k = 0; k<Z; k++){	
+				if (i > 0 || j > 0 || k> 0){
+					params.spheres.forEach(function(m){
+						var mm = m.clone();
+						mm.name = "sphereMirror";
+						var p = mm.position;
+						mm.position.set(p.x + i*params.size, p.y + j*params.size, p.z + k*params.size);
+						params.scene.add(mm)
+					})	
+				}
+			}
+		}
+	}
+
 }
 
 function checkTooltips(){
