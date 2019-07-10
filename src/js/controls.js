@@ -181,10 +181,25 @@ function startQuestion(){
 	});
 }
 
-function setMillerIndex(){
-	var A = d3.select('#millerA').node().value;
-	var B = d3.select('#millerB').node().value;
-	var C = d3.select('#millerC').node().value;
+function setMillerIndex(A = null, B = null, C = null){
+	if (A == null){
+		var A = d3.select('#millerA').node().value;
+	} else {
+		d3.select('#millerA').node().value = A;
+	}
+
+	if (B == null) {
+		var B = d3.select('#millerB').node().value;
+	}  else {
+		d3.select('#millerB').node().value = B;
+	}
+
+	if (C == null) {
+		var C = d3.select('#millerC').node().value;
+	} else {
+		d3.select('#millerC').node().value = C;
+	}
+
 	label = 'Miller Index ' + A + ' ' + B + ' ' + C;
 	console.log(label);
 
@@ -196,6 +211,29 @@ function setMillerIndex(){
 	});
 }
 
+function getMillerIndex(plane){
+
+	//check intersection with x axis
+	var xAxis = new THREE.Line3(new THREE.Vector3(0,0,0), new THREE.Vector3(100, 0, 0));
+	var yAxis = new THREE.Line3(new THREE.Vector3(0,0,0), new THREE.Vector3(0, 100, 0));
+	var zAxis = new THREE.Line3(new THREE.Vector3(0,0,0), new THREE.Vector3(0, 0, 100));
+	var xPoint = new THREE.Vector3();
+	var yPoint = new THREE.Vector3();
+	var zPoint = new THREE.Vector3();
+	plane.intersectLine(xAxis, xPoint);
+	plane.intersectLine(yAxis, yPoint);
+	plane.intersectLine(zAxis, zPoint);
+
+	var A = 0;
+	var B = 0;
+	var C = 0;
+	if (xPoint.x != 0) A = 1./xPoint.x;
+	if (yPoint.y != 0) B = 1./yPoint.y;
+	if (zPoint.z != 0) C = 1./zPoint.z;
+
+	setMillerIndex(A, B, C);
+
+}
 function setMirror(){
 	var X = d3.select('#mirrorX').node().value;
 	var Y = d3.select('#mirrorY').node().value;
