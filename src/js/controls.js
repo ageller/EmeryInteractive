@@ -156,44 +156,81 @@ function checkControlsText(id, value){
 
 function startQuestion(){
 	params.inQuestion = !params.inQuestion
+	label = ""
 	if (params.inQuestion){
 		d3.select('#questionButton')
 			.classed('buttonClicked', true)
 			.text('Stop');
 		params.questionN = d3.select('#questionNumber').node().value;
-		console.log('Question started', params.questionN);
+		label = 'Started Question ' + params.questionN;
 	} else {
 		d3.select('#questionButton')
 			.classed('buttonClicked', false)
 			.text('Start');
-		console.log('Question stopped')
+		label = 'Stopped Question'
 	}
+
+	console.log(label);
+	ga('send', { 
+		hitType: 'event',
+		eventCategory: 'button',
+		eventAction: 'clicked Question Button',
+		eventLabel: label + ' , ' + timeStamp() + ' , ' + params.userIP,
+	});
 }
 
 function setMillerIndex(){
 	var A = d3.select('#millerA').node().value;
 	var B = d3.select('#millerB').node().value;
 	var C = d3.select('#millerC').node().value;
-	console.log('Miller', A, B, C);
+	label = 'Miller Index ' + A + ' ' + B + ' ' + C;
+	console.log(label);
+
+	ga('send', { 
+		hitType: 'event',
+		eventCategory: 'button',
+		eventAction: 'clicked Miller Button',
+		eventLabel: label + ' , ' + timeStamp() + ' , ' + params.userIP,
+	});
 }
 
 function setMirror(){
 	var X = d3.select('#mirrorX').node().value;
 	var Y = d3.select('#mirrorY').node().value;
 	var Z = d3.select('#mirrorZ').node().value;
-	console.log('Mirror', Z, Y, Z);
+	label = 'Mirror ' + X + ' ' + Y + ' ' + Z;
+	console.log(label);
+
+	ga('send', { 
+		hitType: 'event',
+		eventCategory: 'button',
+		eventAction: 'clicked Mirror Button',
+		eventLabel: label + ' , ' + timeStamp() + ' , ' + params.userIP,
+	});
 }
 
 function checkTooltips(){
 	params.showTooltips = !params.showTooltips;
-	console.log('Show tooltips', params.showTooltips);
+
+	label = 'Tooltips '
 
 	d3.selectAll('.tooltip').classed('hidden', !params.showTooltips);
 
 	d3.select('#tooltipButton').classed('buttonClicked', params.showTooltips)
 	if (params.showTooltips){
 		d3.select('#tooltipButton').text('Tooltips On');
+		label += 'On';
 	} else {
 		d3.select('#tooltipButton').text('Tooltips Off');
+		label += 'Off';
 	}
+
+	console.log(label);
+
+	ga('send', { 
+		hitType: 'event',
+		eventCategory: 'button',
+		eventAction: 'clicked Tooltips OnOff Button',
+		eventLabel: label + ' , ' + timeStamp() + ' , ' + params.userIP,
+	});
 }
