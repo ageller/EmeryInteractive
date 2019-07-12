@@ -54,7 +54,7 @@ function updateSlicePlaneDepth(){
 	
 	var normal = params.slicePlane.geometry.faces[0].normal;
 	var pos = params.camera.position.clone().sub(params.slicePlanePosition.clone().sub(params.offsetPosition));
-	var pCheck = normal.dot(pos)*Math.cos(params.yRfac);
+	var pCheck = normal.dot(pos)*Math.abs(Math.cos(params.yRfac)*Math.sin(params.xRfac)); //no idea if this is formally correct, but it seems to work...
 	if (pCheck < 1){
 		params.slicePlane.material.depthTest = true;
 	} else {
