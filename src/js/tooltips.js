@@ -243,27 +243,30 @@ function defineTooltip(e, pageX = null, pageY = null){
 		var clicked = getClickedMesh(pageX, pageY);
 
 		if (params.keyboard.pressed("shift")){
-			params.ttMeshIndex.push(clicked['index']);
+			if (params.ttMeshIndex.length  == 0){
+				params.ttMeshIndex.push(clicked.index);
+			} else if (!params.ttMeshIndex.includes(clicked.index) ){
+			 	params.ttMeshIndex.push(clicked.index);
+			 }
 		} else {
 			if (params.ttMeshIndex.length >0){
 				var arr = params.ttMeshIndex.slice(); //because highlightSphere modifies the ttMeshIndex array
 				arr.forEach(function(loc, i){
 					highlightSphere(false, loc); //turn off previous highlighting
 					if (i == arr.length-1){
-						params.ttMeshIndex = [clicked['index']];
+						params.ttMeshIndex = [clicked.index];
 					}
 				});
 			} else {
-				params.ttMeshIndex = [clicked['index']];
+				params.ttMeshIndex = [clicked.index];
 			}
-
-
 		}
+		
 
 		if (params.ttMeshIndex.length > 4){ //only allow four to be highlighted
 			highlightSphere(false, params.ttMeshIndex[3]); //turn off previous highlighting
 			params.ttMeshIndex = params.ttMeshIndex.slice(0,3);
-			params.ttMeshIndex.push(clicked['index']);
+			params.ttMeshIndex.push(clicked.index);
 		}
 
 	
