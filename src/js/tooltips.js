@@ -98,19 +98,9 @@ function drawTTarrow(meshArray=params.spheres){
 	params.scene.add( arrowHelper );
 }
 
+function makePlaneFromPoints(p1, p2, p3){
+	params.scene.remove( params.scene.getObjectByName('ttPlane') ); //remove any plane 
 
-function drawTTplane(meshArray=params.spheres){
-	//draw a plane to connect 3 selected spheres
-	//see info here: https://github.com/mrdoob/three.js/issues/5312
-	//https://stackoverflow.com/questions/40366339/three-js-planegeometry-from-math-plane
-
-	var p1 = meshArray[params.ttMeshIndex[0]].position.clone();
-	var p2 = meshArray[params.ttMeshIndex[1]].position.clone();
-	var p3 = meshArray[params.ttMeshIndex[2]].position.clone();
-	//trying to avoid issues when it doesn't get the plane correct (when you click on a corner and the normal is the same direction)
-	// p1.addScalar(1e-4);
-	// p2.addScalar(1e-4);
-	// p3.addScalar(1e-4);
 	var plane = new THREE.Plane().setFromCoplanarPoints(p1, p2, p3);
 
 	// Create a basic  geometry
@@ -143,8 +133,26 @@ function drawTTplane(meshArray=params.spheres){
 	params.yRfac = params.slicePlaneRotation.y;
 	params.doSliceUpdate = true;
 
+	return plane;
+}
+
+function drawTTplane(meshArray=params.spheres){
+	//draw a plane to connect 3 selected spheres
+	//see info here: https://github.com/mrdoob/three.js/issues/5312
+	//https://stackoverflow.com/questions/40366339/three-js-planegeometry-from-math-plane
+
+	var p1 = meshArray[params.ttMeshIndex[0]].position.clone();
+	var p2 = meshArray[params.ttMeshIndex[1]].position.clone();
+	var p3 = meshArray[params.ttMeshIndex[2]].position.clone();
+	//trying to avoid issues when it doesn't get the plane correct (when you click on a corner and the normal is the same direction)
+	// p1.addScalar(1e-4);
+	// p2.addScalar(1e-4);
+	// p3.addScalar(1e-4);
+
+	var plane = makePlaneFromPoints(p1, p2, p3);
+
 	//computer the miller index
-	getMillerIndex(plane);
+	getMillerIndexFromPlane(plane);
 
 }
 

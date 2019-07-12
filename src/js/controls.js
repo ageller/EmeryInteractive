@@ -101,9 +101,9 @@ function setupControls(vHeight, controlsWidth, m, b){
 		.style('padding',0)
 		.style('font-size',fs1 + 'px')
 		.text('Miller Index')
-	createInput(miller, 'millerA', 0, miWidth, 2.*fs1, bh, m, 20)
-	createInput(miller, 'millerB', 0, miWidth, 2.*fs1, bh, miWidth + 2*m, 20)
-	createInput(miller, 'millerC', 0, miWidth, 2.*fs1, bh, 2.*miWidth + 3*m, 20)
+	createInput(miller, 'millerH', '-', miWidth, 2.*fs1, bh, m, 20)
+	createInput(miller, 'millerK', '-', miWidth, 2.*fs1, bh, miWidth + 2*m, 20)
+	createInput(miller, 'millerL', '-', miWidth, 2.*fs1, bh, 2.*miWidth + 3*m, 20)
 	createButton(miller, 'millerSubmit', controlsWidth - 20 - 4, 24, bh + 2*fs1 + m, m)
 	d3.select('#millerSubmit').on('click', setMillerIndex)
 
@@ -181,26 +181,26 @@ function startQuestion(){
 	});
 }
 
-function setMillerIndex(A = null, B = null, C = null){
-	if (A == null){
-		var A = d3.select('#millerA').node().value;
-	} else {
-		d3.select('#millerA').node().value = A;
+function setMillerIndex(){
+
+	var H = parseFloat(d3.select('#millerH').node().value);
+	var K = parseFloat(d3.select('#millerK').node().value);
+	var L = parseFloat(d3.select('#millerL').node().value);
+	
+	updateMillerIndex(H, K, L);
+
+	if (H != null && K != null & L != null){
+		var p1 = new THREE.Vector3(0, 0, 0);
+		var p2 = new THREE.Vector3(0, 0, 0);
+		var p3 = new THREE.Vector3(0, 0, 0);
+		if (H != 0) p1.x = 1./H;
+		if (K != 0) p2.y = 1./K;
+		if (L != 0) p3.z = 1./L;
+
+		makePlaneFromPoints(p1, p2, p3);
 	}
 
-	if (B == null) {
-		var B = d3.select('#millerB').node().value;
-	}  else {
-		d3.select('#millerB').node().value = B;
-	}
-
-	if (C == null) {
-		var C = d3.select('#millerC').node().value;
-	} else {
-		d3.select('#millerC').node().value = C;
-	}
-
-	label = 'Miller Index ' + A + ' ' + B + ' ' + C;
+	label = 'Miller Index ' + H + ' ' + K + ' ' + L;
 	console.log(label);
 
 	ga('send', { 
@@ -210,8 +210,12 @@ function setMillerIndex(A = null, B = null, C = null){
 		eventLabel: label + ' , ' + timeStamp() + ' , ' + params.userIP,
 	});
 }
-
-function getMillerIndex(plane){
+function updateMillerIndex(H, K, L){
+	d3.select('#millerH').node().value = H;
+	d3.select('#millerK').node().value = K;
+	d3.select('#millerL').node().value = L;
+}
+function getMillerIndexFromPlane(plane){
 
 	//check intersection with x axis
 	var xAxis = new THREE.Line3(new THREE.Vector3(0,0,0), new THREE.Vector3(100, 0, 0));
@@ -224,15 +228,14 @@ function getMillerIndex(plane){
 	plane.intersectLine(yAxis, yPoint);
 	plane.intersectLine(zAxis, zPoint);
 
-	var A = 0;
-	var B = 0;
-	var C = 0;
-	if (xPoint.x != 0) A = 1./xPoint.x;
-	if (yPoint.y != 0) B = 1./yPoint.y;
-	if (zPoint.z != 0) C = 1./zPoint.z;
+	var H = 0;
+	var K = 0;
+	var L = 0;
+	if (xPoint.x != 0) H = 1./xPoint.x;
+	if (yPoint.y != 0) K = 1./yPoint.y;
+	if (zPoint.z != 0) L = 1./zPoint.z;
 
-	setMillerIndex(A, B, C);
-
+	updateMillerIndex(H,K,L);
 }
 function setMirror(){
 	var X = d3.select('#mirrorX').node().value;
