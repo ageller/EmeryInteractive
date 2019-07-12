@@ -75,12 +75,8 @@ function drawSlice(size, position, rotation, opacity, color){
 		return center
 	}
 
-	function drawIntersectionPoints(plane, obj, minDistance) {
-		//get the intersection and draw it (using above functions)
+	function makeMathPlane(plane){
 
-		var a = new THREE.Vector3(),
-			b = new THREE.Vector3(),
-			c = new THREE.Vector3();
 		var planePointA = new THREE.Vector3(),
 			planePointB = new THREE.Vector3(),
 			planePointC = new THREE.Vector3();
@@ -93,7 +89,17 @@ function drawSlice(size, position, rotation, opacity, color){
 		plane.localToWorld(planePointA.copy(plane.geometry.vertices[plane.geometry.faces[0].a]));
 		plane.localToWorld(planePointB.copy(plane.geometry.vertices[plane.geometry.faces[0].b]));
 		plane.localToWorld(planePointC.copy(plane.geometry.vertices[plane.geometry.faces[0].c]));
-		mathPlane.setFromCoplanarPoints(planePointA, planePointB, planePointC);
+		mathPlane.setFromCoplanarPoints(planePointA, planePointB, planePointC);	
+
+		return mathPlane;
+	}
+
+	function drawIntersectionPoints(mathPlane, obj, minDistance) {
+		//get the intersection and draw it (using above functions)
+
+		var a = new THREE.Vector3(),
+			b = new THREE.Vector3(),
+			c = new THREE.Vector3();
 
 		obj.geometry.faces.forEach(function(face) {
 			obj.localToWorld(a.copy(obj.geometry.vertices[face.a]));
@@ -179,6 +185,8 @@ function drawSlice(size, position, rotation, opacity, color){
 	var planeLine = new THREE.LineSegments( edges,  material);
 	params.scene.add(planeLine);
 
+	var mathPlane = makeMathPlane(plane);
+
 	//check each sphere for intersection with the plane
 	params.spheres.forEach(function(m,i){ 
 		//this is an interesting package, but doesn't seem to work well enough for our purposes
@@ -196,7 +204,7 @@ function drawSlice(size, position, rotation, opacity, color){
 
 		pointsOfIntersection = new THREE.Geometry();
 		pointsOfIntersection.center = new THREE.Vector3(0,0,0);
-		drawIntersectionPoints(plane, m, minDistance);
+		drawIntersectionPoints(mathPlane, m, minDistance);
 
 		if (pointsOfIntersection.vertices.length > 0){
 			//add the objects that have any intersection
@@ -226,19 +234,25 @@ function drawSlice(size, position, rotation, opacity, color){
 			gC.computeFaceNormals();
 
 			//some of these normals are not coming our correctly... I will try to fix that here
+			// If I could find the same point on the initial sphere, I could replace the normal with that...
 			//I will also delete the front face here
 			toDelete = [];
-			var n0 = new THREE.Vector3(0,0,0);
+			var n0 = new THREE.Vector3(1,0,0);
+			var dmin = 1e-4*params.size; //limit to associate two vertices
 			gC.faces.forEach(function(f,i){
 				var d = f.normal.dot(normal);
 				if (d > (1 - 1e-4)){ //delete the front face
 					toDelete.push(i);
 				}
+
+
 				var vA = gC.vertices[f.a].clone();
 				var vB = gC.vertices[f.b].clone();
 				var vC = gC.vertices[f.c].clone();
+				var vFaceCenter = (vA.add(vB).add(vC)).divideScalar(3);
 
 				f.vertexNormals.forEach(function(n,j){
+					//gC.faces[i].vertexNormals[j].copy(vFaceCenter); //this would work, but then we get the pixels and not smooth faces
 					//find the minimum distance to the intersection surface (slows things down a bit here, but I think this is needed)
 					var minD = minDistance*1000.;
 					pointsOfIntersection.vertices.forEach(function(p,k){
@@ -252,10 +266,12 @@ function drawSlice(size, position, rotation, opacity, color){
 						}
 					})
 					var d = n.dot(normal);
-					if (d > 0. && minD < minDistance*1e-4){
-						gC.faces[i].vertexNormals[j].copy(n0);
+					if (d > 0. && minD < minDistance*1e-4*params.size){
+						//var n0 = m.position.clone().sub(vFaceCenter);
+						gC.faces[i].vertexNormals[j].copy(vFaceCenter);
 					}
 				})
+				
 
 			})
 			toDelete.forEach(function(i){
@@ -306,9 +322,9 @@ function drawSlice(size, position, rotation, opacity, color){
 			objs.push(mesh)
 
 			//to see the normals
-			//var helper = new THREE.VertexNormalsHelper( mesh, 0.1, "red", 1 );
-			//var helper = new THREE.FaceNormalsHelper( mesh, 0.1, "red", 1 );
-			//params.scene.add(helper)
+			// var helper = new THREE.VertexNormalsHelper( mesh, 0.1, "red", 1 );
+			// var helper = new THREE.FaceNormalsHelper( mesh, 0.1, "red", 1 );
+			// params.scene.add(helper)
 
 
 		} else {
