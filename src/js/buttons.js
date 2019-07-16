@@ -8,14 +8,23 @@ function showHemiSpheres(show){
 	})
 }
 function showSpheres(show){
-	//turns on/off the spheres
-	// params.spheres.forEach(function(m){
-	// 	m.material.visible = show;
-	// })
+	//turns on/off the spheres, but not the interstitial sites
+	params.spheres.forEach(function(m){
+		if (m.name != "Octahedrals" && m.name != "Tetrahedrals") m.material.visible = show;
+	})
 	//also do this for the mirrored spheres
 	params.scene.traverse(function(child) {
-		if (child.name == "sphereMirror" || child.name == "sphere") child.material.visible = show;
+		if (child.name == "AtomsMirror") child.material.visible = show;
 	});
+
+	//reset the button
+	params.showAtoms = show;
+	d3.select('#atomButton').classed('buttonClickedControls', params.showAtoms)
+	if (params.showAtoms){
+		d3.select('#atomButton').text('Atoms On');
+	} else {
+		d3.select('#atomButton').text('Atoms Off');
+	}
 }
 
 function showSliceMesh(show){
@@ -40,12 +49,12 @@ function showLabels(show){
 }
 function changeSphereOpacity(opacity){
 	//changes the opacity of the spheres
-	// params.spheres.forEach(function(m){
-	// 	m.material.opacity = opacity;
-	// })
+	params.spheres.forEach(function(m){
+		m.material.opacity = opacity;
+	})
 	//also do this for the mirrored spheres
 	params.scene.traverse(function(child) {
-		if (child.name == "sphereMirror" || child.name == "sphere") child.material.opacity = opacity;
+		if (child.name.includes("Mirror")) child.material.opacity = opacity;
 	});
 }
 
@@ -85,6 +94,7 @@ function defaultView(){
 		params.isSparse = false;
 	}
 	params.isSlice = false;
+	params.inDefaultView = true;
 
 
 	showLabels(true);
@@ -123,6 +133,7 @@ function hardSphereView(){
 		params.isSparse = false;
 	}
 	params.isSlice = false;
+	params.inDefaultView = false;
 
 	showSpheres(true);
 	changeSphereOpacity(params.hardOpacity);
@@ -156,6 +167,7 @@ function sliceView(){
 	showSliceMesh(true);
 	params.isSlice = true;
 	params.doSliceUpdate = true;
+	params.inDefaultView = false;
 
 	checkClickedPlane();
 
@@ -192,6 +204,7 @@ function sparseView(){
 	changeSphereOpacity(params.hardOpacity);
 
 	params.isSlice = false;
+	params.inDefaultView = false;
 
 	checkClickedPlane();
 
@@ -222,6 +235,7 @@ function coordinationView(){
 	showCoordination(true);
 
 	params.isSlice = false;
+	params.inDefaultView = false;
 
 	checkClickedPlane();
 

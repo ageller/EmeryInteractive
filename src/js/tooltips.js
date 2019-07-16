@@ -63,7 +63,10 @@ function moveTooltip(meshIndex, offset=10, meshArray=params.spheres){
 function highlightSphere(show, loc, meshArray=params.spheres){
 	//turn on/off the highlighting of a selected sphere (change color, add box)
 
+	var name = meshArray[loc].name;
 	var color = params.sphereColor;
+	if (name == "Octahedrals") color = params.octahedralColor;
+	if (name == "Tetrahedrals") color = params.tetrahedralColor;
 	var boxName = "sphereBox"+loc;
 	if (show){
 		color = params.highlightColor;

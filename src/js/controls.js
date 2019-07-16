@@ -46,7 +46,7 @@ function setupControls(vHeight, controlsWidth, m, b){
 			.attr('id',id)
 			.attr('class','buttonDivControls')
 			.classed('buttonClickedControls', false)
-			.classed('buttonHoverControls', false)
+			.classed('buttonHoverControls', true)
 			.style('position', 'absolute')
 			.style('top', top + 'px')
 			.style('left', left + 'px')
@@ -132,22 +132,39 @@ function setupControls(vHeight, controlsWidth, m, b){
 
 	//tooltip on/off
 	bh += bh0 + 50 + fs1 + 24;
-	var tooltips = d3.select("#controlsContainer").append('div')
+	var additional = d3.select("#controlsContainer").append('div')
 		.attr('id','tooltipControls')
 		.style('margin',m + 'px')
 		.style('margin-top','100px') 
 		.style('height','100px')
-	tooltips.append('p')
+	additional.append('p')
 		.attr('id','tooltipsControlsText')
 		.attr('align','center')
 		.style('margin',0)
 		.style('padding',0)
 		.style('font-size',0.8*fs1 + 'px')
 		.text('Additional Controls')	
-	createButton(tooltips, 'tooltipButton',controlsWidth - 20 - 4, 24, bh + 2.*fs1 + m, m ,'Tooltips On')
+	createButton(additional, 'tooltipButton',controlsWidth - 20 - 4, 24, bh + 2.*fs1 + m, m ,'Tooltips On')
 	d3.select('#tooltipButton')
 		.classed('buttonClickedControls', params.showTooltips)
 		.on('click', checkTooltips)
+
+	//on/off for main atoms
+	createButton(additional, 'atomButton',controlsWidth - 20 - 4, 24, bh + 3.*fs1 + 2.*m, m ,'Atoms On')
+	d3.select('#atomButton')
+		.classed('buttonClickedControls', params.showAtoms)
+		.on('click', function(){checkAtoms('showAtoms', 'Atoms', 'atomButton')})
+
+	//on/off for interstitial sites
+	createButton(additional, 'octahedralButton',controlsWidth - 20 - 4, 24, bh + 4.*fs1 + 3.*m, m ,'Octahedral Off')
+	d3.select('#octahedralButton')
+		.classed('buttonClickedControls', params.showOctahedrals)
+		.on('click', function(){checkAtoms('showOctahedrals', 'Octahedrals', 'octahedralButton')})
+
+	createButton(additional, 'tetrahedralButton',controlsWidth - 20 - 4, 24, bh + 5.*fs1 + 4.*m, m ,'Tetrahedral Off')
+	d3.select('#tetrahedralButton')
+		.classed('buttonClickedControls', params.showTetrahedrals)
+		.on('click', function(){checkAtoms('showTetrahedrals', 'Tetrahedrals', 'tetrahedralButton')})
 }
 
 function checkControlsText(id, value){
@@ -158,7 +175,7 @@ function checkControlsText(id, value){
 
 function startQuestion(){
 	params.inQuestion = !params.inQuestion
-	label = ""
+	var label = ""
 	if (params.inQuestion){
 		d3.select('#questionButton')
 			.classed('buttonClickedControls', true)
@@ -200,7 +217,7 @@ function setMillerIndex(){
 		makePlaneFromPoints(p1, p2, p3);
 	}
 
-	label = 'Miller Index ' + H + ' ' + K + ' ' + L;
+	var label = 'Miller Index ' + H + ' ' + K + ' ' + L;
 	console.log(label);
 
 	ga('send', { 
@@ -241,7 +258,7 @@ function setMirror(){
 	var X = d3.select('#mirrorX').node().value;
 	var Y = d3.select('#mirrorY').node().value;
 	var Z = d3.select('#mirrorZ').node().value;
-	label = 'Mirror ' + X + ' ' + Y + ' ' + Z;
+	var label = 'Mirror ' + X + ' ' + Y + ' ' + Z;
 	console.log(label);
 
 	ga('send', { 
@@ -254,7 +271,7 @@ function setMirror(){
 	//remove all mirrored spheres
 	var toRemove = [];
 	params.scene.traverse(function(child) {
-		if (child.name == "sphereMirror") toRemove.push(child);
+		if (child.name.includes("Mirror")) toRemove.push(child);
 	});
 	toRemove.forEach(function(child){
 		params.scene.remove(child);
@@ -267,15 +284,15 @@ function setMirror(){
 			for (var k = 0; k<Z; k++){	
 				if (i > 0 || j > 0 || k> 0){
 					params.spheres.forEach(function(m){
-						var p = m.position;
-						var g = m.geometry;
-						var m = m.material.clone(); //so that the colors of the mirrored objects don't change
-						m.color.setHex(params.sphereColor);
-						var mm = new THREE.Mesh(g,m);
+						var pos = m.position;
+						var geo = m.geometry;
+						var mat = m.material.clone(); //so that the colors of the mirrored objects don't change
+						//m.color.setHex(params.sphereColor);
+						var mm = new THREE.Mesh(geo,mat);
 						//need an if statement so that I don't copy the ends?
 						//var mm = m.clone();
-						mm.name = "sphereMirror";
-						mm.position.set(p.x + i*params.size, p.y + j*params.size, p.z + k*params.size);
+						mm.name = m.name + "Mirror";
+						mm.position.set(pos.x + i*params.size, pos.y + j*params.size, pos.z + k*params.size);
 						mm.renderOrder = -1;
 						params.scene.add(mm);
 					})	
@@ -289,7 +306,7 @@ function setMirror(){
 function checkTooltips(){
 	params.showTooltips = !params.showTooltips;
 
-	label = 'Tooltips '
+	var label = 'Tooltips '
 
 	d3.selectAll('.tooltip').classed('hidden', !params.showTooltips);
 
@@ -308,6 +325,47 @@ function checkTooltips(){
 		hitType: 'event',
 		eventCategory: 'button',
 		eventAction: 'clicked Tooltips OnOff Button',
+		eventLabel: label + ' , ' + timeStamp() + ' , ' + params.userIP,
+	});
+}
+
+function checkAtoms(flag, name, buttonID){
+	params[flag] = !params[flag];
+
+	var label = name + ' '
+
+
+
+	var m = [];
+	params.scene.traverse(function(child) {
+		if (child.name.includes(name)) m.push(child);
+	});
+	m.forEach(function(child){
+		child.material.visible = params[flag];
+	});
+
+	//special case for Atoms and anything other than default view
+	if (params.inDefaultView && name == "Atoms") {
+		showHemiSpheres(params[flag]);
+	} else {
+		showHemiSpheres(false);
+	}
+
+	d3.select('#'+buttonID).classed('buttonClickedControls', params[flag])
+	if (params[flag]){
+		d3.select('#'+buttonID).text(name + ' On');
+		label += 'On';
+	} else {
+		d3.select('#'+buttonID).text(name + ' Off');
+		label += 'Off';
+	}
+
+	console.log(label);
+
+	ga('send', { 
+		hitType: 'event',
+		eventCategory: 'button',
+		eventAction: 'clicked ' + name + ' OnOff Button',
 		eventLabel: label + ' , ' + timeStamp() + ' , ' + params.userIP,
 	});
 }

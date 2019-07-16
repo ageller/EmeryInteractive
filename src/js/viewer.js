@@ -71,6 +71,10 @@ function drawScene(){
 	//draw the main spheres (for default, hard-Sphere and Sparse views)
 	drawMainSpheres();
 
+	//draw the interstitial sites
+	drawOctahedral();
+	drawTetrahedral();
+
 	//draw the slice view (updateSlice calls drawSlice -- written this way to facilitate dynamic updating of slice mesh)
 	updateSlice(params.slicePlanePosition, params.slicePlaneRotation);
 

@@ -18,6 +18,7 @@ function defineParams(){
 
 		//camera view (and tween)
 		this.defaultView = new THREE.Vector3(3.65,1.95,1.66);
+		this.inDefaultView = true;
 		this.coordinationView = new THREE.Vector3(1.95,-3.65,1.66);
 		this.defaultViewTween;
 		this.coordinationViewTween;
@@ -40,6 +41,12 @@ function defineParams(){
 		this.defaultInnerOpacity = 0.7;
 		this.hardOpacity = 0.95;
 		this.sphereColor = 0x228B22;
+		this.showAtoms = true;
+
+		this.octahedralColor = 0x9370DB; //purple
+		this.tetrahedralColor = 0xFFD700; //gold
+		this.showOctahedrals = false;
+		this.showTetrahedrals = false;
 
 		//for slice
 		this.doSliceUpdate = false; //will be checked every frame

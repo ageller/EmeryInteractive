@@ -31,7 +31,7 @@ function drawSphere(radius, widthSegments, heightSegments, opacity, color, posit
 
 }
 
-function drawHalfSphere(radius, widthSegments, heightSegments, opacity, color, position, rotation, name = 'halfSpheref'){
+function drawHalfSphere(radius, widthSegments, heightSegments, opacity, color, position, rotation, visible = true, name = 'halfSpheref'){
 	//draw a half sphere
 
 	var sphere = new THREE.SphereGeometry(radius, widthSegments, heightSegments, 0, Math.PI, 0, Math.PI)
@@ -68,7 +68,7 @@ function drawHalfSphere(radius, widthSegments, heightSegments, opacity, color, p
 
 }
 
-function drawQuarterSphere(radius, widthSegments, heightSegments, opacity, color, position, rotation, name = 'quarterSphere'){
+function drawQuarterSphere(radius, widthSegments, heightSegments, opacity, color, position, rotation, visible = true, name = 'quarterSphere'){
 	//draw a quarter sphere
 
 	var sphere = new THREE.SphereGeometry(radius, widthSegments, heightSegments, 0, Math.PI/2., 0, Math.PI/2.)
