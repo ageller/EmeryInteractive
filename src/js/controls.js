@@ -334,8 +334,6 @@ function checkAtoms(flag, name, buttonID){
 
 	var label = name + ' '
 
-
-
 	var m = [];
 	params.scene.traverse(function(child) {
 		if (child.name.includes(name)) m.push(child);
@@ -345,12 +343,14 @@ function checkAtoms(flag, name, buttonID){
 	});
 
 	//special case for Atoms and anything other than default view
-	if (params.inDefaultView && name == "Atoms") {
-		showHemiSpheres(params[flag]);
-	} else {
-		showHemiSpheres(false);
+	if (name == "Atoms"){
+		if (params.inDefaultView) {
+			showHemiSpheres(params[flag]);
+		} else {
+			showHemiSpheres(false);
+		}
 	}
-
+	
 	d3.select('#'+buttonID).classed('buttonClickedControls', params[flag])
 	if (params[flag]){
 		d3.select('#'+buttonID).text(name + ' On');

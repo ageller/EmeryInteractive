@@ -71,6 +71,7 @@ function highlightSphere(show, loc, meshArray=params.spheres){
 	if (show){
 		color = params.highlightColor;
 		var test = params.scene.getObjectByName(boxName);
+		if (name == "Octahedrals" || name == "Tetrahedrals") meshArray[loc].material.visible = true;
 		if (test == null){
 			var box = new THREE.Box3().setFromObject( meshArray[loc] );
 			var helper = new THREE.Box3Helper( box, params.highlightColor );
@@ -82,6 +83,8 @@ function highlightSphere(show, loc, meshArray=params.spheres){
 		params.ttMeshIndex.splice(params.ttMeshIndex.indexOf(loc),1); //remove the value from the ttMeshIndex array
 		d3.select('#tooltip'+loc).remove(); //remove the tooltip
 		showTooltips();	//show the current tooltips and redraw related mesh		
+		if (name == "Octahedrals") meshArray[loc].material.visible = params.showOctahedrals;
+		if (name == "Tetrahedrals") meshArray[loc].material.visible = params.showTetrahedrals;
 	}
 
 	//set the sphere color
