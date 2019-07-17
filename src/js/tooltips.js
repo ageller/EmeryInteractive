@@ -34,12 +34,17 @@ function getClickedMesh(pageX, pageY, meshArray=params.spheres){
 	var mesPos;
 	var index = 0;
 	meshArray.forEach(function(p,i){
-		pos = screenXY(p)
-		var tdist = mpos.distanceTo(pos); //need to add on depth?
-		if (tdist < dist){ 
-			dist = tdist
-			meshPos = pos; 
-			index = i;
+		var useIt = false
+		if (p.name.includes("Atom")) useIt = true
+		if (params.keyboard.pressed("space") && (p.name.includes("Octahedrals") || p.name.includes("Tetrahedrals")) ) useIt = true
+		if (useIt){
+			pos = screenXY(p)
+			var tdist = mpos.distanceTo(pos); //need to add on depth?
+			if (tdist < dist){ 
+				dist = tdist
+				meshPos = pos; 
+				index = i;
+			}
 		}
 	});
 
