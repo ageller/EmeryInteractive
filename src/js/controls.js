@@ -5,6 +5,7 @@ function resizeControls(vHeight, controlsWidth, m, b){
 		.style('left',m +'px')
 		.style('padding',0)
 		.style('padding-top','20px')
+		//.style('padding-right','20px') //to allow for a srollbar
 		.style('margin',0)
 		.style('width', controlsWidth +'px')
 		.style('height',vHeight + 2.*b + 2.*m - 20 + 'px')
@@ -12,17 +13,21 @@ function resizeControls(vHeight, controlsWidth, m, b){
 		.style('overflow-x','hidden')
 		.style('z-index',2)
 
-	if (d3.select('#questionControlsText').node() == null){
-		setupControls(vHeight, controlsWidth, m, b);
+	d3.select('#Controls').remove()
+	if (d3.select('#Controls').node() == null){
+		var parent = d3.select('#controlsContainer').append('div').attr('id','Controls');
+		var width = controlsWidth;
+		if (parseFloat(window.innerHeight) < 755) width -= 10; //10px to allow for the scrollbar
+		setupControls(parent, vHeight, width, m, b); 
 	}
 
 }
-function setupControls(vHeight, controlsWidth, m, b){
+function setupControls(parent, vHeight, controlsWidth, m, b, pad){
 
 	var fs1 = 24;
 
-	function createInput(parent, id, value, width, height, top, left, fontsize){
-		parent.append('input')
+	function createInput(parent1, id, value, width, height, top, left, fontsize){
+		parent1.append('input')
 			.attr('id',id)
 			.attr('type','text')
 			.attr('value',value)
@@ -41,8 +46,8 @@ function setupControls(vHeight, controlsWidth, m, b){
 			})	
 	}
 
-	function createButton(parent, id, width, height, top, left, text='Submit'){
-		parent.append('div')
+	function createButton(parent1, id, width, height, top, left, text='Submit'){
+		parent1.append('div')
 			.attr('id',id)
 			.attr('class','buttonDivControls')
 			.classed('buttonClickedControls', false)
@@ -72,7 +77,7 @@ function setupControls(vHeight, controlsWidth, m, b){
 	var bh0 = bh;
 
 	//question input, start,  stop
-	var question = d3.select("#controlsContainer").append('div')
+	var question = parent.append('div')
 		.attr('id','questionControls')
 		.style('margin',m + 'px')
 		.style('height','100px')
@@ -89,7 +94,7 @@ function setupControls(vHeight, controlsWidth, m, b){
 
 	//miller index
 	bh += bh0 + 50 + fs1 + m;
-	var miller = d3.select("#controlsContainer").append('div')
+	var miller = parent.append('div')
 		.attr('id','millerControls')
 		.style('margin',m + 'px')
 		.style('margin-top','50px') 
@@ -111,7 +116,7 @@ function setupControls(vHeight, controlsWidth, m, b){
 
 	//mirroring
 	bh += bh0 + 50 + fs1 + 24 + m;
-	var mirror = d3.select("#controlsContainer").append('div')
+	var mirror = parent.append('div')
 		.attr('id','mirrorControls')
 		.style('margin',m + 'px')
 		.style('margin-top','50px') 
@@ -132,7 +137,7 @@ function setupControls(vHeight, controlsWidth, m, b){
 
 	//tooltip on/off
 	bh += bh0 + 50 + fs1 + 24;
-	var additional = d3.select("#controlsContainer").append('div')
+	var additional = parent.append('div')
 		.attr('id','tooltipControls')
 		.style('margin',m + 'px')
 		.style('margin-top','100px') 
