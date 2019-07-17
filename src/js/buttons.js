@@ -50,11 +50,12 @@ function showLabels(show){
 function changeSphereOpacity(opacity){
 	//changes the opacity of the spheres
 	params.spheres.forEach(function(m){
-		m.material.opacity = opacity;
+		if (m.name.includes("Atom")) m.material.opacity = opacity;
+		//m.material.opacity = opacity;
 	})
 	//also do this for the mirrored spheres
 	params.scene.traverse(function(child) {
-		if (child.name.includes("Mirror")) child.material.opacity = opacity;
+		if (child.name.includes("Mirror") && child.name.includes("Atom")) child.material.opacity = opacity;
 	});
 }
 
