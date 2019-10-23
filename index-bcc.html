@@ -1,0 +1,126 @@
+<html>
+  
+<head>
+	<!-- Global site tag (gtag.js) - Google Analytics -->
+	<script async src="https://www.googletagmanager.com/gtag/js?id=UA-138410157-1"></script>
+	<script>
+		window.dataLayer = window.dataLayer || [];
+		function gtag(){dataLayer.push(arguments);}
+		gtag('js', new Date());
+
+		gtag('config', 'UA-138410157-1');
+	</script>
+
+
+	<meta charset="UTF-8" name="viewport" content="width=device-width, user-scalable=no"> 
+	<title>Body Center Cubic</title>
+	<!-- my style sheet -->
+	<link rel="stylesheet" type="text/css" href="src/css/index.css" />
+
+	<!-- Libraries -->
+	<script src="src/lib/d3.v5.min.js"></script>
+	<script src="src/lib/three.min.js"></script>
+	<script src="src/lib/OrbitControls.js"></script>
+	<script src="src/lib/Tween.js"></script>
+    <script src="src/lib/KeyboardState.js"></script>
+	<!-- <script src="lib/ThreeCSG.js"></script> -->
+	<script src="src/lib/ConvexGeometry.js"></script>
+
+	<!-- for equations, not sure how to grab all files for local copy -->
+	<script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML' async></script>
+
+
+</head>
+
+<body class="noTouch">
+
+	<div id="helpContainer" style='background-color:white'>
+		<div id="loading" class="title">Loading...</div>
+		<div id="helpText" class="bordered scrollable hidden">
+
+			<div class="subTitle">Viewer (top-left)</div>
+			<ul class="para">
+				<li>Left-click (or touch) and hold to rotate.</li>
+				<li>Use mouse wheel (or two-fingers scroll) to zoom in and out.</li>
+				<li>Double-click (or double-tap) to highlight a specific sphere, in all views except "Coordination" .</li>
+				<li>Holding shift while double-clicking (or double-tapping) allows highlighting of 2 to 4 spheres.</li>
+				<li>Holding space while double-clicking (or double-tapping) allows you to highlight interstitial sites.</li>
+				<li>If 2 (or 3 or 4) sphere are highlighted, an arrow (or plane or tetrahedron) is drawn to connect them.</li>
+			</ul>
+
+			<div class="subTitle">Buttons (bottom-left)</div>
+			<ul class="para">
+				<li>Navigate to different views with the buttons.</li>
+				<li>Within the "Slice" view, use the arrow keys to move and rotate the slice plane.  Holding shift while pressing the left or right arrow key will rotation the plane along the other axis. </li>
+				<li>The "Help" button shows this screen.</li>
+			</ul>
+
+			<div class="subTitle">Controls (left)</div>
+			<ul class="para">
+				<li>Use the "Question #" input area to start, and later stop, an answer to a specific homework question. </li>
+				<li>Use the "Miller Index" input area to define a plane.  (This will also be populated if you define a plane by double-clicking, or double-tapping).</li>
+				<li>Use the "Mirroring" input area to extend the model in the x,y and/or z directions.</li>
+				<li>Additional controls are also provided to turn on/off various aspects of the model.</li>
+			</ul>
+			<div id="clickToBegin" class="title">Click anywhere to begin.</div>
+
+		</div>
+	</div>
+
+
+	<!-- This will contain the canvas -->
+	<div id="WebGLContainer" class="bordered touch"></div>
+
+	<!-- This will contain the controls on the side -->
+	<div id="controlsContainer" class="bordered noTouch"></div>
+
+	<!-- This will contain the text -->
+	<div id="textContainer" class="bordered scrollable noTouch" >
+		<!-- <div class="title">Face Center Cubic</div> -->
+
+		<div class="subTitle">Atomic Positions:</div>
+		<div class="para">0 0 0 and \(1 \over 2\) \(1 \over 2\) \(1 \over 2\) </div>
+
+		<div class="subTitle">Atoms touch along body diagonal:</div>
+		<div class="para">Coordination \(= \color{maroon}{8}\)</span></div>
+
+		<div class="subTitle">Atoms per unit cell:</div>
+		<div class="para">\(n = N_i + {N_f \over 2} + {N_c \over 8} = 1 + 0 + 1 = 2 \)</div>		
+
+		<div class="subTitle">Lattice parameter:</div>
+		<div class="para">\(a = \color{red}{{4 r_{\mathrm{BCC}} / \sqrt{3}}}\)</div>	
+
+		<div class="subTitle">Atomic packing factor:</div>
+		<div class="para">\(\mathrm{APF} = {n V_{\mathrm{atom}}  \over V_{\mathrm{u.c.}}} = \color{red}{0.68} \)</div>
+
+		<div class="subTitle">Calculate density:</div>
+		<div class="para">\(\rho = {\color{green}{n} \color{maroon}{A} \over \color{darkcyan}{V_{\mathrm{u.c.}}} \color{purple}{N_{\mathrm{A}}}}\)</div>	
+	</div>
+
+	<!-- This will contain the buttons -->
+	<div id="buttonContainer" class="noTouch">
+		<div id="resetButton" class="buttonDiv">Default View</div>
+		<div id="hardSphereButton" class="buttonDiv">Hard-Sphere Model</div>
+		<div id="sliceButton" class="buttonDiv">Slice</div>
+		<div id="sparseButton" class="buttonDiv">Sparse Model</div>
+		<div id="coordinationButton" class="buttonDiv">Coordination</div>
+		<div id="helpButton" class="buttonDiv">Help</div>
+	</div>
+
+	<!-- my scripts -->
+	<script src="src/js/paramsBCC.js"></script>
+	<script src="src/js/init.js"></script>
+	<script src="src/js/drawObjects.js"></script>
+	<script src="src/js/slice.js"></script>
+	<script src="src/js/drawBCC.js"></script>
+	<script src="src/js/buttons.js"></script>
+	<script src="src/js/controls.js"></script>
+	<script src="src/js/tooltips.js"></script>
+	<script src="src/js/viewerBCC.js"></script>
+
+	<!-- to get the IP address of the user -->
+	<script type="application/javascript" src="https://api.ipify.org?format=jsonp&callback=getIP"></script>
+
+</body>
+
+</html>
