@@ -186,7 +186,7 @@ function sliceView(doTween=true){
 	checkClickedPlane();
 
 
-	params.defaultViewTween.start();
+	if (doTween) params.defaultViewTween.start();
 }
 
 function sparseView(){
