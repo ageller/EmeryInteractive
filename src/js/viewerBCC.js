@@ -72,8 +72,8 @@ function drawScene(){
 	drawMainSpheres();
 
 	//draw the interstitial sites
-	//drawOctahedral();
-	//drawTetrahedral();
+	drawOctahedral();
+	drawTetrahedral();
 
 	//draw the slice view (updateSlice calls drawSlice -- written this way to facilitate dynamic updating of slice mesh)
 	updateSlice(params.slicePlanePosition, params.slicePlaneRotation);

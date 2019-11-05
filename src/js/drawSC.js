@@ -40,6 +40,21 @@ function drawMainSpheres(){
 
 }
 
+function drawOctahedral(){
+	//interstitial octahedral sites, touch 6 atoms
+
+	var radius = params.size/2*0.732; 
+
+	//draw the full spheres (this should be from an input file)
+	var p1  = new THREE.Vector3(params.size/2., params.size/2., params.size/2.);
+
+
+	var allP = [p1]
+	allP.forEach(function(p){
+		var mesh = drawSphere(radius, params.sphereSegments, params.sphereSegments, params.hardOpacity, params.octahedralColor, p, params.showOctahedrals, 'Octahedrals');
+		params.spheres.push(mesh);
+	})
+}
 function addLights(){
 	//define lights
 	params.lights = [];
