@@ -292,6 +292,19 @@ function defineTooltip(e, pageX = null, pageY = null, maxSelected = 8){
 
 function showTooltips(show=true){
 	//define and show a tooltip (uses function from above)
+	params.scene.remove( params.scene.getObjectByName('ttArrow') ); //remove any arrow 
+	params.scene.remove( params.scene.getObjectByName('ttPlane') ); //remove any plane 
+	params.scene.remove( params.scene.getObjectByName('ttTetrahedron') ); //remove any tetrahedron 
+	params.scene.remove( params.scene.getObjectByName('ttTetrahedronLines') ); //remove the tetrahedron edge lines, and so on...
+	params.scene.remove( params.scene.getObjectByName('ttQuadrahedron') ); 
+	params.scene.remove( params.scene.getObjectByName('ttQuadrahedronLines') ); 
+	params.scene.remove( params.scene.getObjectByName('ttPentahedron') ); 
+	params.scene.remove( params.scene.getObjectByName('ttPentahedronLines') ); 
+	params.scene.remove( params.scene.getObjectByName('ttSextahedron') ); 
+	params.scene.remove( params.scene.getObjectByName('ttSextahedronLines') ); 
+	params.scene.remove( params.scene.getObjectByName('ttSeptahedron') ); 
+	params.scene.remove( params.scene.getObjectByName('ttSeptahedronLines') ); 
+
 	if (show){
 		if (!params.showingCoordiation){
 
@@ -302,19 +315,6 @@ function showTooltips(show=true){
 				moveTooltip(loc); //move it into position
 				highlightSphere(true, loc); //highlight the sphere
 			})
-			params.scene.remove( params.scene.getObjectByName('ttArrow') ); //remove any arrow 
-			params.scene.remove( params.scene.getObjectByName('ttPlane') ); //remove any plane 
-			params.scene.remove( params.scene.getObjectByName('ttTetrahedron') ); //remove any tetrahedron 
-			params.scene.remove( params.scene.getObjectByName('ttTetrahedronLines') ); //remove the tetrahedron edge lines, and so on...
-			params.scene.remove( params.scene.getObjectByName('ttQuadrahedron') ); 
-			params.scene.remove( params.scene.getObjectByName('ttQuadrahedronLines') ); 
-			params.scene.remove( params.scene.getObjectByName('ttPentahedron') ); 
-			params.scene.remove( params.scene.getObjectByName('ttPentahedronLines') ); 
-			params.scene.remove( params.scene.getObjectByName('ttSextahedron') ); 
-			params.scene.remove( params.scene.getObjectByName('ttSextahedronLines') ); 
-			params.scene.remove( params.scene.getObjectByName('ttSeptahedron') ); 
-			params.scene.remove( params.scene.getObjectByName('ttSeptahedronLines') ); 
-
 
 			if (params.ttMeshIndex.length == 2){
 				drawTTarrow();
