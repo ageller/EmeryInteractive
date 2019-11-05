@@ -190,8 +190,12 @@ function drawSlice(size, position, rotation, opacity, color){
 	var mathPlane = makeMathPlane(plane);
 
 	//check each sphere for intersection with the plane
+	var names = [];
+	if (params.showAtoms) names.push('Atoms')
+	if (params.showTetrahedrals) names.push('Tetrahedrals')
+	if (params.showOctahedrals) names.push('Octahedrals')
 	params.spheres.forEach(function(m,i){ 
-		if (m.name == "Atoms"){
+		if (names.indexOf(m.name) != -1){
 			//this is an interesting package, but doesn't seem to work well enough for our purposes
 			// var planeBSP = new ThreeBSP(plane);
 			// var sphereBSP = new ThreeBSP(m);

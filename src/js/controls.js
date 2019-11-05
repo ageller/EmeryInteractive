@@ -356,6 +356,11 @@ function checkAtoms(flag, name, buttonID){
 		}
 	}
 	
+	//do I need a special case for slice view and interstitials?
+	if (params.isSlice){
+		sliceView(doTween=false);
+	}
+	
 	d3.select('#'+buttonID).classed('buttonClickedControls', params[flag])
 	if (params[flag]){
 		d3.select('#'+buttonID).text(name + ' On');
