@@ -1,7 +1,7 @@
 //all "global" variables are contained within params object
 
 var params;
-function defineParams(){
+function defineParams(color){
 	params = new function() {
 
 		//these hold the main three.js objects
@@ -40,7 +40,7 @@ function defineParams(){
 		this.defaultOuterOpacity = 0.12;
 		this.defaultInnerOpacity = 0.7;
 		this.hardOpacity = 0.95;
-		this.sphereColor = 0x0000ff;
+		this.sphereColor = color;
 		this.showAtoms = true;
 
 		this.octahedralColor = 0x9370DB; //purple
