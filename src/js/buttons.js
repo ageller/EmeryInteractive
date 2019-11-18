@@ -64,7 +64,11 @@ function changeSphereOpacity(opacity){
 	})
 	//also do this for the mirrored spheres
 	params.scene.traverse(function(child) {
-		if (child.name.includes("Mirror") && child.name.includes("Atom")) child.material.opacity = opacity;
+		if (child.name.includes("Mirror") && child.name.includes("Atom")) {
+			child.material.opacity = opacity;
+			if (opacity < 1) child.renderOrder = 1;
+		}
+
 	});
 }
 

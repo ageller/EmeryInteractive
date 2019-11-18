@@ -294,13 +294,14 @@ function setMirror(){
 						var pos = m.position;
 						var geo = m.geometry;
 						var mat = m.material.clone(); //so that the colors of the mirrored objects don't change
+						m.material.transparent.value = true;
 						//m.color.setHex(params.sphereColor);
 						var mm = new THREE.Mesh(geo,mat);
+						if (m.material.opacity.value < 1) mm.renderOrder = 1;
 						//need an if statement so that I don't copy the ends?
 						//var mm = m.clone();
 						mm.name = m.name + "Mirror";
 						mm.position.set(pos.x + i*params.size, pos.y + j*params.size, pos.z + k*params.size);
-						mm.renderOrder = -1;
 						params.scene.add(mm);
 					})	
 				}
