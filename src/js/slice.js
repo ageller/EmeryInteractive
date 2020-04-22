@@ -61,7 +61,6 @@ function drawSlice(size, position, rotation, opacity, color){
 			return normal.dot(C)
 
 		});
-
 		//update the vertices
 		var j = 0;
 		indices.forEach(function(i,j){
@@ -74,6 +73,28 @@ function drawSlice(size, position, rotation, opacity, color){
 			pointsOfIntersection.vertices.needsUpdate = true;
 		}
 
+		//try to check this
+		// console.log(pointsOfIntersection.vertices)
+		// // pointsOfIntersection.vertices.forEach(function(v,i){
+		// // 	if (i < pointsOfIntersection.vertices.length-2){
+		// // 		var A = v.clone().sub(center);
+		// // 		var B = pointsOfIntersection.vertices[i+1].clone().sub(center);
+		// // 		var C = A.cross(B);
+		// // 		console.log(normal.dot(C))
+		// // 	}
+		// // })
+		// indices.forEach(function(i, j){
+		// 	if (j < indices.length-2){
+		// 		var v1 = vertices[indices[j]];
+		// 		var v2 = vertices[indices[j+1]]
+		// 		var A = v1.clone().sub(center);
+		// 		var B = v2.clone().sub(center);
+		// 		var C = A.cross(B);
+		// 		console.log(i,  j, indices[j], indices[j+1], normal.dot(C))
+		// 	}
+		// })
+
+		
 		return center
 	}
 
@@ -190,8 +211,12 @@ function drawSlice(size, position, rotation, opacity, color){
 	var mathPlane = makeMathPlane(plane);
 
 	//check each sphere for intersection with the plane
+	var names = [];
+	if (params.showAtoms) names.push('Atoms')
+	if (params.showTetrahedrals) names.push('Tetrahedrals')
+	if (params.showOctahedrals) names.push('Octahedrals')
 	params.spheres.forEach(function(m,i){ 
-		if (m.name == "Atoms"){
+		if (names.indexOf(m.name) != -1){
 			//this is an interesting package, but doesn't seem to work well enough for our purposes
 			// var planeBSP = new ThreeBSP(plane);
 			// var sphereBSP = new ThreeBSP(m);

@@ -13,11 +13,11 @@ function defineTweens(){
 		.easing(TWEEN.Easing.Linear.None);
 }
 
-function init(){
+function init(color){
 	//this initializes everything needed for the scene
 
 	//define the params object (see params.js)
-	defineParams();
+	defineParams(color);
 
 	//size the viewer, buttons and text divs
 	resizeContainers();

@@ -1,7 +1,7 @@
 //all "global" variables are contained within params object
 
 var params;
-function defineParams(){
+function defineParams(color){
 	params = new function() {
 
 		//these hold the main three.js objects
@@ -14,7 +14,7 @@ function defineParams(){
 		//for frustum      
 		this.zmax = 5.e10;
 		this.zmin = 1;
-		this.fov = 45.
+        this.fov = 45.
 
 		//camera view (and tween)
 		this.defaultView = new THREE.Vector3(3.65,1.95,1.66);
@@ -40,7 +40,7 @@ function defineParams(){
 		this.defaultOuterOpacity = 0.12;
 		this.defaultInnerOpacity = 0.7;
 		this.hardOpacity = 0.95;
-		this.sphereColor = 0x228B22;
+		this.sphereColor = color;
 		this.showAtoms = true;
 
 		this.octahedralColor = 0x9370DB; //purple

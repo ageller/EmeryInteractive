@@ -1,14 +1,15 @@
 function resizeControls(vHeight, controlsWidth, m, b){
+	console.log('resizeControls', vHeight, controlsWidth, m, b)
 	d3.select("#controlsContainer")
 		.style('position','absolute')
 		.style('top',m + 'px')
 		.style('left',m +'px')
 		.style('padding',0)
-		.style('padding-top','20px')
+		//.style('padding-top','2px')
 		//.style('padding-right','20px') //to allow for a srollbar
 		.style('margin',0)
 		.style('width', controlsWidth +'px')
-		.style('height',vHeight + 2.*b + 2.*m - 20 + 'px')
+		.style('height',vHeight + 2.*b + 2.*m + 'px')
 		.style('overflow-y','auto')
 		.style('overflow-x','hidden')
 		.style('z-index',2)
@@ -24,7 +25,7 @@ function resizeControls(vHeight, controlsWidth, m, b){
 }
 function setupControls(parent, vHeight, controlsWidth, m, b, pad){
 
-	var fs1 = 24;
+	var fs1 = 18;
 
 	function createInput(parent1, id, value, width, height, top, left, fontsize){
 		parent1.append('input')
@@ -73,14 +74,14 @@ function setupControls(parent, vHeight, controlsWidth, m, b, pad){
 
 	//width of the input boxes
 	var miWidth = (controlsWidth - 4.*m)/3.;
-	var bh = 50 + fs1 - m;
+	var bh = 24 + fs1 - m;
 	var bh0 = bh;
 
 	//question input, start,  stop
 	var question = parent.append('div')
 		.attr('id','questionControls')
 		.style('margin',m + 'px')
-		.style('height','100px')
+		.style('height','35px')
 	question.append('p')
 		.attr('id','questionControlsText')
 		.attr('align','center')
@@ -93,12 +94,12 @@ function setupControls(parent, vHeight, controlsWidth, m, b, pad){
 	d3.select('#questionButton').on('click', startQuestion)
 
 	//miller index
-	bh += bh0 + 50 + fs1 + m;
+	bh += bh0 + 24 + fs1 + m;
 	var miller = parent.append('div')
 		.attr('id','millerControls')
 		.style('margin',m + 'px')
 		.style('margin-top','50px') 
-		.style('height','124px')
+		.style('height','70px')
 	miller.append('p')
 		.attr('id','millerControlsText')
 		.attr('align','center')
@@ -115,12 +116,12 @@ function setupControls(parent, vHeight, controlsWidth, m, b, pad){
 
 
 	//mirroring
-	bh += bh0 + 50 + fs1 + 24 + m;
+	bh += bh0 + 65 + fs1 + m;
 	var mirror = parent.append('div')
 		.attr('id','mirrorControls')
 		.style('margin',m + 'px')
 		.style('margin-top','50px') 
-		.style('height','124px')
+		.style('height','30px')
 	mirror.append('p')
 		.attr('id','mirrorControlsText')
 		.attr('align','center')
@@ -136,7 +137,7 @@ function setupControls(parent, vHeight, controlsWidth, m, b, pad){
 
 
 	//tooltip on/off
-	bh += bh0 + 50 + fs1 + 24;
+	bh += bh0 + 30 + fs1;
 	var additional = parent.append('div')
 		.attr('id','tooltipControls')
 		.style('margin',m + 'px')
@@ -147,26 +148,27 @@ function setupControls(parent, vHeight, controlsWidth, m, b, pad){
 		.attr('align','center')
 		.style('margin',0)
 		.style('padding',0)
-		.style('font-size',0.8*fs1 + 'px')
+		.style('font-size',fs1 + 'px')
 		.text('Additional Controls')	
-	createButton(additional, 'tooltipButton',controlsWidth - 20 - 4, 24, bh + 2.*fs1 + m, m ,'Tooltips On')
+	var sz = 22.
+	createButton(additional, 'tooltipButton',controlsWidth - 20 - 4, sz, bh + 2.*sz + m, m ,'Tooltips On')
 	d3.select('#tooltipButton')
 		.classed('buttonClickedControls', params.showTooltips)
 		.on('click', checkTooltips)
 
 	//on/off for main atoms
-	createButton(additional, 'atomButton',controlsWidth - 20 - 4, 24, bh + 3.*fs1 + 2.*m, m ,'Atoms On')
+	createButton(additional, 'atomButton',controlsWidth - 20 - 4, sz, bh + 3.*sz + 2.*m, m ,'Atoms On')
 	d3.select('#atomButton')
 		.classed('buttonClickedControls', params.showAtoms)
 		.on('click', function(){checkAtoms('showAtoms', 'Atoms', 'atomButton')})
 
 	//on/off for interstitial sites
-	createButton(additional, 'octahedralButton',controlsWidth - 20 - 4, 24, bh + 4.*fs1 + 3.*m, m ,'Octahedral Off')
+	createButton(additional, 'octahedralButton',controlsWidth - 20 - 4, sz, bh + 4.*sz + 3.*m, m ,'Octahedral Off')
 	d3.select('#octahedralButton')
 		.classed('buttonClickedControls', params.showOctahedrals)
 		.on('click', function(){checkAtoms('showOctahedrals', 'Octahedrals', 'octahedralButton')})
 
-	createButton(additional, 'tetrahedralButton',controlsWidth - 20 - 4, 24, bh + 5.*fs1 + 4.*m, m ,'Tetrahedral Off')
+	createButton(additional, 'tetrahedralButton',controlsWidth - 20 - 4, sz, bh + 5.*sz + 4.*m, m ,'Tetrahedral Off')
 	d3.select('#tetrahedralButton')
 		.classed('buttonClickedControls', params.showTetrahedrals)
 		.on('click', function(){checkAtoms('showTetrahedrals', 'Tetrahedrals', 'tetrahedralButton')})
@@ -292,13 +294,14 @@ function setMirror(){
 						var pos = m.position;
 						var geo = m.geometry;
 						var mat = m.material.clone(); //so that the colors of the mirrored objects don't change
+						m.material.transparent.value = true;
 						//m.color.setHex(params.sphereColor);
 						var mm = new THREE.Mesh(geo,mat);
+						if (m.material.opacity.value < 1) mm.renderOrder = 1;
 						//need an if statement so that I don't copy the ends?
 						//var mm = m.clone();
 						mm.name = m.name + "Mirror";
 						mm.position.set(pos.x + i*params.size, pos.y + j*params.size, pos.z + k*params.size);
-						mm.renderOrder = -1;
 						params.scene.add(mm);
 					})	
 				}
@@ -354,6 +357,11 @@ function checkAtoms(flag, name, buttonID){
 		} else {
 			showHemiSpheres(false);
 		}
+	}
+	
+	//do I need a special case for slice view and interstitials?
+	if (params.isSlice){
+		sliceView(doTween=false);
 	}
 	
 	d3.select('#'+buttonID).classed('buttonClickedControls', params[flag])
