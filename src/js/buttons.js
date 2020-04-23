@@ -21,7 +21,7 @@ function showSpheres(show){
 	})
 	//also do this for the mirrored spheres
 	params.scene.traverse(function(child) {
-		if (child.name == "AtomsMirror") child.material.visible = show;
+		if (child.name.includes("Mirror")) child.material.visible = show;
 	});
 
 	if (!params.isSlice){
@@ -64,7 +64,8 @@ function changeSphereOpacity(opacity){
 	})
 	//also do this for the mirrored spheres
 	params.scene.traverse(function(child) {
-		if (child.name.includes("Mirror") && child.name.includes("Atom")) {
+		//if (child.name.includes("Mirror") && child.name.includes("Atom")) {
+		if (child.name.includes("Mirror")) {
 			child.material.opacity = opacity;
 			if (opacity < 1) child.renderOrder = 1;
 		}
