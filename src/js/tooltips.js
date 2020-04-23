@@ -104,11 +104,13 @@ function highlightSphere(show, loc, meshArray=params.spheres){
 function makeArrowFromPoints(p1, p2){
 	//https://stackoverflow.com/questions/26714230/draw-arrow-helper-along-three-line-or-two-vectors
 
-	var direction = p2.sub(p1);
+	var direction = p2.clone().sub(p1);
+	updateLatticeDirectionIndex(direction.x, direction.y, direction.z);
 	var length = direction.length();
 	var arrowHelper = new THREE.ArrowHelper(direction.normalize(), p1, length, params.highlightColor, params.size/10., params.size/10. );
 	arrowHelper.name = 'ttArrow'
 	params.scene.add( arrowHelper );
+
 }
 
 function drawTTarrow(meshArray=params.spheres){

@@ -299,7 +299,9 @@ function setLatticeDirectionIndex(){
 		//create arrow
 		var p1 = new THREE.Vector3(0, 0, 0);
 		if (params.ttMeshIndex.length  >= 1) p1 = params.spheres[params.ttMeshIndex[0]].position.clone();
-		var p2 = new THREE.Vector3(U, V, W);
+		var direction = new THREE.Vector3(U, V, W);
+		var p2 = direction.clone().add(p1);
+
 		makeArrowFromPoints(p1, p2);
 
 		var label = 'Lattice Direction Index ' + U + ' ' + V + ' ' + W;
