@@ -31,7 +31,7 @@ function setupControls(parent, vHeight, controlsWidth, m, b, pad){
 		parent1.append('input')
 			.attr('id',id)
 			.attr('type','text')
-			.attr('value',value)
+			.attr('placeholder',value)
 			.attr('autocomplete','off')
 			.style('position','absolute')
 			.style('top',top + 'px')
@@ -89,29 +89,29 @@ function setupControls(parent, vHeight, controlsWidth, m, b, pad){
 		.style('padding',0)
 		.style('font-size',fs1 + 'px')
 		.text('Question #')
-	createInput(question, 'questionNumber', 0, miWidth, 2.*fs1,  bh, 10, 20)
+	createInput(question, 'questionNumber', '-', miWidth, 2.*fs1,  bh, 10, 20)
 	createButton(question, 'questionButton', 2.*miWidth + m, 2*fs1 - 4, bh, miWidth + 2*m, 'Start')
 	d3.select('#questionButton').on('click', startQuestion)
 
-	//miller index
+	//lattice plane
 	bh += bh0 + 24 + fs1 + m;
-	var miller = parent.append('div')
-		.attr('id','millerControls')
+	var latticePlane = parent.append('div')
+		.attr('id','latticePlaneControls')
 		.style('margin',m + 'px')
 		.style('margin-top','50px') 
 		.style('height','70px')
-	miller.append('p')
-		.attr('id','millerControlsText')
+	latticePlane.append('p')
+		.attr('id','latticePlaneControlsText')
 		.attr('align','center')
 		.style('margin',0)
 		.style('padding',0)
 		.style('font-size',fs1 + 'px')
-		.text('Miller Index')
-	createInput(miller, 'millerH', '-', miWidth, 2.*fs1, bh, m, 20)
-	createInput(miller, 'millerK', '-', miWidth, 2.*fs1, bh, miWidth + 2*m, 20)
-	createInput(miller, 'millerL', '-', miWidth, 2.*fs1, bh, 2.*miWidth + 3*m, 20)
-	createButton(miller, 'millerSubmit', controlsWidth - 20 - 4, 24, bh + 2*fs1 + m, m)
-	d3.select('#millerSubmit').on('click', setMillerIndex)
+		.text('Lattice Plane (h k l)')
+	createInput(latticePlane, 'latticePlaneH', 'h', miWidth, 2.*fs1, bh, m, 20)
+	createInput(latticePlane, 'latticePlaneK', 'k', miWidth, 2.*fs1, bh, miWidth + 2*m, 20)
+	createInput(latticePlane, 'latticePlaneL', 'l', miWidth, 2.*fs1, bh, 2.*miWidth + 3*m, 20)
+	createButton(latticePlane, 'latticePlaneSubmit', controlsWidth - 20 - 4, 24, bh + 2*fs1 + m, m)
+	d3.select('#latticePlaneSubmit').on('click', setLatticePlaneIndex)
 
 
 
@@ -129,9 +129,9 @@ function setupControls(parent, vHeight, controlsWidth, m, b, pad){
 		.style('padding',0)
 		.style('font-size',fs1 + 'px')
 		.text('Mirroring')
-	createInput(mirror, 'mirrorX', 1, miWidth, 2.*fs1, bh, m, 20)
-	createInput(mirror, 'mirrorY', 1, miWidth, 2.*fs1, bh, miWidth + 2*m, 20)
-	createInput(mirror, 'mirrorZ', 1, miWidth, 2.*fs1, bh, 2.*miWidth + 3*m, 20)
+	createInput(mirror, 'mirrorX', '-', miWidth, 2.*fs1, bh, m, 20)
+	createInput(mirror, 'mirrorY', '-', miWidth, 2.*fs1, bh, miWidth + 2*m, 20)
+	createInput(mirror, 'mirrorZ', '-', miWidth, 2.*fs1, bh, 2.*miWidth + 3*m, 20)
 	createButton(mirror, 'mirrorSubmit', controlsWidth - 20 - 4, 24, bh + 2*fs1 + m, m)
 	d3.select('#mirrorSubmit').on('click', setMirror)
 
@@ -176,7 +176,7 @@ function setupControls(parent, vHeight, controlsWidth, m, b, pad){
 
 function checkControlsText(id, value){
 	console.log(id, value)
-	if (id.includes('miller')) setMillerIndex();
+	if (id.includes('latticePlane')) setLatticePlaneIndex();
 	if (id.includes('mirror')) setMirror();
 }
 
@@ -205,15 +205,15 @@ function startQuestion(){
 	});
 }
 
-function setMillerIndex(){
+function setLatticePlaneIndex(){
 
-	var H = parseFloat(d3.select('#millerH').node().value);
-	var K = parseFloat(d3.select('#millerK').node().value);
-	var L = parseFloat(d3.select('#millerL').node().value);
+	var H = parseFloat(d3.select('#latticePlaneH').node().value);
+	var K = parseFloat(d3.select('#latticePlaneK').node().value);
+	var L = parseFloat(d3.select('#latticePlaneL').node().value);
 	
-	updateMillerIndex(H, K, L);
+	if (!isNaN(H) && !isNaN(K) && !isNaN(L)){
+		updateLatticePlaneIndex(H, K, L);
 
-	if (H != null && K != null & L != null){
 		var p1 = new THREE.Vector3(0, 0, 0);
 		var p2 = new THREE.Vector3(0, 0, 0);
 		var p3 = new THREE.Vector3(0, 0, 0);
@@ -222,24 +222,27 @@ function setMillerIndex(){
 		if (L != 0) p3.z = 1./L;
 
 		makePlaneFromPoints(p1, p2, p3);
+
+		var label = 'Lattice Plane Index ' + H + ' ' + K + ' ' + L;
+		console.log(label);
+
+		ga('send', { 
+			hitType: 'event',
+			eventCategory: 'button',
+			eventAction: 'clicked Lattice Plane Button',
+			eventLabel: label + ' , ' + timeStamp() + ' , ' + params.userIP,
+		});
+	} else {
+		params.scene.remove( params.scene.getObjectByName('ttPlane') ); //remove any plane 
+
 	}
-
-	var label = 'Miller Index ' + H + ' ' + K + ' ' + L;
-	console.log(label);
-
-	ga('send', { 
-		hitType: 'event',
-		eventCategory: 'button',
-		eventAction: 'clicked Miller Button',
-		eventLabel: label + ' , ' + timeStamp() + ' , ' + params.userIP,
-	});
 }
-function updateMillerIndex(H, K, L){
-	d3.select('#millerH').node().value = H;
-	d3.select('#millerK').node().value = K;
-	d3.select('#millerL').node().value = L;
+function updateLatticePlaneIndex(H, K, L){
+	d3.select('#latticePlaneH').node().value = H;
+	d3.select('#latticePlaneK').node().value = K;
+	d3.select('#latticePlaneL').node().value = L;
 }
-function getMillerIndexFromPlane(plane){
+function getLatticePlaneIndexFromPlane(plane){
 
 	//check intersection with x axis
 	var xAxis = new THREE.Line3(new THREE.Vector3(0,0,0), new THREE.Vector3(100, 0, 0));
@@ -259,7 +262,7 @@ function getMillerIndexFromPlane(plane){
 	if (yPoint.y != 0) K = 1./yPoint.y;
 	if (zPoint.z != 0) L = 1./zPoint.z;
 
-	updateMillerIndex(H,K,L);
+	updateLatticePlaneIndex(H,K,L);
 }
 function setMirror(){
 	var X = d3.select('#mirrorX').node().value;

@@ -168,8 +168,8 @@ function drawTTplane(meshArray=params.spheres){
 
 	var plane = makePlaneFromPoints(p1, p2, p3);
 
-	//computer the miller index
-	getMillerIndexFromPlane(plane);
+	//computer the LatticePlane index
+	getLatticePlaneIndexFromPlane(plane);
 
 }
 
