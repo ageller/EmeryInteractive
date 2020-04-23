@@ -223,7 +223,7 @@ function resizeContainers(){
 	console.log('resizing')
 	var m = 10; //margin
 	var b = 50; //button height
-	var controlsWidth = 200; //width of the controls container
+	var controlsWidth = 230; //width of the controls container
 
 	var vHeight = parseFloat(window.innerHeight) - 4.*m - 2.*b;
 	var vWidth = vHeight/params.aspect;

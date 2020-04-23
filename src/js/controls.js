@@ -73,7 +73,7 @@ function setupControls(parent, vHeight, controlsWidth, m, b, pad){
 	}
 
 	//width of the input boxes
-	var miWidth = (controlsWidth - 4.*m)/3.;
+	var miWidth = (controlsWidth - 5.*m)/4.;
 	var bh = 24 + fs1 - m;
 	var bh0 = bh;
 
@@ -93,12 +93,52 @@ function setupControls(parent, vHeight, controlsWidth, m, b, pad){
 	createButton(question, 'questionButton', 2.*miWidth + m, 2*fs1 - 4, bh, miWidth + 2*m, 'Start')
 	d3.select('#questionButton').on('click', startQuestion)
 
+	//lattice position
+	bh += bh0 + 24 + fs1 + m;
+	var latticePosition = parent.append('div')
+		.attr('id','latticePositionControls')
+		.style('margin',m + 'px')
+		.style('margin-top','45px') 
+		.style('height','70px')
+	latticePosition.append('p')
+		.attr('id','latticePositionControlsText')
+		.attr('align','center')
+		.style('margin',0)
+		.style('padding',0)
+		.style('font-size',fs1 + 'px')
+		.text('Lattice Position: q r s')
+	createInput(latticePosition, 'latticePositionQ', 'q', miWidth, 2.*fs1, bh, m, 20)
+	createInput(latticePosition, 'latticePositionR', 'r', miWidth, 2.*fs1, bh, miWidth + 2*m, 20)
+	createInput(latticePosition, 'latticePositionS', 's', miWidth, 2.*fs1, bh, 2.*miWidth + 3*m, 20)
+	createButton(latticePosition, 'latticePositionSubmit', miWidth, 2.*fs1 - 4, bh, 3.*miWidth + 4*m, 'Go')
+	d3.select('#latticePositionSubmit').on('click', setLatticePositionIndex)
+
+	//lattice direction
+	bh += bh0 + 24 + fs1 + m;
+	var latticeDirection = parent.append('div')
+		.attr('id','latticeDirectionControls')
+		.style('margin',m + 'px')
+		.style('margin-top','15px') 
+		.style('height','70px')
+	latticeDirection.append('p')
+		.attr('id','latticeDirectionControlsText')
+		.attr('align','center')
+		.style('margin',0)
+		.style('padding',0)
+		.style('font-size',fs1 + 'px')
+		.text('Lattice Direction: [u v w]')
+	createInput(latticeDirection, 'latticeDirectionU', 'u', miWidth, 2.*fs1, bh, m, 20)
+	createInput(latticeDirection, 'latticeDirectionV', 'v', miWidth, 2.*fs1, bh, miWidth + 2*m, 20)
+	createInput(latticeDirection, 'latticeDirectionW', 'w', miWidth, 2.*fs1, bh, 2.*miWidth + 3*m, 20)
+	createButton(latticeDirection, 'latticeDirectionSubmit', miWidth, 2.*fs1 - 4, bh, 3.*miWidth + 4*m, 'Go')
+	d3.select('#latticeDirectionSubmit').on('click', setLatticeDirectionIndex)
+
 	//lattice plane
 	bh += bh0 + 24 + fs1 + m;
 	var latticePlane = parent.append('div')
 		.attr('id','latticePlaneControls')
 		.style('margin',m + 'px')
-		.style('margin-top','50px') 
+		.style('margin-top','15px') 
 		.style('height','70px')
 	latticePlane.append('p')
 		.attr('id','latticePlaneControlsText')
@@ -106,21 +146,21 @@ function setupControls(parent, vHeight, controlsWidth, m, b, pad){
 		.style('margin',0)
 		.style('padding',0)
 		.style('font-size',fs1 + 'px')
-		.text('Lattice Plane (h k l)')
+		.text('Lattice Plane: (h k l)')
 	createInput(latticePlane, 'latticePlaneH', 'h', miWidth, 2.*fs1, bh, m, 20)
 	createInput(latticePlane, 'latticePlaneK', 'k', miWidth, 2.*fs1, bh, miWidth + 2*m, 20)
 	createInput(latticePlane, 'latticePlaneL', 'l', miWidth, 2.*fs1, bh, 2.*miWidth + 3*m, 20)
-	createButton(latticePlane, 'latticePlaneSubmit', controlsWidth - 20 - 4, 24, bh + 2*fs1 + m, m)
+	createButton(latticePlane, 'latticePlaneSubmit', miWidth, 2.*fs1 - 4, bh, 3.*miWidth + 4*m, 'Go')
 	d3.select('#latticePlaneSubmit').on('click', setLatticePlaneIndex)
 
 
 
 	//mirroring
-	bh += bh0 + 65 + fs1 + m;
+	bh += bh0 + 24 + fs1 + m;
 	var mirror = parent.append('div')
 		.attr('id','mirrorControls')
 		.style('margin',m + 'px')
-		.style('margin-top','50px') 
+		.style('margin-top','15px') 
 		.style('height','30px')
 	mirror.append('p')
 		.attr('id','mirrorControlsText')
@@ -132,17 +172,17 @@ function setupControls(parent, vHeight, controlsWidth, m, b, pad){
 	createInput(mirror, 'mirrorX', '-', miWidth, 2.*fs1, bh, m, 20)
 	createInput(mirror, 'mirrorY', '-', miWidth, 2.*fs1, bh, miWidth + 2*m, 20)
 	createInput(mirror, 'mirrorZ', '-', miWidth, 2.*fs1, bh, 2.*miWidth + 3*m, 20)
-	createButton(mirror, 'mirrorSubmit', controlsWidth - 20 - 4, 24, bh + 2*fs1 + m, m)
+	createButton(mirror, 'mirrorSubmit', miWidth, 2.*fs1 - 4, bh, 3.*miWidth + 4*m, 'Go')
 	d3.select('#mirrorSubmit').on('click', setMirror)
 
 
 	//tooltip on/off
-	bh += bh0 + 30 + fs1;
+	bh += bh0  + fs1;
 	var additional = parent.append('div')
 		.attr('id','tooltipControls')
 		.style('margin',m + 'px')
-		.style('margin-top','100px') 
-		.style('height','100px')
+		.style('margin-top','65px') 
+		.style('height','65px')
 	additional.append('p')
 		.attr('id','tooltipsControlsText')
 		.attr('align','center')
@@ -205,21 +245,94 @@ function startQuestion(){
 	});
 }
 
+function setLatticePositionIndex(){
+
+	var Q = parseFloat(d3.select('#latticePositionQ').node().value);
+	var R = parseFloat(d3.select('#latticePositionR').node().value);
+	var S = parseFloat(d3.select('#latticePositionS').node().value);
+	
+	params.scene.remove( params.scene.getObjectByName('ttPosition') ); //remove any Lattice Position 
+
+	if (!isNaN(Q) && !isNaN(R) && !isNaN(S)){
+		updateLatticePositionIndex(Q, R, S);
+
+		//create point
+		var p = new THREE.Vector3(0, 0, 0);
+		if (Q != 0.) p.x = 1./Q;
+		if (R != 0.) p.y = 1./R;
+		if (S != 0.) p.z = 1./S;
+
+		drawSphere(0.1, params.sphereSegments, params.sphereSegments, 1., 0x000000, p, true, 'ttPosition');
+
+		var label = 'Lattice Position Index ' + Q + ' ' + R + ' ' + S;
+		console.log(label);
+
+		ga('send', { 
+			hitType: 'event',
+			eventCategory: 'button',
+			eventAction: 'clicked Lattice Position Button',
+			eventLabel: label + ' , ' + timeStamp() + ' , ' + params.userIP,
+		});
+	} else {
+		//remove any point
+
+	}
+}
+function updateLatticePositionIndex(Q, R, S){
+	d3.select('#latticePositionQ').node().value = Q;
+	d3.select('#latticePositionR').node().value = R;
+	d3.select('#latticePositionS').node().value = S;
+}
+
+function setLatticeDirectionIndex(){
+
+	var U = parseFloat(d3.select('#latticeDirectionU').node().value);
+	var V = parseFloat(d3.select('#latticeDirectionV').node().value);
+	var W = parseFloat(d3.select('#latticeDirectionW').node().value);
+	
+	params.scene.remove( params.scene.getObjectByName('ttArrow') ); //remove any arrow 
+
+	if (!isNaN(U) && !isNaN(V) && !isNaN(W)){
+		updateLatticeDirectionIndex(U, V, W);
+
+		//create arrow
+
+		var label = 'Lattice Direction Index ' + U + ' ' + V + ' ' + W;
+		console.log(label);
+
+		ga('send', { 
+			hitType: 'event',
+			eventCategory: 'button',
+			eventAction: 'clicked Lattice Direction Button',
+			eventLabel: label + ' , ' + timeStamp() + ' , ' + params.userIP,
+		});
+	} 
+
+}
+function updateLatticeDirectionIndex(Q, R, S){
+	d3.select('#latticeDirectionQ').node().value = Q;
+	d3.select('#latticeDirectionR').node().value = R;
+	d3.select('#latticeDirectionS').node().value = S;
+}
+
+
 function setLatticePlaneIndex(){
 
 	var H = parseFloat(d3.select('#latticePlaneH').node().value);
 	var K = parseFloat(d3.select('#latticePlaneK').node().value);
 	var L = parseFloat(d3.select('#latticePlaneL').node().value);
 	
+	params.scene.remove( params.scene.getObjectByName('ttPlane') ); //remove any plane 
+
 	if (!isNaN(H) && !isNaN(K) && !isNaN(L)){
 		updateLatticePlaneIndex(H, K, L);
 
 		var p1 = new THREE.Vector3(0, 0, 0);
 		var p2 = new THREE.Vector3(0, 0, 0);
 		var p3 = new THREE.Vector3(0, 0, 0);
-		if (H != 0) p1.x = 1./H;
-		if (K != 0) p2.y = 1./K;
-		if (L != 0) p3.z = 1./L;
+		if (H != 0.) p1.x = 1./H;
+		if (K != 0.) p2.y = 1./K;
+		if (L != 0.) p3.z = 1./L;
 
 		makePlaneFromPoints(p1, p2, p3);
 
@@ -232,10 +345,8 @@ function setLatticePlaneIndex(){
 			eventAction: 'clicked Lattice Plane Button',
 			eventLabel: label + ' , ' + timeStamp() + ' , ' + params.userIP,
 		});
-	} else {
-		params.scene.remove( params.scene.getObjectByName('ttPlane') ); //remove any plane 
+	} 
 
-	}
 }
 function updateLatticePlaneIndex(H, K, L){
 	d3.select('#latticePlaneH').node().value = H;
