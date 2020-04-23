@@ -108,17 +108,22 @@ function highlightSphere(show, loc, meshArray=params.spheres){
 
 }
 
-function drawTTarrow(meshArray=params.spheres){
-	//draw an arrow to connect 2 selected spheres
+function makeArrowFromPoints(p1, p2){
 	//https://stackoverflow.com/questions/26714230/draw-arrow-helper-along-three-line-or-two-vectors
 
-	var from = meshArray[params.ttMeshIndex[0]].position.clone();
-	var to = meshArray[params.ttMeshIndex[1]].position.clone();
-	var direction = to.sub(from);
+	var direction = p2.sub(p1);
 	var length = direction.length();
-	var arrowHelper = new THREE.ArrowHelper(direction.normalize(), from, length, params.highlightColor, params.size/10., params.size/10. );
+	var arrowHelper = new THREE.ArrowHelper(direction.normalize(), p1, length, params.highlightColor, params.size/10., params.size/10. );
 	arrowHelper.name = 'ttArrow'
 	params.scene.add( arrowHelper );
+}
+
+function drawTTarrow(meshArray=params.spheres){
+	//draw an arrow to connect 2 selected spheres
+
+	var p1 = params.spheres[params.ttMeshIndex[0]].position.clone();
+	var p2 = params.spheres[params.ttMeshIndex[1]].position.clone();
+	makeArrowFromPoints(p1, p2);
 }
 
 function makePlaneFromPoints(p1, p2, p3){

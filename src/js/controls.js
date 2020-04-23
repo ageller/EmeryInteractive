@@ -300,6 +300,13 @@ function setLatticeDirectionIndex(){
 		updateLatticeDirectionIndex(U, V, W);
 
 		//create arrow
+		var p1 = new THREE.Vector3(0, 0, 0);
+		if (params.ttMeshIndex.length  >= 1) p1 = params.spheres[params.ttMeshIndex[0]].position.clone();
+		var p2 = new THREE.Vector3(0, 0, 0);
+		if (U != 0.) p2.x = 1./U;
+		if (V != 0.) p2.y = 1./V;
+		if (W != 0.) p2.z = 1./W;
+		makeArrowFromPoints(p1, p2);
 
 		var label = 'Lattice Direction Index ' + U + ' ' + V + ' ' + W;
 		console.log(label);
@@ -313,10 +320,10 @@ function setLatticeDirectionIndex(){
 	} 
 
 }
-function updateLatticeDirectionIndex(Q, R, S){
-	d3.select('#latticeDirectionQ').node().value = Q;
-	d3.select('#latticeDirectionR').node().value = R;
-	d3.select('#latticeDirectionS').node().value = S;
+function updateLatticeDirectionIndex(U, V, W){
+	d3.select('#latticeDirectionU').node().value = U;
+	d3.select('#latticeDirectionV').node().value = V;
+	d3.select('#latticeDirectionW').node().value = W;
 }
 
 
