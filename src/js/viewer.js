@@ -344,7 +344,7 @@ function WebGLStart(mol, color){
 	//this is called to start everything
 
 	//initialize everything
-	init(color);
+	init(mol, color);
 
 	//draw everything
 	drawScene(mol);

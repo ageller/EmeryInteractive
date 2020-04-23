@@ -1,7 +1,7 @@
 //all "global" variables are contained within params object
 
 var params;
-function defineParams(color){
+function defineParams(mol, color){
 	params = new function() {
 
 		//these hold the main three.js objects
@@ -108,6 +108,9 @@ function defineParams(color){
 
 		//show/hide tooltips
 		this.showTooltips = true;
+
+		//will contain the molecule type
+		this.mol = mol;
 
 	};
 

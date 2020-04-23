@@ -203,15 +203,19 @@ function setupControls(parent, vHeight, controlsWidth, m, b, pad){
 		.on('click', function(){checkAtoms('showAtoms', 'Atoms', 'atomButton')})
 
 	//on/off for interstitial sites
-	createButton(additional, 'octahedralButton',controlsWidth - 20 - 4, sz, bh + 4.*sz + 3.*m, m ,'Octahedral Off')
+	var label = "Octahedral Off";
+	if (params.mol == 'SC') label = "Cubic Off"
+	createButton(additional, 'octahedralButton',controlsWidth - 20 - 4, sz, bh + 4.*sz + 3.*m, m ,label)
 	d3.select('#octahedralButton')
 		.classed('buttonClickedControls', params.showOctahedrals)
 		.on('click', function(){checkAtoms('showOctahedrals', 'Octahedrals', 'octahedralButton')})
 
-	createButton(additional, 'tetrahedralButton',controlsWidth - 20 - 4, sz, bh + 5.*sz + 4.*m, m ,'Tetrahedral Off')
-	d3.select('#tetrahedralButton')
-		.classed('buttonClickedControls', params.showTetrahedrals)
-		.on('click', function(){checkAtoms('showTetrahedrals', 'Tetrahedrals', 'tetrahedralButton')})
+	if (params.mol != 'SC'){
+		createButton(additional, 'tetrahedralButton',controlsWidth - 20 - 4, sz, bh + 5.*sz + 4.*m, m ,'Tetrahedral Off')
+		d3.select('#tetrahedralButton')
+			.classed('buttonClickedControls', params.showTetrahedrals)
+			.on('click', function(){checkAtoms('showTetrahedrals', 'Tetrahedrals', 'tetrahedralButton')})
+	}
 }
 
 function checkControlsText(id, value){
@@ -454,8 +458,10 @@ function checkTooltips(){
 function checkAtoms(flag, name, buttonID){
 	params[flag] = !params[flag];
 
-	var label = name + ' '
-
+	//var label = name + ' '
+	var label = d3.select('#'+buttonID).text().split(" ")[0];
+	var labelName = label; //because I will add On or Off below but want to save the name for analytics
+	
 	var m = [];
 	params.scene.traverse(function(child) {
 		if (child.name.includes(name)) m.push(child);
@@ -478,12 +484,12 @@ function checkAtoms(flag, name, buttonID){
 		sliceView(doTween=false);
 	}
 	
-	d3.select('#'+buttonID).classed('buttonClickedControls', params[flag])
+	d3.select('#'+buttonID).classed('buttonClickedControls', params[flag]);
 	if (params[flag]){
-		d3.select('#'+buttonID).text(name + ' On');
+		d3.select('#'+buttonID).text(label + ' On');
 		label += 'On';
 	} else {
-		d3.select('#'+buttonID).text(name + ' Off');
+		d3.select('#'+buttonID).text(label + ' Off');
 		label += 'Off';
 	}
 
@@ -492,7 +498,7 @@ function checkAtoms(flag, name, buttonID){
 	ga('send', { 
 		hitType: 'event',
 		eventCategory: 'button',
-		eventAction: 'clicked ' + name + ' OnOff Button',
+		eventAction: 'clicked ' + labelName + ' OnOff Button',
 		eventLabel: label + ' , ' + timeStamp() + ' , ' + params.userIP,
 	});
 }
