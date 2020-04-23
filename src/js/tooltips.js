@@ -19,17 +19,10 @@ function createTooltip(loc, meshArray=params.spheres){
 		});
 
 	var mesh = meshArray[loc];
-	var q = 0;
-	var r = 0;
-	var s = 0;
-	if (mesh.position.x != 0.) q = 1./mesh.position.x;
-	if (mesh.position.y != 0.) r = 1./mesh.position.y;
-	if (mesh.position.z != 0.) s = 1./mesh.position.z;
 
 	tt.append('div')
 		.attr('class','tooltipContent')
-		//.text(mesh.position.x+" "+mesh.position.y+" "+mesh.position.z);
-		.text(q+" "+r+" "+s);
+		.text(mesh.position.x+" "+mesh.position.y+" "+mesh.position.z);
 
 
 

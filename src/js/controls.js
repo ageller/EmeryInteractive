@@ -261,10 +261,7 @@ function setLatticePositionIndex(){
 		updateLatticePositionIndex(Q, R, S);
 
 		//create point
-		var p = new THREE.Vector3(0, 0, 0);
-		if (Q != 0.) p.x = 1./Q;
-		if (R != 0.) p.y = 1./R;
-		if (S != 0.) p.z = 1./S;
+		var p = new THREE.Vector3(Q, R, S);
 
 		drawSphere(0.1, params.sphereSegments, params.sphereSegments, 1., 0x000000, p, true, 'ttPosition');
 
@@ -302,10 +299,7 @@ function setLatticeDirectionIndex(){
 		//create arrow
 		var p1 = new THREE.Vector3(0, 0, 0);
 		if (params.ttMeshIndex.length  >= 1) p1 = params.spheres[params.ttMeshIndex[0]].position.clone();
-		var p2 = new THREE.Vector3(0, 0, 0);
-		if (U != 0.) p2.x = 1./U;
-		if (V != 0.) p2.y = 1./V;
-		if (W != 0.) p2.z = 1./W;
+		var p2 = new THREE.Vector3(U, V, W);
 		makeArrowFromPoints(p1, p2);
 
 		var label = 'Lattice Direction Index ' + U + ' ' + V + ' ' + W;
