@@ -79,7 +79,7 @@ function drawScene(mol){
 	updateSlice(params.slicePlanePosition, params.slicePlaneRotation);
 
 	//draw the coordinate view
-	if (mol == 'FCC') drawCoordination();
+	if (mol != 'BCC') drawCoordination();
 
 	//draw the box 
 	drawBox();
