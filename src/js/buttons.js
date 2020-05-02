@@ -9,11 +9,18 @@ function showHemiSpheres(show){
 }
 function showInterstitials(show){
 	//turns on/off the interstitials
+	params.showOctahedrals *= show;
+	params.showTetrahedrals *= show;
 	params.spheres.forEach(function(m){
-		if (m.name == "Octahedrals") m.material.visible = show*params.showOctahedrals;
-		if (m.name == "Tetrahedrals") m.material.visible = show*params.showTetrahedrals;
+		if (m.name == "Octahedrals") m.material.visible = params.showOctahedrals;
+		if (m.name == "Tetrahedrals") m.material.visible = params.showTetrahedrals;
 	})
+
+	checkAtoms('showOctahedrals', 'Octahedrals', 'octahedralButton', false);
+	checkAtoms('showTetrahedrals', 'Tetrahedrals', 'tetrahedralButton', false);
+
 }
+
 function showSpheres(show){
 	//turns on/off the spheres, but not the interstitial sites
 	params.spheres.forEach(function(m){
@@ -42,12 +49,16 @@ function showSliceMesh(show){
 		m.material.visible = show;
 	})
 }
-function showCoordination(show){
+function showCoordination(show, type="All"){
 	//turns on/off the coordination view, and limits the double-click ability
-	params.showingCoordiation = show;
+	params.showingCoordination = show;
 	showTooltips(!show)
 	params.coordination.forEach(function(m){
-		m.material.visible = show;
+		if (type == "All" || m.type == type) {
+			m.material.visible = show;
+		} else {
+			m.material.visible = false;
+		}
 	})
 }
 function showLabels(show){
@@ -233,13 +244,13 @@ function sparseView(){
 
 function coordinationView(){
 	//makes all changes needed for the coordination view
-	console.log('coordination');
+	console.log(params.coordinationType);
 	//google analytics
 	ga('send', { 
 		hitType: 'event',
 		eventCategory: 'button',
 		eventAction: 'clicked Coordination',
-		eventLabel: 'clicked Coordination, ' + timeStamp() + ' , ' + params.userIP,
+		eventLabel: 'clicked Coordination ' + params.coordinationType +', ' + timeStamp() + ' , ' + params.userIP,
 	});
 
 	d3.selectAll('.buttonDiv').classed('buttonClicked', false);
@@ -253,7 +264,7 @@ function coordinationView(){
 	showInterstitials(false);
 	showSliceMesh(false);
 
-	showCoordination(true);
+	showCoordination(true, params.coordinationType);
 
 	params.isSlice = false;
 	params.inDefaultView = false;
@@ -346,6 +357,7 @@ function setupButtons(vHeight, vWidth, controlsWidth, m, b){
 
 
 	d3.select('#coordinationButton')
+		.attr('id','coordinationButton')
 		.style('position','absolute')
 		.style('top',b + m + 'px')
 		.style('left',bw + m + 'px')
@@ -353,7 +365,56 @@ function setupButtons(vHeight, vWidth, controlsWidth, m, b){
 		.style('height',b-2 + 'px')
 		.classed('buttonClicked', false)
 		.classed('buttonHover', true)
-		.on('click',coordinationView)
+		.on('click',function(){
+			if (d3.event.target.id == 'coordinationButton')	coordinationView(); //to avoid doubling up if the radio buttons are clicked
+		})
+
+	d3.select('#coordinationButton').append('br')
+	d3.select('#coordinationButton').append('input')
+		.attr('type','radio')
+		.attr('name', 'coordinationRadio')
+		.attr('id', 'coordinationRadioAtom')
+		.attr('value', 'coordinationAtoms')
+		.attr('checked','checked')
+	d3.select('#coordinationButton').append('label')
+		.attr('for','coordinationRadioAtom')
+		.style('font-size','10pt')
+		.html('A &nbsp;&nbsp;&nbsp;')
+	if (params.mol == 'SC'){
+		d3.select('#coordinationButton').append('input')
+			.attr('type','radio')
+			.attr('name', 'coordinationRadio')
+			.attr('id', 'coordinationRadioCubic')
+			.attr('value', 'coordinationCubic')
+		d3.select('#coordinationButton').append('label')
+			.attr('for','coordinationRadioCubic')
+			.style('font-size','10pt')
+			.html('C')
+	}else{
+		d3.select('#coordinationButton').append('input')
+			.attr('type','radio')
+			.attr('name', 'coordinationRadio')
+			.attr('id', 'coordinationRadioTetrahedral')
+			.attr('value', 'coordinationTetrahedrals')
+		d3.select('#coordinationButton').append('label')
+			.attr('for','coordinationRadioTetrahedral')
+			.style('font-size','10pt')
+			.html('T &nbsp;&nbsp;&nbsp;')
+		d3.select('#coordinationButton').append('input')
+			.attr('type','radio')
+			.attr('name', 'coordinationRadio')
+			.attr('id', 'coordinationRadioOctahedral')
+			.attr('value', 'coordinationOctahedrals')
+		d3.select('#coordinationButton').append('label')
+			.attr('for','coordinationRadioOctahedral')
+			.style('font-size','10pt')
+			.html('O')
+		}
+	d3.select('#coordinationButton').selectAll('input')
+		.on('change', function(d){
+			params.coordinationType = this.value;
+			coordinationView();
+		})	
 
 	d3.select('#helpButton')
 		.style('position','absolute')

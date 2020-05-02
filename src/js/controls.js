@@ -362,16 +362,41 @@ function updateLatticePlaneIndex(H, K, L){
 }
 function getLatticePlaneIndexFromPlane(plane){
 
+	var bigPlane = plane.clone();
+	bigPlane.scale = new THREE.Vector3(1000, 1000);
+
 	//check intersection with x axis
-	var xAxis = new THREE.Line3(new THREE.Vector3(0,0,0), new THREE.Vector3(100, 0, 0));
-	var yAxis = new THREE.Line3(new THREE.Vector3(0,0,0), new THREE.Vector3(0, 100, 0));
-	var zAxis = new THREE.Line3(new THREE.Vector3(0,0,0), new THREE.Vector3(0, 0, 100));
+	//try in one direction, avoiding the origin
+	var xAxis = new THREE.Line3(new THREE.Vector3(0,0,0), new THREE.Vector3(1000, 0, 0));
+	var yAxis = new THREE.Line3(new THREE.Vector3(0,0,0), new THREE.Vector3(0, 1000, 0));
+	var zAxis = new THREE.Line3(new THREE.Vector3(0,0,0), new THREE.Vector3(0, 0, 1000));
 	var xPoint = new THREE.Vector3();
 	var yPoint = new THREE.Vector3();
 	var zPoint = new THREE.Vector3();
-	plane.intersectLine(xAxis, xPoint);
-	plane.intersectLine(yAxis, yPoint);
-	plane.intersectLine(zAxis, zPoint);
+	bigPlane.intersectLine(xAxis, xPoint);
+	bigPlane.intersectLine(yAxis, yPoint);
+	bigPlane.intersectLine(zAxis, zPoint);
+	
+	//if necessary, try in the other direction
+	if (xPoint.x == 0 && xPoint.y == 0 & xPoint.z == 0){
+		console.log("trying negative x axis", xPoint)
+		xAxis = new THREE.Line3(new THREE.Vector3(0,0,0), new THREE.Vector3(-1000, 0, 0));
+		xPoint = new THREE.Vector3();
+		bigPlane.intersectLine(xAxis, xPoint);
+	}
+	if (yPoint.x == 0 && yPoint.y == 0 & yPoint.z == 0){
+		console.log("trying negative y axis", yPoint)
+		yAxis = new THREE.Line3(new THREE.Vector3(0,0,0), new THREE.Vector3(0, -1000, 0));
+		yPoint = new THREE.Vector3();
+		bigPlane.intersectLine(yAxis, yPoint);
+	}
+	if (zPoint.x == 0 && zPoint.y == 0 & zPoint.z == 0){
+		console.log("trying negative z axis", zPoint)
+		zAxis = new THREE.Line3(new THREE.Vector3(0,0,0), new THREE.Vector3(0, 0, -1000));
+		zPoint = new THREE.Vector3();
+		bigPlane.intersectLine(zAxis, zPoint);
+	}
+	console.log(xPoint, yPoint, zPoint);
 
 	var H = 0;
 	var K = 0;
@@ -459,8 +484,8 @@ function checkTooltips(){
 	});
 }
 
-function checkAtoms(flag, name, buttonID){
-	params[flag] = !params[flag];
+function checkAtoms(flag, name, buttonID, swapFlag=true){
+	if (swapFlag) params[flag] = !params[flag];
 
 	//var label = name + ' '
 	var label = d3.select('#'+buttonID).text().split(" ")[0];

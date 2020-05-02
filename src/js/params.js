@@ -27,6 +27,7 @@ function defineParams(mol, color){
 		this.spheres = [];
 		this.hemiSpheres = [];
 		this.coordination = [];
+		this.coordinationType = "coordinationAtoms";
 
 		//will hold items for slice view
 		this.sliceMesh = [];

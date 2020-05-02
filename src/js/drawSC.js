@@ -85,7 +85,8 @@ function drawCoordination(){
 	//center
 	p0 = new THREE.Vector3(params.size/2.,	params.size/2.,	params.size/2.);
 	var mesh = drawSphere(radius, params.sphereSegments, params.sphereSegments, params.hardOpacity, params.octahedralColor, p0, false, 'coordinationSphere');
-		params.coordination.push(mesh);
+	mesh.type = "coordinationCubic";
+	params.coordination.push(mesh);
 
 	//spheres
 	var p1 = new THREE.Vector3(0, 			0, 				0);
@@ -101,6 +102,7 @@ function drawCoordination(){
 	var allP = [p1,p2,p3,p4,p5,p6,p7,p8]
 	allP.forEach(function(p){
 		var mesh = drawSphere(radius, params.sphereSegments, params.sphereSegments, params.hardOpacity, params.sphereColor, p, false, 'coordinationSphere');
+		mesh.type = "coordinationCubic";
 		params.coordination.push(mesh);
 	});
 
@@ -143,8 +145,8 @@ function drawCoordination(){
 	var allH = [h0to1,h0to2,h0to3,h0to4,h0to5,h0to6,h0to7,h0to8]
 	allP.forEach(function(p,i){
 		var mesh = drawCylinder(radius/4., allH[i], params.cylinderRadialSegments, params.cylinderHeightSegments, params.cylinderColor, allP[i], allR[i]);
+		mesh.type = "coordinationCubic";
 		params.coordination.push(mesh);
-		console.log(allP[i], allR[i], allH[i], Math.PI/4., Math.acos(p0.z/h0to1))
 	});
 }
 
