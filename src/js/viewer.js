@@ -69,7 +69,7 @@ function drawScene(mol){
 	//draw the scene (with lighting)
 
 	//draw the main spheres (for default, hard-Sphere and Sparse views)
-	drawMainSpheres();
+	drawAtoms();
 
 	//draw the interstitial sites
 	if (mol != 'HCP') drawOctahedral();
@@ -79,7 +79,7 @@ function drawScene(mol){
 	updateSlice(params.slicePlanePosition, params.slicePlaneRotation);
 
 	//draw the coordinate view
-	if (mol != 'BCC') drawCoordination();
+	drawCoordination();
 
 	//draw the box 
 	drawBox();

@@ -1,6 +1,6 @@
 //this contains all functions needed to draw the different views.  Ideally this will be defined from an input file.
 
-function drawMainSpheres(){
+function drawAtoms(){
 	//used for the default view, hard sphere view, and sparse view
 
 	var radius = params.size/2;
@@ -75,7 +75,7 @@ function addLights(){
 }
 
 function drawCoordination(){
-	//this is the coordination view.  Maybe we should simply move the spheres from drawMainSpheres ?  That would allow double clicking.
+	//this is the coordination view.  
 
 	// Cubic site (0.5-0.5-0.5) is coordinate with 8 atoms atoms at:
 	// 0-0-0, 1-0-0, 0-1-0, 0-0-1, 1-1-0, 1-0-1, 0-1-1, 1-1-1.
