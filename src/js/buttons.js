@@ -17,7 +17,7 @@ function showInterstitials(show){
 	})
 
 	checkAtoms('showOctahedrals', 'Octahedrals', 'octahedralButton', false);
-	checkAtoms('showTetrahedrals', 'Tetrahedrals', 'tetrahedralButton', false);
+	if (params.mol != "SC") checkAtoms('showTetrahedrals', 'Tetrahedrals', 'tetrahedralButton', false);
 
 }
 
