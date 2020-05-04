@@ -122,6 +122,8 @@ function drawTTarrow(meshArray=params.spheres){
 }
 
 function makePlaneFromPoints(p1, p2, p3){
+	console.log('making plane from points', p1, p2, p3);
+
 	params.scene.remove( params.scene.getObjectByName('ttPlane') ); //remove any plane 
 
 	var plane = new THREE.Plane().setFromCoplanarPoints(p1, p2, p3);

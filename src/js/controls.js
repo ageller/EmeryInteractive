@@ -332,11 +332,20 @@ function setLatticePlaneIndex(){
 	params.scene.remove( params.scene.getObjectByName('ttPlane') ); //remove any plane 
 
 	if (!isNaN(H) && !isNaN(K) && !isNaN(L)){
+
 		updateLatticePlaneIndex(H, K, L);
 
-		var p1 = new THREE.Vector3(0, 0, 0);
-		var p2 = new THREE.Vector3(0, 0, 0);
-		var p3 = new THREE.Vector3(0, 0, 0);
+		//in case they changed due to the factorization (which we may remove later on)
+		H = parseFloat(d3.select('#latticePlaneH').node().value);
+		K = parseFloat(d3.select('#latticePlaneK').node().value);
+		L = parseFloat(d3.select('#latticePlaneL').node().value);
+
+		//technically if any H,K,L value is zero, the corresponding point would have an infinite value
+		//we can't have infinite values in the points so I will simply set them to very large values
+		//there may be a better way to do this, but I think this will work well enough going in this direction
+		var p1 = new THREE.Vector3(1e10, 0, 0);
+		var p2 = new THREE.Vector3(0, 1e10, 0);
+		var p3 = new THREE.Vector3(0, 0, 1e10);
 		if (H != 0.) p1.x = 1./H;
 		if (K != 0.) p2.y = 1./K;
 		if (L != 0.) p3.z = 1./L;
@@ -355,7 +364,73 @@ function setLatticePlaneIndex(){
 	} 
 
 }
+function getFactors(num){
+//https://stackoverflow.com/questions/22130043/trying-to-find-factors-of-a-number-in-js
+
+	const isEven = num % 2 === 0;
+	let inc = isEven ? 1 : 2;
+	let factors = [1, num];
+
+	for (let curFactor = isEven ? 2 : 3; Math.pow(curFactor, 2) <= num; curFactor += inc) {
+		if (num % curFactor !== 0) continue;
+		factors.push(curFactor);
+		let compliment = num / curFactor;
+		if (compliment !== curFactor) factors.push(compliment);
+	}
+
+	return factors;
+}
+function makeHist(arr){
+//https://stackoverflow.com/questions/5667888/counting-the-occurrences-frequency-of-array-elements	\
+
+	var counts = {};
+	for (var i = 0; i < arr.length; i++) {
+		var num = arr[i];
+		counts[num] = counts[num] ? counts[num] + 1 : 1;
+	}
+
+	return counts;
+}
+function chooseFactor(n1, n2, n3){
+	var fac = 1;
+	var num = 0;
+	var factors1 = [];
+	var factors2 = [];
+	var factors3 = []
+	if (n1 != 0) {
+		factors1 = getFactors(Math.abs(n1));
+		num ++
+	}
+	if (n2 != 0) {
+		factors2 = getFactors(Math.abs(n2));
+		num ++
+	}
+	if (n3 != 0) {
+		factors3 = getFactors(Math.abs(n3));
+		num ++
+	}
+	if (num > 0){
+		var factors123 = factors1.concat(factors2).concat(factors3);
+		var counts = makeHist(factors123);
+		for (var i=0; i<factors123.length; i++){
+			if (counts[factors123[i]] == num && counts[factors123[i]] > fac && Number.isInteger(counts[factors123[i]])){
+				fac = factors123[i];
+			}
+		}
+		console.log("factors",factors1, factors2, factors3, factors123, counts, fac);
+	}
+	return fac;
+}
 function updateLatticePlaneIndex(H, K, L){
+	//reduce this to the smallest integer values, and update the input boxes
+	//Jon says this is incorrect, but we will include it here to match the current textbook
+	var fac = chooseFactor(H, K, L);
+	if (fac > 1){
+		H /= fac;
+		K /= fac;
+		L /= fac;
+	}
+
 	d3.select('#latticePlaneH').node().value = H;
 	d3.select('#latticePlaneK').node().value = K;
 	d3.select('#latticePlaneL').node().value = L;
@@ -365,11 +440,12 @@ function getLatticePlaneIndexFromPlane(plane){
 	var bigPlane = plane.clone();
 	bigPlane.scale = new THREE.Vector3(1000, 1000);
 
+
 	//check intersection with x axis
-	//try in one direction, avoiding the origin
-	var xAxis = new THREE.Line3(new THREE.Vector3(0,0,0), new THREE.Vector3(1000, 0, 0));
-	var yAxis = new THREE.Line3(new THREE.Vector3(0,0,0), new THREE.Vector3(0, 1000, 0));
-	var zAxis = new THREE.Line3(new THREE.Vector3(0,0,0), new THREE.Vector3(0, 0, 1000));
+	//try in one direction
+	var xAxis = new THREE.Line3(new THREE.Vector3(-1000, 0, 0), new THREE.Vector3(1000, 0, 0));
+	var yAxis = new THREE.Line3(new THREE.Vector3(0, -1000, 0), new THREE.Vector3(0, 1000, 0));
+	var zAxis = new THREE.Line3(new THREE.Vector3(0, 0, -1000), new THREE.Vector3(0, 0, 1000));
 	var xPoint = new THREE.Vector3();
 	var yPoint = new THREE.Vector3();
 	var zPoint = new THREE.Vector3();
@@ -377,26 +453,44 @@ function getLatticePlaneIndexFromPlane(plane){
 	bigPlane.intersectLine(yAxis, yPoint);
 	bigPlane.intersectLine(zAxis, zPoint);
 	
-	//if necessary, try in the other direction
-	if (xPoint.x == 0 && xPoint.y == 0 & xPoint.z == 0){
-		console.log("trying negative x axis", xPoint)
-		xAxis = new THREE.Line3(new THREE.Vector3(0,0,0), new THREE.Vector3(-1000, 0, 0));
-		xPoint = new THREE.Vector3();
+	var origin = new THREE.Vector3(0,0,0);
+	if (xPoint.equals(origin) || yPoint.equals(origin) || zPoint.equals(origin)){
+		console.log('WARNING: origin selected, moving plane')
+		bigPlane.translate(new THREE.Vector3(0,0,1)); //in case the origins is included
 		bigPlane.intersectLine(xAxis, xPoint);
-	}
-	if (yPoint.x == 0 && yPoint.y == 0 & yPoint.z == 0){
-		console.log("trying negative y axis", yPoint)
-		yAxis = new THREE.Line3(new THREE.Vector3(0,0,0), new THREE.Vector3(0, -1000, 0));
-		yPoint = new THREE.Vector3();
 		bigPlane.intersectLine(yAxis, yPoint);
-	}
-	if (zPoint.x == 0 && zPoint.y == 0 & zPoint.z == 0){
-		console.log("trying negative z axis", zPoint)
-		zAxis = new THREE.Line3(new THREE.Vector3(0,0,0), new THREE.Vector3(0, 0, -1000));
-		zPoint = new THREE.Vector3();
 		bigPlane.intersectLine(zAxis, zPoint);
 	}
-	console.log(xPoint, yPoint, zPoint);
+
+	// //if necessary, try in the other direction
+	// if (xPoint.x == 0 && xPoint.y == 0 & xPoint.z == 0){
+	// 	console.log("trying negative x axis", xPoint)
+	// 	xAxis = new THREE.Line3(new THREE.Vector3(0,0,0), new THREE.Vector3(-1000, 0, 0));
+	// 	xPoint = new THREE.Vector3();
+	// 	bigPlane.intersectLine(xAxis, xPoint);
+	// }
+	// if (yPoint.x == 0 && yPoint.y == 0 & yPoint.z == 0){
+	// 	console.log("trying negative y axis", yPoint)
+	// 	yAxis = new THREE.Line3(new THREE.Vector3(0,0,0), new THREE.Vector3(0, -1000, 0));
+	// 	yPoint = new THREE.Vector3();
+	// 	bigPlane.intersectLine(yAxis, yPoint);
+	// }
+	// if (zPoint.x == 0 && zPoint.y == 0 & zPoint.z == 0){
+	// 	console.log("trying negative z axis", zPoint)
+	// 	zAxis = new THREE.Line3(new THREE.Vector3(0,0,0), new THREE.Vector3(0, 0, -1000));
+	// 	zPoint = new THREE.Vector3();
+	// 	bigPlane.intersectLine(zAxis, zPoint);
+	// }
+
+	console.log("found points",xPoint, yPoint, zPoint);
+	//is this correct??
+	var fac = chooseFactor(xPoint.x, yPoint.y, zPoint.z);
+	if (fac > 1){
+		xPoint.x /= fac;
+		yPoint.y /= fac;
+		zPoint.z /= fac;
+	}
+
 
 	var H = 0;
 	var K = 0;
@@ -405,7 +499,8 @@ function getLatticePlaneIndexFromPlane(plane){
 	if (yPoint.y != 0) K = 1./yPoint.y;
 	if (zPoint.z != 0) L = 1./zPoint.z;
 
-	updateLatticePlaneIndex(H,K,L);
+	updateLatticePlaneIndex(H, K, L);
+
 }
 function setMirror(){
 	var X = d3.select('#mirrorX').node().value;
