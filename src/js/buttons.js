@@ -302,6 +302,8 @@ function showHelp(){
 }
 
 function setupButtons(vHeight, vWidth, controlsWidth, m, b){
+	var coordinationInputNeeded = d3.select('#coordinationButton').select('input').empty();
+
 	//creates all the buttons and links them to the function above
 	//buttons
 	d3.select('#buttonContainer')
@@ -369,47 +371,49 @@ function setupButtons(vHeight, vWidth, controlsWidth, m, b){
 			if (d3.event.target.id == 'coordinationButton')	coordinationView(); //to avoid doubling up if the radio buttons are clicked
 		})
 
-	d3.select('#coordinationButton').append('br')
-	d3.select('#coordinationButton').append('input')
-		.attr('type','radio')
-		.attr('name', 'coordinationRadio')
-		.attr('id', 'coordinationRadioAtom')
-		.attr('value', 'coordinationAtoms')
-		.attr('checked','checked')
-	d3.select('#coordinationButton').append('label')
-		.attr('for','coordinationRadioAtom')
-		.style('font-size','10pt')
-		.html('A &nbsp;&nbsp;&nbsp;')
-	if (params.mol == 'SC'){
+	if (coordinationInputNeeded){
+		d3.select('#coordinationButton').append('br')
 		d3.select('#coordinationButton').append('input')
 			.attr('type','radio')
 			.attr('name', 'coordinationRadio')
-			.attr('id', 'coordinationRadioCubic')
-			.attr('value', 'coordinationCubic')
+			.attr('id', 'coordinationRadioAtom')
+			.attr('value', 'coordinationAtoms')
+			.attr('checked','checked')
 		d3.select('#coordinationButton').append('label')
-			.attr('for','coordinationRadioCubic')
+			.attr('for','coordinationRadioAtom')
 			.style('font-size','10pt')
-			.html('C')
-	}else{
-		d3.select('#coordinationButton').append('input')
-			.attr('type','radio')
-			.attr('name', 'coordinationRadio')
-			.attr('id', 'coordinationRadioOctahedral')
-			.attr('value', 'coordinationOctahedrals')
-		d3.select('#coordinationButton').append('label')
-			.attr('for','coordinationRadioOctahedral')
-			.style('font-size','10pt')
-			.html('O &nbsp;&nbsp;&nbsp;')
-		d3.select('#coordinationButton').append('input')
-			.attr('type','radio')
-			.attr('name', 'coordinationRadio')
-			.attr('id', 'coordinationRadioTetrahedral')
-			.attr('value', 'coordinationTetrahedrals')
-		d3.select('#coordinationButton').append('label')
-			.attr('for','coordinationRadioTetrahedral')
-			.style('font-size','10pt')
-			.html('T')
+			.html('A &nbsp;&nbsp;&nbsp;')
+		if (params.mol == 'SC'){
+			d3.select('#coordinationButton').append('input')
+				.attr('type','radio')
+				.attr('name', 'coordinationRadio')
+				.attr('id', 'coordinationRadioCubic')
+				.attr('value', 'coordinationCubic')
+			d3.select('#coordinationButton').append('label')
+				.attr('for','coordinationRadioCubic')
+				.style('font-size','10pt')
+				.html('C')
+		}else{
+			d3.select('#coordinationButton').append('input')
+				.attr('type','radio')
+				.attr('name', 'coordinationRadio')
+				.attr('id', 'coordinationRadioOctahedral')
+				.attr('value', 'coordinationOctahedrals')
+			d3.select('#coordinationButton').append('label')
+				.attr('for','coordinationRadioOctahedral')
+				.style('font-size','10pt')
+				.html('O &nbsp;&nbsp;&nbsp;')
+			d3.select('#coordinationButton').append('input')
+				.attr('type','radio')
+				.attr('name', 'coordinationRadio')
+				.attr('id', 'coordinationRadioTetrahedral')
+				.attr('value', 'coordinationTetrahedrals')
+			d3.select('#coordinationButton').append('label')
+				.attr('for','coordinationRadioTetrahedral')
+				.style('font-size','10pt')
+				.html('T')
 		}
+	}
 	d3.select('#coordinationButton').selectAll('input')
 		.on('change', function(d){
 			params.coordinationType = this.value;
