@@ -94,9 +94,6 @@ function highlightSphere(show, loc, meshArray=params.spheres){
 
 	//set the sphere color
 	meshArray[loc].material.color.setHex(color);
-
-
-
 }
 
 function drawTTarrow(meshArray=params.spheres){
@@ -122,8 +119,6 @@ function makePlaneFromPoints(p1, p2, p3){
 	var material = new THREE.MeshBasicMaterial( {
 		color: params.highlightColor, 
 		side: THREE.DoubleSide,
-		opacity:0.5,
-		transparent:true
 	});
 
 	// Align the geometry to the plane
@@ -139,7 +134,6 @@ function makePlaneFromPoints(p1, p2, p3){
 	planeMesh.translateOnAxis(coplanarPoint.clone().normalize(), coplanarPoint.length());
 	planeMesh.lookAt(focalPoint);
 	planeMesh.name = 'ttPlane';
-	planeMesh.renderOrder = 1;
 	params.scene.add(planeMesh);
 
 	//update the slice plane to be the same
@@ -173,7 +167,24 @@ function drawTTplane(meshArray=params.spheres){
 
 }
 
-function drawTTpolyhedron(polyName, linesName, meshArray=params.spheres){
+function drawTTtetrahedron(meshArray=params.spheres){
+	//draw a tetrahedron to connect 4 selected spheres
+	//see info here: https://stackoverflow.com/questions/25982511/simple-tetrahedron-using-three-geometry
+	//https://threejs.org/docs/#api/en/geometries/TetrahedronGeometry
+
+	// var p1 = meshArray[params.ttMeshIndex[0]].position.clone();
+	// var p2 = meshArray[params.ttMeshIndex[1]].position.clone();
+	// var p3 = meshArray[params.ttMeshIndex[2]].position.clone();
+	// var p4 = meshArray[params.ttMeshIndex[3]].position.clone();
+	//there is a TetrahedronGeometry function, but I can't figure out how to give it vertices in the correct order...
+	// THREE.TetrahedronGeometry = function ( radius, detail ) {
+	// 	var vertices = [p1.x, p1.y, p1.z,   p2.x, p2.y, p2.z,   p3.x, p3.y, p3.z,    p4.x, p4.y, p4.z];
+	// 	var indices = [ 2,  1,  0,    0,  3,  2,    1,  3,  0,    2,  3,  1];
+	// 	THREE.PolyhedronGeometry.call( this, vertices, indices, radius, detail );
+	// };
+	// THREE.TetrahedronGeometry.prototype = Object.create( THREE.Geometry.prototype );
+	// // Create a basic  geometry
+	// var geometry = new THREE.TetrahedronGeometry();
 
 	//so try to convex hull
 	var vertices = [];
@@ -187,16 +198,12 @@ function drawTTpolyhedron(polyName, linesName, meshArray=params.spheres){
 	var material = new THREE.MeshBasicMaterial( {
 		color: params.highlightColor, 
 		side: THREE.DoubleSide,
-		opacity:0.5,
-		transparent:true
 	});
 
 	// Create mesh with the geometry
-	var polyhedronMesh = new THREE.Mesh(geometry, material);
-	polyhedronMesh.name = polyName;
-	polyhedronMesh.renderOrder = 1;
-
-	params.scene.add(polyhedronMesh);
+	var tetrahedronMesh = new THREE.Mesh(geometry, material);
+	tetrahedronMesh.name = 'ttTetrahedron';
+	params.scene.add(tetrahedronMesh);
 
 	//also create lines so the we can see the edges
 	var edges = new THREE.EdgesGeometry( geometry );
@@ -204,11 +211,12 @@ function drawTTpolyhedron(polyName, linesName, meshArray=params.spheres){
 		color: "black", //better color?
 	});
 	var lines = new THREE.LineSegments( edges,  material);
-	lines.name = linesName; 
+	lines.name = 'ttTetrahedronLines'; 
 	params.scene.add(lines);
 
 
 }
+
 function screenXY(mesh){
 	//get the screen (x,y) coordinates of a given mesh
 
@@ -234,7 +242,7 @@ function screenXY(mesh){
 	return vector;
 }
 
-function defineTooltip(e, pageX = null, pageY = null, maxSelected = 8){
+function defineTooltip(e, pageX = null, pageY = null){
 	//define and show a tooltip (uses function from above)
 
 	if (!params.showingCoordiation){
@@ -266,9 +274,9 @@ function defineTooltip(e, pageX = null, pageY = null, maxSelected = 8){
 		}
 		
 
-		if (params.ttMeshIndex.length > maxSelected){ //only allow four to be highlighted
-			highlightSphere(false, params.ttMeshIndex[maxSelected-1]); //turn off previous highlighting
-			params.ttMeshIndex = params.ttMeshIndex.slice(0,maxSelected-1);
+		if (params.ttMeshIndex.length > 4){ //only allow four to be highlighted
+			highlightSphere(false, params.ttMeshIndex[3]); //turn off previous highlighting
+			params.ttMeshIndex = params.ttMeshIndex.slice(0,3);
 			params.ttMeshIndex.push(clicked.index);
 		}
 
@@ -292,19 +300,6 @@ function defineTooltip(e, pageX = null, pageY = null, maxSelected = 8){
 
 function showTooltips(show=true){
 	//define and show a tooltip (uses function from above)
-	params.scene.remove( params.scene.getObjectByName('ttArrow') ); //remove any arrow 
-	params.scene.remove( params.scene.getObjectByName('ttPlane') ); //remove any plane 
-	params.scene.remove( params.scene.getObjectByName('ttTetrahedron') ); //remove any tetrahedron 
-	params.scene.remove( params.scene.getObjectByName('ttTetrahedronLines') ); //remove the tetrahedron edge lines, and so on...
-	params.scene.remove( params.scene.getObjectByName('ttQuadrahedron') ); 
-	params.scene.remove( params.scene.getObjectByName('ttQuadrahedronLines') ); 
-	params.scene.remove( params.scene.getObjectByName('ttPentahedron') ); 
-	params.scene.remove( params.scene.getObjectByName('ttPentahedronLines') ); 
-	params.scene.remove( params.scene.getObjectByName('ttSextahedron') ); 
-	params.scene.remove( params.scene.getObjectByName('ttSextahedronLines') ); 
-	params.scene.remove( params.scene.getObjectByName('ttSeptahedron') ); 
-	params.scene.remove( params.scene.getObjectByName('ttSeptahedronLines') ); 
-
 	if (show){
 		if (!params.showingCoordiation){
 
@@ -315,7 +310,10 @@ function showTooltips(show=true){
 				moveTooltip(loc); //move it into position
 				highlightSphere(true, loc); //highlight the sphere
 			})
-
+			params.scene.remove( params.scene.getObjectByName('ttArrow') ); //remove any arrow 
+			params.scene.remove( params.scene.getObjectByName('ttPlane') ); //remove any plane 
+			params.scene.remove( params.scene.getObjectByName('ttTetrahedron') ); //remove any tetrahedron 
+			params.scene.remove( params.scene.getObjectByName('ttTetrahedronLines') ); //remove the tetrahedron edge lines 
 			if (params.ttMeshIndex.length == 2){
 				drawTTarrow();
 			}
@@ -323,21 +321,8 @@ function showTooltips(show=true){
 				drawTTplane();
 			}
 			if (params.ttMeshIndex.length == 4){
-				drawTTpolyhedron('ttTetrahedron','ttTetrahedronLines');
+				drawTTtetrahedron();
 			}
-			if (params.ttMeshIndex.length == 5){
-				drawTTpolyhedron('ttQuadrahedron','ttQuadrahedronLines');
-			}
-			if (params.ttMeshIndex.length == 6){
-				drawTTpolyhedron('ttPentahedron','ttPentahedronLines');
-			}
-			if (params.ttMeshIndex.length == 7){
-				drawTTpolyhedron('ttSextahedron','ttSextahedronLines');
-			}
-			if (params.ttMeshIndex.length == 8){
-				drawTTpolyhedron('ttSeptahedron','ttSeptahedronLines');
-			}
-
 		}
 
 		if (params.isSlice){ //this is not efficient, but is the easiest way to get the correct colors for the slice spheres

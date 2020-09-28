@@ -7,13 +7,6 @@ function showHemiSpheres(show){
 		m.material.visible = show;
 	})
 }
-function showInterstitials(show){
-	//turns on/off the interstitials
-	params.spheres.forEach(function(m){
-		if (m.name == "Octahedrals") m.material.visible = show*params.showOctahedrals;
-		if (m.name == "Tetrahedrals") m.material.visible = show*params.showTetrahedrals;
-	})
-}
 function showSpheres(show){
 	//turns on/off the spheres, but not the interstitial sites
 	params.spheres.forEach(function(m){
@@ -24,15 +17,13 @@ function showSpheres(show){
 		if (child.name == "AtomsMirror") child.material.visible = show;
 	});
 
-	if (!params.isSlice){
-		//reset the button
-		params.showAtoms = show;
-		d3.select('#atomButton').classed('buttonClickedControls', params.showAtoms)
-		if (params.showAtoms){
-			d3.select('#atomButton').text('Atoms On');
-		} else {
-			d3.select('#atomButton').text('Atoms Off');
-		}
+	//reset the button
+	params.showAtoms = show;
+	d3.select('#atomButton').classed('buttonClickedControls', params.showAtoms)
+	if (params.showAtoms){
+		d3.select('#atomButton').text('Atoms On');
+	} else {
+		d3.select('#atomButton').text('Atoms Off');
 	}
 }
 
@@ -64,11 +55,7 @@ function changeSphereOpacity(opacity){
 	})
 	//also do this for the mirrored spheres
 	params.scene.traverse(function(child) {
-		if (child.name.includes("Mirror") && child.name.includes("Atom")) {
-			child.material.opacity = opacity;
-			if (opacity < 1) child.renderOrder = 1;
-		}
-
+		if (child.name.includes("Mirror") && child.name.includes("Atom")) child.material.opacity = opacity;
 	});
 }
 
@@ -114,7 +101,6 @@ function defaultView(){
 	showLabels(true);
 	showHemiSpheres(true);
 	showSpheres(true);
-	showInterstitials(true);
 	changeSphereOpacity(params.defaultOuterOpacity);
 
 	checkClickedPlane();
@@ -151,7 +137,6 @@ function hardSphereView(){
 	params.inDefaultView = false;
 
 	showSpheres(true);
-	showInterstitials(true);
 	changeSphereOpacity(params.hardOpacity);
 
 	checkClickedPlane();
@@ -159,7 +144,7 @@ function hardSphereView(){
 	params.defaultViewTween.start();
 }
 
-function sliceView(doTween=true){
+function sliceView(){
 	//makes all changes needed for the slice view
 	console.log('slice');
 	//google analytics
@@ -175,22 +160,20 @@ function sliceView(doTween=true){
 	d3.selectAll('#sliceButton').classed('buttonClicked', true);
 	d3.selectAll('#sliceButton').classed('buttonHover', false);
 
-	params.isSlice = true;
-
 	showLabels(false);
 	showHemiSpheres(false);
 	showSpheres(false);
-	showInterstitials(false);
 	showCoordination(false);
 
 	showSliceMesh(true);
+	params.isSlice = true;
 	params.doSliceUpdate = true;
 	params.inDefaultView = false;
 
 	checkClickedPlane();
 
 
-	if (doTween) params.defaultViewTween.start();
+	params.defaultViewTween.start();
 }
 
 function sparseView(){
@@ -219,7 +202,6 @@ function sparseView(){
 		params.isSparse = true;
 	}
 	showSpheres(true);
-	showInterstitials(true);
 	changeSphereOpacity(params.hardOpacity);
 
 	params.isSlice = false;
@@ -249,7 +231,6 @@ function coordinationView(){
 	showLabels(false);
 	showHemiSpheres(false);
 	showSpheres(false);
-	showInterstitials(false);
 	showSliceMesh(false);
 
 	showCoordination(true);

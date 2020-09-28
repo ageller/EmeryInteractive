@@ -65,21 +65,21 @@ function updateSlicePlaneDepth(){
 
 
 
-function drawScene(mol){
+function drawScene(){
 	//draw the scene (with lighting)
 
 	//draw the main spheres (for default, hard-Sphere and Sparse views)
 	drawMainSpheres();
 
 	//draw the interstitial sites
-	if (mol != 'HCP') drawOctahedral();
-	if (mol != 'SC' && mol != 'HCP') drawTetrahedral();
+	drawOctahedral();
+	drawTetrahedral();
 
 	//draw the slice view (updateSlice calls drawSlice -- written this way to facilitate dynamic updating of slice mesh)
 	updateSlice(params.slicePlanePosition, params.slicePlaneRotation);
 
 	//draw the coordinate view
-	if (mol == 'FCC') drawCoordination();
+	drawCoordination();
 
 	//draw the box 
 	drawBox();
@@ -340,14 +340,14 @@ function resizeContainers(){
 
 
 ///////////////////////////
-function WebGLStart(mol, color){
+function WebGLStart(){
 	//this is called to start everything
 
 	//initialize everything
-	init(color);
+	init();
 
 	//draw everything
-	drawScene(mol);
+	drawScene();
 
 	//begin the animation
 	animate();
@@ -358,4 +358,6 @@ function WebGLStart(mol, color){
 ///////////////////////////
 window.addEventListener("resize", resizeContainers)
 
+//called upon loading
+WebGLStart();
 
