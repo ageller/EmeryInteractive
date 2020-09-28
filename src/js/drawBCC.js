@@ -201,7 +201,7 @@ function drawCoordination(){
 	//0-0-0, 0.5-0.5-0.5, 0-0-1, 0.5-(-0.5(negative! in the adjacent unit cell))-0.5.
 
 	//center
-	p0 = new THREE.Vector3(params.size/4,	params.size/4.,	params.size/2.);
+	p0 = new THREE.Vector3(params.size,	params.size/4.,	params.size/2.);
 	var mesh = drawSphere(radius, params.sphereSegments, params.sphereSegments, params.hardOpacity, params.tetrahedralColor, p0, false, 'coordinationSphere');
 	mesh.type = "coordinationTetrahedrals";
 	params.coordination.push(mesh);

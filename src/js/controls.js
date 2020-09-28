@@ -1,14 +1,15 @@
 function resizeControls(vHeight, controlsWidth, m, b){
+	console.log('resizeControls', vHeight, controlsWidth, m, b)
 	d3.select("#controlsContainer")
 		.style('position','absolute')
 		.style('top',m + 'px')
 		.style('left',m +'px')
 		.style('padding',0)
-		.style('padding-top','20px')
+		//.style('padding-top','2px')
 		//.style('padding-right','20px') //to allow for a srollbar
 		.style('margin',0)
 		.style('width', controlsWidth +'px')
-		.style('height',vHeight + 2.*b + 2.*m - 20 + 'px')
+		.style('height',vHeight + 2.*b + 2.*m + 'px')
 		.style('overflow-y','auto')
 		.style('overflow-x','hidden')
 		.style('z-index',2)
@@ -24,7 +25,7 @@ function resizeControls(vHeight, controlsWidth, m, b){
 }
 function setupControls(parent, vHeight, controlsWidth, m, b, pad){
 
-	var fs1 = 24;
+	var fs1 = 18;
 
 	function createInput(parent1, id, value, width, height, top, left, fontsize){
 		parent1.append('input')
@@ -80,7 +81,7 @@ function setupControls(parent, vHeight, controlsWidth, m, b, pad){
 	var question = parent.append('div')
 		.attr('id','questionControls')
 		.style('margin',m + 'px')
-		.style('height','100px')
+		.style('height','35px')
 	question.append('p')
 		.attr('id','questionControlsText')
 		.attr('align','center')
@@ -187,15 +188,16 @@ function setupControls(parent, vHeight, controlsWidth, m, b, pad){
 		.attr('align','center')
 		.style('margin',0)
 		.style('padding',0)
-		.style('font-size',0.8*fs1 + 'px')
+		.style('font-size',fs1 + 'px')
 		.text('Additional Controls')	
-	createButton(additional, 'tooltipButton',controlsWidth - 20 - 4, 24, bh + 2.*fs1 + m, m ,'Tooltips On')
+	var sz = 22.
+	createButton(additional, 'tooltipButton',controlsWidth - 20 - 4, sz, bh + 2.*sz + m, m ,'Tooltips On')
 	d3.select('#tooltipButton')
 		.classed('buttonClickedControls', params.showTooltips)
 		.on('click', checkTooltips)
 
 	//on/off for main atoms
-	createButton(additional, 'atomButton',controlsWidth - 20 - 4, 24, bh + 3.*fs1 + 2.*m, m ,'Atoms On')
+	createButton(additional, 'atomButton',controlsWidth - 20 - 4, sz, bh + 3.*sz + 2.*m, m ,'Atoms On')
 	d3.select('#atomButton')
 		.classed('buttonClickedControls', params.showAtoms)
 		.on('click', function(){checkAtoms('showAtoms', 'Atoms', 'atomButton')})
@@ -542,7 +544,6 @@ function setMirror(){
 						//var mm = m.clone();
 						mm.name = m.name + "Mirror";
 						mm.position.set(pos.x + i*params.size, pos.y + j*params.size, pos.z + k*params.size);
-						mm.renderOrder = -1;
 						params.scene.add(mm);
 					})	
 				}
