@@ -31,15 +31,13 @@ function showSpheres(show){
 		if (child.name.includes("Mirror")) child.material.visible = show;
 	});
 
-	if (!params.isSlice){
-		//reset the button
-		params.showAtoms = show;
-		d3.select('#atomButton').classed('buttonClickedControls', params.showAtoms)
-		if (params.showAtoms){
-			d3.select('#atomButton').text('Atoms On');
-		} else {
-			d3.select('#atomButton').text('Atoms Off');
-		}
+	//reset the button
+	params.showAtoms = show;
+	d3.select('#atomButton').classed('buttonClickedControls', params.showAtoms)
+	if (params.showAtoms){
+		d3.select('#atomButton').text('Atoms On');
+	} else {
+		d3.select('#atomButton').text('Atoms Off');
 	}
 }
 
@@ -126,7 +124,6 @@ function defaultView(){
 	showLabels(true);
 	showHemiSpheres(true);
 	showSpheres(true);
-	showInterstitials(true);
 	changeSphereOpacity(params.defaultOuterOpacity);
 
 	checkClickedPlane();
@@ -163,7 +160,6 @@ function hardSphereView(){
 	params.inDefaultView = false;
 
 	showSpheres(true);
-	showInterstitials(true);
 	changeSphereOpacity(params.hardOpacity);
 
 	checkClickedPlane();
@@ -171,7 +167,7 @@ function hardSphereView(){
 	params.defaultViewTween.start();
 }
 
-function sliceView(doTween=true){
+function sliceView(){
 	//makes all changes needed for the slice view
 	console.log('slice');
 	//google analytics
@@ -187,22 +183,20 @@ function sliceView(doTween=true){
 	d3.selectAll('#sliceButton').classed('buttonClicked', true);
 	d3.selectAll('#sliceButton').classed('buttonHover', false);
 
-	params.isSlice = true;
-
 	showLabels(false);
 	showHemiSpheres(false);
 	showSpheres(false);
-	showInterstitials(false);
 	showCoordination(false);
 
 	showSliceMesh(true);
+	params.isSlice = true;
 	params.doSliceUpdate = true;
 	params.inDefaultView = false;
 
 	checkClickedPlane();
 
 
-	if (doTween) params.defaultViewTween.start();
+	params.defaultViewTween.start();
 }
 
 function sparseView(){
@@ -231,7 +225,6 @@ function sparseView(){
 		params.isSparse = true;
 	}
 	showSpheres(true);
-	showInterstitials(true);
 	changeSphereOpacity(params.hardOpacity);
 
 	params.isSlice = false;
@@ -261,7 +254,6 @@ function coordinationView(){
 	showLabels(false);
 	showHemiSpheres(false);
 	showSpheres(false);
-	showInterstitials(false);
 	showSliceMesh(false);
 
 	showCoordination(true, params.coordinationType);
