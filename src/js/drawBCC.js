@@ -201,7 +201,7 @@ function drawCoordination(){
 	//0-0-0, 0.5-0.5-0.5, 0-0-1, 0.5-(-0.5(negative! in the adjacent unit cell))-0.5.
 
 	//center
-	p0 = new THREE.Vector3(params.size/4.,	params.size/4.,	params.size/2.);
+	p0 = new THREE.Vector3(params.size/4.,	0.,	params.size/2.);
 	var mesh = drawSphere(radius, params.sphereSegments, params.sphereSegments, params.hardOpacity, params.tetrahedralColor, p0, false, 'coordinationSphere');
 	mesh.type = "coordinationTetrahedrals";
 	params.coordination.push(mesh);
@@ -213,7 +213,7 @@ function drawCoordination(){
 	var p4 = new THREE.Vector3(params.size/2, -params.size/2, params.size/2);
 
 
-	var allP = [p1,p2,p3,p4]
+	var allP = [p1,p2,p3,p4];
 	allP.forEach(function(p){
 		var mesh = drawSphere(radius, params.sphereSegments, params.sphereSegments, params.hardOpacity, params.sphereColor, p, false, 'coordinationSphere');
 		mesh.type = "coordinationTetrahedrals";
@@ -235,12 +235,10 @@ function drawCoordination(){
 	var h0to4 = p0.clone().sub(p4).length();
 
 	//rotation (not sure what the algorithm is here...)
-	//console.log(38/40.*Math.PI,  Math.PI - 19./40.*2.*Math.PI, Math.asin(p0.y/h0to1), 1.02*Math.PI - Math.asin(p0.y/h0to1))
-	var r0to1 = new THREE.Vector3(Math.PI/2., Math.PI*1.25, Math.acos(p0.z/h0to1) );
-	var r0to2 = new THREE.Vector3(0,          0,            -Math.PI/4.);
-	var r0to3 = new THREE.Vector3(Math.PI/2., Math.PI/4., Math.acos(p0.z/h0to3) );
-	var r0to4 = new THREE.Vector3(0,          0,                      Math.asin((p4.x - p0.x)/h0to4));
-	//var r0to1 = new THREE.Vector3(Math.PI/2., Math.PI*1.25, -Math.PI/4.);//Math.acos(p0.z/h0to1) );
+	var r0to1 = new THREE.Vector3(Math.PI/2., 0, -Math.acos(p0.z/h0to1) );
+	var r0to2 = new THREE.Vector3(0,          0, -Math.acos(p0.z/h0to2) );
+	var r0to3 = new THREE.Vector3(Math.PI/2., 0, Math.acos(p0.z/h0to3) );
+	var r0to4 = new THREE.Vector3(0,          0, Math.acos(p0.z/h0to4) ); 
 
 	var allP = [p0to1,p0to2,p0to3,p0to4]
 	var allR = [r0to1,r0to2,r0to3,r0to4]
