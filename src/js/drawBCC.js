@@ -197,11 +197,11 @@ function drawCoordination(){
 
 
 	///////////////// coordinationTetrahedrals
-	//Tetrahedral site (0.25-0.25-0.5) is coordinate with 4 atoms atoms at:
+	//Tetrahedral site (0-0.25-0.5) is coordinate with 4 atoms atoms at:
 	//0-0-0, 0.5-0.5-0.5, 0-0-1, 0.5-(-0.5(negative! in the adjacent unit cell))-0.5.
 
 	//center
-	p0 = new THREE.Vector3(params.size/4.,	params.size/4.,	params.size/2.);
+	p0 = new THREE.Vector3(0,	params.size/4.,	params.size/2.);
 	var mesh = drawSphere(radius, params.sphereSegments, params.sphereSegments, params.hardOpacity, params.tetrahedralColor, p0, false, 'coordinationSphere');
 	mesh.type = "coordinationTetrahedrals";
 	params.coordination.push(mesh);
