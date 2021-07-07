@@ -7,7 +7,7 @@ function showHemiSpheres(show){
 		m.material.visible = show;
 	})
 }
-function showInterstitials(show){
+function showInterstitials(show, calledFromSlice=false){
 	//turns on/off the interstitials
 	params.showOctahedrals *= show;
 	params.showTetrahedrals *= show;
@@ -16,8 +16,8 @@ function showInterstitials(show){
 		if (m.name == "Tetrahedrals") m.material.visible = params.showTetrahedrals;
 	})
 
-	checkAtoms('showOctahedrals', 'Octahedrals', 'octahedralButton', false);
-	if (params.mol != "SC") checkAtoms('showTetrahedrals', 'Tetrahedrals', 'tetrahedralButton', false);
+	checkAtoms('showOctahedrals', 'Octahedrals', 'octahedralButton', false, calledFromSlice);
+	if (params.mol != "SC") checkAtoms('showTetrahedrals', 'Tetrahedrals', 'tetrahedralButton', false, calledFromSlice);
 
 }
 
@@ -192,7 +192,7 @@ function sliceView(doTween=true){
 	showLabels(false);
 	showHemiSpheres(false);
 	showSpheres(false);
-	showInterstitials(false);
+	showInterstitials(false, true);
 	showCoordination(false);
 
 	showSliceMesh(true);

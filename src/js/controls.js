@@ -579,7 +579,7 @@ function checkTooltips(){
 	});
 }
 
-function checkAtoms(flag, name, buttonID, swapFlag=true){
+function checkAtoms(flag, name, buttonID, swapFlag=true, calledFromSlice=false){
 	if (swapFlag) params[flag] = !params[flag];
 
 	//var label = name + ' '
@@ -604,7 +604,7 @@ function checkAtoms(flag, name, buttonID, swapFlag=true){
 	}
 	
 	//do I need a special case for slice view and interstitials?
-	if (params.isSlice){
+	if (params.isSlice && !calledFromSlice){
 		sliceView(doTween=false);
 	}
 	
