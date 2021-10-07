@@ -1,10 +1,11 @@
 //this file contains all the functions related to the buttons
 
 //helpers for buttons
-function showHemiSpheres(show){
+function showHemiSpheres(show, opacity=params.defaultInnerOpacity){
 	//turns on/off the hemispheres
 	params.hemiSpheres.forEach(function(m){
 		m.material.visible = show;
+		m.material.opacity = opacity;
 	})
 }
 function showInterstitials(show, calledFromSlice=false){
@@ -55,6 +56,7 @@ function showCoordination(show, type="All"){
 	showTooltips(!show)
 	params.coordination.forEach(function(m){
 		if (type == "All" || m.type == type) {
+			console.log(m.type, show)
 			m.material.visible = show;
 		} else {
 			m.material.visible = false;
@@ -124,10 +126,11 @@ function defaultView(){
 
 
 	showLabels(true);
-	showHemiSpheres(true);
 	showSpheres(true);
 	showInterstitials(true);
 	changeSphereOpacity(params.defaultOuterOpacity);
+
+	showHemiSpheres(true);
 
 	checkClickedPlane();
 

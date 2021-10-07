@@ -66,13 +66,14 @@ html,body {
 	/*color: var(--button-background-color);*/
 }
 .buttonCentered {
-	width:100px; 
-	height:40px; 
+	font-size:3vw; 
+	line-height:4.5vw; 
+	height:4.5vw; 
+	width:12vw; 
 	padding:0px; 
-	font-size:20px; 
-	line-height:40px; 
 	margin:auto; 
 	margin-top:10px;
+	margin-bottom: 10px;
 }
 #selectModel a:link, #selectModel a:visited {
 	width:100px; 
