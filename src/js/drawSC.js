@@ -77,10 +77,69 @@ function addLights(){
 function drawCoordination(){
 	//this is the coordination view.  
 
+	var radius = params.size*Math.sqrt(2)/4.*params.sparseScale;
+
+	//For SC, we can look at the atom at the origin (0 0 0) coordinated with (0.5 0 0), (0 0.5 0), and (0 0 0.5), as well as their negatives: (-0.5 0 0), (0 -0.5 0), (0 0 -0.5). Six in total.
+
+	//center
+	p0 = new THREE.Vector3(0.,	0,	0.);
+	var mesh = drawSphere(radius, params.sphereSegments, params.sphereSegments, params.hardOpacity, params.sphereColor, p0, false, 'coordinationSphere');
+	mesh.type = "coordinationAtoms";
+	params.coordination.push(mesh);
+
+	//spheres
+	var p1 = new THREE.Vector3(params.size/2.,  0,               0);
+	var p2 = new THREE.Vector3(0.,              params.size/2.,  0);
+	var p3 = new THREE.Vector3(0,               0,               params.size/2.);
+	var p4 = new THREE.Vector3(-params.size/2., 0,               0);
+	var p5 = new THREE.Vector3(0.,              -params.size/2., 0);
+	var p6 = new THREE.Vector3(0,               0,               -params.size/2.);
+
+	var allP = [p1,p2,p3,p4,p5,p6]
+	allP.forEach(function(p){
+		var mesh = drawSphere(radius, params.sphereSegments, params.sphereSegments, params.hardOpacity, params.sphereColor, p, false, 'coordinationSphere');
+		mesh.type = "coordinationAtoms";
+		params.coordination.push(mesh);
+	});
+
+	//cylinders
+	//positions
+	var n = new THREE.Vector3(2,2,2);
+	var p0to1 = p0.clone().add(p1).divide(n);
+	var p0to2 = p0.clone().add(p2).divide(n);
+	var p0to3 = p0.clone().add(p3).divide(n);
+	var p0to4 = p0.clone().add(p4).divide(n);
+	var p0to5 = p0.clone().add(p5).divide(n);
+	var p0to6 = p0.clone().add(p6).divide(n);
+
+	//lengths
+	var h0to1 = p0.clone().sub(p1).length();
+	var h0to2 = p0.clone().sub(p2).length();
+	var h0to3 = p0.clone().sub(p3).length();
+	var h0to4 = p0.clone().sub(p4).length();
+	var h0to5 = p0.clone().sub(p5).length();
+	var h0to6 = p0.clone().sub(p6).length();
+
+	//rotation (not sure what the algorithm is here...)
+	var r0to1 = new THREE.Vector3(0.,          0., Math.PI/2.);
+	var r0to2 = new THREE.Vector3(0.,          0., 0.);
+	var r0to3 = new THREE.Vector3(Math.PI/2., 0., 0.);
+	var r0to4 = new THREE.Vector3(0.,          0., Math.PI/2.);
+	var r0to5 = new THREE.Vector3(0.,          0., 0.);
+	var r0to6 = new THREE.Vector3(Math.PI/2., 0., 0.);
+
+	var allP = [p0to1,p0to2,p0to3,p0to4,p0to5,p0to6]
+	var allR = [r0to1,r0to2,r0to3,r0to4,r0to5,r0to6]
+	var allH = [h0to1,h0to2,h0to3,h0to4,h0to5,h0to6]
+	allP.forEach(function(p,i){
+		var mesh = drawCylinder(radius/4., allH[i], params.cylinderRadialSegments, params.cylinderHeightSegments, params.cylinderColor, allP[i], allR[i]);
+		mesh.type = "coordinationAtoms";
+		params.coordination.push(mesh);
+	});
+
+
 	// Cubic site (0.5-0.5-0.5) is coordinate with 8 atoms atoms at:
 	// 0-0-0, 1-0-0, 0-1-0, 0-0-1, 1-1-0, 1-0-1, 0-1-1, 1-1-1.
-
-	var radius = params.size*Math.sqrt(2)/4.*params.sparseScale;
 
 	//center
 	p0 = new THREE.Vector3(params.size/2.,	params.size/2.,	params.size/2.);
