@@ -79,7 +79,7 @@ function drawCoordination(){
 
 	var radius = params.size*Math.sqrt(2)/4.*params.sparseScale;
 
-	//For SC, we can look at the atom at the origin (0 0 0) coordinated with (0.5 0 0), (0 0.5 0), and (0 0 0.5), as well as their negatives: (-0.5 0 0), (0 -0.5 0), (0 0 -0.5). Six in total.
+	//For SC, we can look at the atom at the origin (0 0 0) coordinated with (1 0 0), (0 1 0), and (0 0 1), as well as their negatives: (-1 0 0), (0 -1 0), (0 0 -1). Six in total.
 
 	//center
 	p0 = new THREE.Vector3(0.,	0,	0.);
@@ -88,12 +88,12 @@ function drawCoordination(){
 	params.coordination.push(mesh);
 
 	//spheres
-	var p1 = new THREE.Vector3(params.size/2.,  0,               0);
-	var p2 = new THREE.Vector3(0.,              params.size/2.,  0);
-	var p3 = new THREE.Vector3(0,               0,               params.size/2.);
-	var p4 = new THREE.Vector3(-params.size/2., 0,               0);
-	var p5 = new THREE.Vector3(0.,              -params.size/2., 0);
-	var p6 = new THREE.Vector3(0,               0,               -params.size/2.);
+	var p1 = new THREE.Vector3(params.size,  0,            0);
+	var p2 = new THREE.Vector3(0.,           params.size,  0);
+	var p3 = new THREE.Vector3(0,            0,            params.size);
+	var p4 = new THREE.Vector3(-params.size, 0,            0);
+	var p5 = new THREE.Vector3(0.,           -params.size, 0);
+	var p6 = new THREE.Vector3(0,            0,            -params.size);
 
 	var allP = [p1,p2,p3,p4,p5,p6]
 	allP.forEach(function(p){
